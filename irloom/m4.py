@@ -18,13 +18,13 @@ def read_records(path):
     return [json.loads(line) for line in path.read_text().splitlines()]
 
 
-def interaction(records):
+def interaction(records, highs=("ijk", "ikj")):
     result = []
     for case in sorted({r["case_id"] for r in records}):
         grid = {(r.get("high_choice"), r.get("low_choice")): r for r in records
                 if r["case_id"] == case and r.get("role") == "factorial" and r["status"] == "ok"}
         for low in ("tile16", "unroll4"):
-            cells = [(a, b) for a in ("ijk", "ikj") for b in ("none", low)]
+            cells = [(a, b) for a in highs for b in ("none", low)]
             if any(cell not in grid for cell in cells):
                 result.append({"case_id": case, "low_choice": low, "status": "incomplete"})
                 continue

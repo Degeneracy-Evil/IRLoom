@@ -92,3 +92,11 @@ bash scripts/phase0.sh m5-a
 ```
 
 只读取仓库内已提交的 M4 JSON，无需 MLIR 或重新测量；输出 `experiments/reports/m5-a.md` 与 `m5-a.json`。离线规则及成本限制见报告，不把 oracle 当作在线优化器。
+
+## M5 新家族与固定预算对照
+
+```bash
+bash scripts/phase0.sh m5
+```
+
+使用 `experiments/m5.json`，每批六十条受控候选，共两批；先完成全部正确性与固定次数计时，再生成 M5-A 与 M5-B/C/D 报告。规则、信息边界、严格调用预算和墙钟费用的区别见 [M5_PROTOCOL.md](M5_PROTOCOL.md)。预览完整工作流已用两类共十二条候选的临时配置跑通，两批均通过；旧 M1 的自适应校准入口回归仍通过。

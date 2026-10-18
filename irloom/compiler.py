@@ -96,7 +96,7 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=(), h
     record["snapshots"].append({"stage": "high", "path": str(high), "parent": None})
     stages = []
     if high_choice is not None:
-        if high_choice not in ("ijk", "ikj"):
+        if high_choice not in ("ijk", "ikj", "ij", "ji"):
             raise ValueError(f"unsupported high choice: {high_choice}")
         schedule = output / "schedule.mlir"
         schedule.write_text((ROOT / f"compiler/schedules/{high_choice}.mlir").read_text())

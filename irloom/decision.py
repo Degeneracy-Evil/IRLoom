@@ -43,7 +43,9 @@ def simulate(records, policy):
     started = time.perf_counter()
     grid = {(r["high_choice"], r["low_choice"]): r for r in records if r.get("role") == "factorial"}
     first = records[0]
-    program = first.get("program_id", "matmul" if len(first["input"]["shape"])==3 else "reduction")
+    features = first.get("decision_features", {})
+    program = features.get("program", first.get("program_id", "matmul" if len(first["input"]["shape"])==3 else "reduction"))
+    shape = features.get("shape", first["input"]["shape"])
     highs = ("ijk", "ikj") if program == "matmul" else ("ij", "ji")
     observed, queried = {}, []
 
@@ -58,7 +60,7 @@ def simulate(records, policy):
         queried.append(record)
 
     if policy in ("static", "B1-static"):
-        a = preferred_high(program, first["input"]["shape"])
+        a = preferred_high(program, shape)
         for b in ("none", "tile16", "unroll4"):
             query(a, b)
         query(next(x for x in highs if x != a), "none")
@@ -75,6 +77,8 @@ def simulate(records, policy):
     else:
         raise ValueError(policy)
     best = min(queried, key=latency)
+    if latency(best)==float("inf"):
+        raise ValueError("all queried candidates failed; no valid performance ranking")
     overhead = time.perf_counter()-started
     totals = {}
     for record in queried:
@@ -82,12 +86,15 @@ def simulate(records, policy):
             totals[key] = totals.get(key, 0)+value
     return {"policy": policy, "query_ids": [r["candidate_id"] for r in queried],
             "selected": best["candidate_id"], "latency_ms": latency(best), "costs": totals,
+            "unique_implementations":len({r.get("code_duplicate_of") or r["candidate_id"] for r in queried}),
             "bookkeeping_seconds": overhead}
 
 
 def analyze_case(records):
     records = [r for r in records if r.get("role")=="factorial"]
     oracle = min(records, key=latency)
+    if latency(oracle)==float("inf"):
+        raise ValueError("candidate pool has no valid oracle")
     results = [simulate(records, policy) for policy in ("static", "greedy", "lookahead", "B1-static")]
     for result in results:
         result["regret_ratio"] = result["latency_ms"]/latency(oracle)

@@ -1,0 +1,205 @@
+{
+  "name": "m5-fixed-budget-lookahead",
+  "seed": 1,
+  "samples": 15,
+  "min_batch_ms": 10,
+  "timeout_seconds": 60,
+  "correctness_seeds": [
+    0,
+    1,
+    7,
+    19
+  ],
+  "cases": [
+    {
+      "id": "matmul-48x48x48",
+      "program": "matmul",
+      "shape": [
+        48,
+        48,
+        48
+      ],
+      "iterations": 2048
+    },
+    {
+      "id": "matmul-64x96x48",
+      "program": "matmul",
+      "shape": [
+        64,
+        96,
+        48
+      ],
+      "iterations": 1024
+    },
+    {
+      "id": "matmul-95x65x33",
+      "program": "matmul",
+      "shape": [
+        95,
+        65,
+        33
+      ],
+      "iterations": 2048
+    },
+    {
+      "id": "matmul-128x32x96",
+      "program": "matmul",
+      "shape": [
+        128,
+        32,
+        96
+      ],
+      "iterations": 1024
+    },
+    {
+      "id": "matmul-32x192x128",
+      "program": "matmul",
+      "shape": [
+        32,
+        192,
+        128
+      ],
+      "iterations": 512
+    },
+    {
+      "id": "matmul-192x48x64",
+      "program": "matmul",
+      "shape": [
+        192,
+        48,
+        64
+      ],
+      "iterations": 512
+    },
+    {
+      "id": "reduction-32x96",
+      "program": "reduction",
+      "shape": [
+        32,
+        96
+      ],
+      "iterations": 16384
+    },
+    {
+      "id": "reduction-96x32",
+      "program": "reduction",
+      "shape": [
+        96,
+        32
+      ],
+      "iterations": 16384
+    },
+    {
+      "id": "reduction-127x259",
+      "program": "reduction",
+      "shape": [
+        127,
+        259
+      ],
+      "iterations": 2048
+    },
+    {
+      "id": "reduction-256x128",
+      "program": "reduction",
+      "shape": [
+        256,
+        128
+      ],
+      "iterations": 2048
+    }
+  ],
+  "candidates_by_program": {
+    "matmul": [
+      {
+        "id": "default",
+        "high_choice": "ijk",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "ijk-tile16",
+        "high_choice": "ijk",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "ijk-unroll4",
+        "high_choice": "ijk",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      },
+      {
+        "id": "ikj-none",
+        "high_choice": "ikj",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "ikj-tile16",
+        "high_choice": "ikj",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "ikj-unroll4",
+        "high_choice": "ikj",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      }
+    ],
+    "reduction": [
+      {
+        "id": "default",
+        "high_choice": "ij",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "ij-tile16",
+        "high_choice": "ij",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "ij-unroll4",
+        "high_choice": "ij",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      },
+      {
+        "id": "ji-none",
+        "high_choice": "ji",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "ji-tile16",
+        "high_choice": "ji",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "ji-unroll4",
+        "high_choice": "ji",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      }
+    ]
+  }
+}

@@ -36,3 +36,11 @@
 - `cpu_caches`：编译/测量主机探测中记录默认允许 CPU 的 sysfs cache level/type/size/shared_cpu_list。
 - `order_seed`：配置和 measurement 中与输入 seed 分开；两轮改变候选顺序时保持输入相同。
 - `logs/m4-<timestamp>/workflow.json`：两批 collect 命令及耗时、整体墙钟、原默认路径代码等价验证。每个等价验证另保存包含全部命令的 record.json。
+
+## M5 的可选扩展（v1）
+
+- 配置 `candidates_by_program` 为不同程序使用各自的合法 A；`cases[].iterations` 是提前固定的批次数，省略时保留旧自适应校准。
+- `measurement.iteration_source` 标注 fixed_config / all_candidate_calibration。fixed_config 的 min_calibration_batch_ms=null，表示没有校准目标，不使用未查询候选的信息。
+- `decision_features` 只来自输入 high 阶段的 operation/program/shape/layout；在未来 lowering 与性能测量前产生。
+- M5 摘要按候选保存 `costs`：真实进程耗时、编译/校验/采样次数及含预热/初始校验的 native_kernel_calls。原 JSONL 的 events 仍是成本依据。
+- 离线策略结果保留 query_ids、selected、regret_ratio、unique_implementations 和逐查询计费。未查询标签只能在事后 oracle 评分时使用。

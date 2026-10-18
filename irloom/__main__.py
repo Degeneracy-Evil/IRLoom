@@ -12,13 +12,18 @@ from .measurement import fail, measure
 from benchmarks.workloads import generate
 
 
+def candidates_for(config, case):
+    return config.get("candidates_by_program", {}).get(case["program"], config.get("candidates", []))
+
+
 def load_config(path):
     config = json.loads(path.read_text())
     if config["samples"] < 10 or config["min_batch_ms"] <= 0 or config["timeout_seconds"] <= 0:
         raise ValueError("need >=10 samples, positive calibration time and timeout")
     if not config["correctness_seeds"]:
         raise ValueError("correctness_seeds must not be empty")
-    for group in (config["cases"], config["candidates"]):
+    groups = [config["cases"]]+[candidates_for(config, c) for c in config["cases"]]
+    for group in groups:
         ids = [entry["id"] for entry in group]
         if not ids or len(set(ids)) != len(ids) or any(not re.fullmatch(r"[a-zA-Z0-9_-]+", x) for x in ids):
             raise ValueError("case/candidate ids must be unique, nonempty path-safe identifiers")
@@ -27,8 +32,11 @@ def load_config(path):
         if (case["program"] not in ("matmul", "reduction", "stencil") or len(case["shape"]) != dims
                 or any(type(x) is not int or x <= 0 for x in case["shape"])):
             raise ValueError(f"invalid program or positive static shape: {case}")
-        if case["program"] != "matmul" and any(c.get("high_choice") for c in config["candidates"]):
-            raise ValueError("linalg matmul interchange cannot be applied to another workload")
+        allowed = {"matmul": (None,"ijk","ikj"), "reduction":(None,"ij","ji"), "stencil":(None,)}
+        if any(c.get("high_choice") not in allowed[case["program"]] for c in candidates_for(config,case)):
+            raise ValueError("high choice incompatible with workload")
+        if "iterations" in case and (type(case["iterations"]) is not int or case["iterations"]<1):
+            raise ValueError("fixed iterations must be a positive integer")
     return config
 
 
@@ -39,7 +47,7 @@ def save_records(records, path):
 def compile_all(config, output, logs, metadata):
     records = []
     for case in config["cases"]:
-        for candidate in config["candidates"]:
+        for candidate in candidates_for(config, case):
             record = {"schema_version": 1, "case_id": case["id"], "program_id": case["program"],
                       "candidate_id": candidate["id"], "seed": config["seed"],
                       "input": {"shape": case["shape"], "dtype": "f32"},
@@ -54,6 +62,9 @@ def compile_all(config, output, logs, metadata):
             log = logs / case["id"] / candidate["id"]
             try:
                 source, defines = generate(case["program"], case["shape"])
+                record["decision_features"] = {"program":case["program"],"shape":case["shape"],
+                                               "stage":"high","layout":"row-major",
+                                               "operation":next(op for op in ("linalg.matmul","linalg.generic","affine.for") if op in source)}
                 if record["role"] == "reference":
                     if case["program"] != "matmul":
                         raise ValueError("C++ reference only supports matmul")
@@ -87,7 +98,7 @@ def compile_all(config, output, logs, metadata):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
-                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "compile", "run", "collect", "summarize", "report"])
+                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "compile", "run", "collect", "summarize", "report"])
     parser.add_argument("--config", type=Path)
     parser.add_argument("--order-seed", type=int, help="measurement order only; input seed stays fixed")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
@@ -99,6 +110,16 @@ def main():
     if args.action == "m5-a":
         from .m5 import analyze_m4
         print(analyze_m4())
+        return
+    if args.action == "m5":
+        from .m5 import run
+        run(args.config or ROOT/"experiments/m5.json")
+        return
+    if args.action == "m5-report":
+        if not args.records:
+            parser.error("m5-report requires --records")
+        from .m5 import write_report
+        print(write_report(args.records))
         return
     if args.action == "m4":
         from .m4 import run

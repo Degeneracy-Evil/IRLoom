@@ -40,16 +40,21 @@ def measure(records, config, logs, cpu):
                 checks.append(dict(json.loads(result), seed=seed))
             record["correctness"] = {"status": "pass", "rtol": 1e-4, "atol": 1e-4,
                                       "reassociation": False, "checks": checks}
-            iterations = 1
-            while True:
-                sample = json.loads(command([record["binary"], "measure", config["seed"], iterations],
-                                            dest / f"calibrate-{iterations}.log", record["events"],
-                                            "calibration", config["timeout_seconds"], cpu))
-                if sample["elapsed_ms"] >= config["min_batch_ms"]:
-                    break
-                iterations *= 2
-                if iterations > 2**30:
-                    raise ValueError("calibration iteration limit exceeded")
+            fixed = next(c.get("iterations") for c in config["cases"] if c["id"]==record["case_id"])
+            record["measurement"]["iteration_source"] = "fixed_config" if fixed else "all_candidate_calibration"
+            if fixed:
+                record["measurement"]["min_calibration_batch_ms"] = None
+            iterations = fixed or 1
+            if not fixed:
+                while True:
+                    sample = json.loads(command([record["binary"], "measure", config["seed"], iterations],
+                                                dest / f"calibrate-{iterations}.log", record["events"],
+                                                "calibration", config["timeout_seconds"], cpu))
+                    if sample["elapsed_ms"] >= config["min_batch_ms"]:
+                        break
+                    iterations *= 2
+                    if iterations > 2**30:
+                        raise ValueError("calibration iteration limit exceeded")
             counts[record["case_id"]] = max(counts.get(record["case_id"], 0), iterations)
             record["status"] = "ready"
         except (CommandError, OSError, ValueError) as exc:
