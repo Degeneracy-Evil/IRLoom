@@ -1,0 +1,920 @@
+{
+  "source": "experiments/reports/m4-interaction.json",
+  "offline": true,
+  "runs": [
+    {
+      "source": "logs/20261018T101246162932Z/records.jsonl",
+      "cases": [
+        {
+          "case_id": "matmul-1024x256x256",
+          "shape": [
+            1024,
+            256,
+            256
+          ],
+          "oracle": {
+            "candidate": "ikj-none",
+            "latency_ms": 5.6475834,
+            "candidate_evaluations": 6
+          },
+          "branch_best": {
+            "ijk": {
+              "candidate": "ijk-tile16",
+              "latency_ms": 6.52194163
+            },
+            "ikj": {
+              "candidate": "ikj-none",
+              "latency_ms": 5.6475834
+            }
+          },
+          "greedy_loss_above_noise": false,
+          "policies": [
+            {
+              "policy": "static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.6475834,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8614663621410728,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.08979161834
+              },
+              "bookkeeping_seconds": 1.645740121603012e-05,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "greedy",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.6475834,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8614663621410728,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.0897916183400005
+              },
+              "bookkeeping_seconds": 1.0734423995018005e-05,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "lookahead",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ikj-tile16"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.6475834,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8442836394533515,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.03826855038
+              },
+              "bookkeeping_seconds": 8.262693881988525e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "B1-static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.6475834,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8614663621410728,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.08979161834
+              },
+              "bookkeeping_seconds": 8.860602974891663e-06,
+              "regret_ratio": 1.0
+            }
+          ]
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "shape": [
+            127,
+            65,
+            93
+          ],
+          "oracle": {
+            "candidate": "ijk-tile16",
+            "latency_ms": 0.061774077,
+            "candidate_evaluations": 6
+          },
+          "branch_best": {
+            "ijk": {
+              "candidate": "ijk-tile16",
+              "latency_ms": 0.061774077
+            },
+            "ikj": {
+              "candidate": "ikj-none",
+              "latency_ms": 0.0765365512
+            }
+          },
+          "greedy_loss_above_noise": true,
+          "policies": [
+            {
+              "policy": "static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 0.0765365512,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.896855209954083,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.8188820034048
+              },
+              "bookkeeping_seconds": 8.617527782917023e-06,
+              "regret_ratio": 1.2389752290430822
+            },
+            {
+              "policy": "greedy",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 0.0765365512,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.896855209954083,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.8188820034048003
+              },
+              "bookkeeping_seconds": 7.79610127210617e-06,
+              "regret_ratio": 1.2389752290430822
+            },
+            {
+              "policy": "lookahead",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ikj-tile16"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.061774077,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.9645382761955261,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.6426965699328
+              },
+              "bookkeeping_seconds": 6.816349923610687e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "B1-static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 0.0765365512,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.896855209954083,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.8188820034048
+              },
+              "bookkeeping_seconds": 7.269904017448425e-06,
+              "regret_ratio": 1.2389752290430822
+            }
+          ]
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "shape": [
+            32,
+            32,
+            32
+          ],
+          "oracle": {
+            "candidate": "ijk-tile16",
+            "latency_ms": 0.00194236543,
+            "candidate_evaluations": 6
+          },
+          "branch_best": {
+            "ijk": {
+              "candidate": "ijk-tile16",
+              "latency_ms": 0.00194236543
+            },
+            "ikj": {
+              "candidate": "ikj-tile16",
+              "latency_ms": 0.0101234558
+            }
+          },
+          "greedy_loss_above_noise": false,
+          "policies": [
+            {
+              "policy": "static",
+              "query_ids": [
+                "default",
+                "ijk-tile16",
+                "ijk-unroll4",
+                "ikj-none"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.00194236543,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8803251404315233,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.3931694538752
+              },
+              "bookkeeping_seconds": 8.03731381893158e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "greedy",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ijk-unroll4"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.00194236543,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8803251404315233,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.3931694538752
+              },
+              "bookkeeping_seconds": 7.858499884605408e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "lookahead",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ikj-tile16"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.00194236543,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8728331942111254,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.3565554689638404
+              },
+              "bookkeeping_seconds": 6.346963346004486e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "B1-static",
+              "query_ids": [
+                "default",
+                "ijk-tile16",
+                "ijk-unroll4",
+                "ikj-none"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.00194236543,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8803251404315233,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.3931694538752
+              },
+              "bookkeeping_seconds": 6.761401891708374e-06,
+              "regret_ratio": 1.0
+            }
+          ]
+        }
+      ],
+      "candidate_costs": [
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "default",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2248059380799532,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.25314925707264
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ijk-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22305834665894508,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.2387224035328
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ijk-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.224992536008358,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.28065261715456
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ikj-none",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.20746831968426704,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.6206451761152
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ikj-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21750058978796005,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.2440386322432
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ikj-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22335484251379967,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.6419609591808
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "default",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.20657919719815254,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.208384488704
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ijk-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.28525804448872805,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.23733292428799999
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ijk-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2114472957327962,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.154655270656
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ikj-none",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21890120767056942,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.2939555291648
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ikj-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2537998268380761,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.903023627776
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ikj-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2175749782472849,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.41351835776
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "default",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.19619294069707394,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.9888817348
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ijk-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21671265084296465,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.19598743136
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ijk-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.20875392854213715,
+          "timing_batches": 15,
+          "native_timed_seconds": 2.0013806698
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ikj-none",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21566366497427225,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.16937580702
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ikj-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21571438293904066,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.6840235772
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ikj-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2338953735306859,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.24751049932000002
+        }
+      ]
+    },
+    {
+      "source": "logs/20261018T101331335316Z/records.jsonl",
+      "cases": [
+        {
+          "case_id": "matmul-1024x256x256",
+          "shape": [
+            1024,
+            256,
+            256
+          ],
+          "oracle": {
+            "candidate": "ikj-none",
+            "latency_ms": 5.70839411,
+            "candidate_evaluations": 6
+          },
+          "branch_best": {
+            "ijk": {
+              "candidate": "ijk-tile16",
+              "latency_ms": 6.72676554
+            },
+            "ikj": {
+              "candidate": "ikj-none",
+              "latency_ms": 5.70839411
+            }
+          },
+          "greedy_loss_above_noise": false,
+          "policies": [
+            {
+              "policy": "static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.70839411,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8583119977265596,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.11381788076
+              },
+              "bookkeeping_seconds": 8.187256753444672e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "greedy",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.70839411,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8583119977265596,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.1138178807599997
+              },
+              "bookkeeping_seconds": 7.993541657924652e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "lookahead",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ikj-tile16"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.70839411,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8443895867094398,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.0612876562599998
+              },
+              "bookkeeping_seconds": 7.388181984424591e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "B1-static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 5.70839411,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8583119977265596,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.11381788076
+              },
+              "bookkeeping_seconds": 7.343478500843048e-06,
+              "regret_ratio": 1.0
+            }
+          ]
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "shape": [
+            127,
+            65,
+            93
+          ],
+          "oracle": {
+            "candidate": "ijk-tile16",
+            "latency_ms": 0.0634741518,
+            "candidate_evaluations": 6
+          },
+          "branch_best": {
+            "ijk": {
+              "candidate": "ijk-tile16",
+              "latency_ms": 0.0634741518
+            },
+            "ikj": {
+              "candidate": "ikj-none",
+              "latency_ms": 0.0781403141
+            }
+          },
+          "greedy_loss_above_noise": true,
+          "policies": [
+            {
+              "policy": "static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 0.0781403141,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.9055598955601454,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.85607092352
+              },
+              "bookkeeping_seconds": 1.386832445859909e-05,
+              "regret_ratio": 1.231057239586461
+            },
+            {
+              "policy": "greedy",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 0.0781403141,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.9055598955601454,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.85607092352
+              },
+              "bookkeeping_seconds": 7.337890565395355e-06,
+              "regret_ratio": 1.231057239586461
+            },
+            {
+              "policy": "lookahead",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ikj-tile16"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.0634741518,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.9692780701443553,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.6793384992256
+              },
+              "bookkeeping_seconds": 6.708316504955292e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "B1-static",
+              "query_ids": [
+                "ikj-none",
+                "ikj-tile16",
+                "ikj-unroll4",
+                "default"
+              ],
+              "selected": "ikj-none",
+              "latency_ms": 0.0781403141,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.9055598955601454,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.85607092352
+              },
+              "bookkeeping_seconds": 6.916932761669159e-06,
+              "regret_ratio": 1.231057239586461
+            }
+          ]
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "shape": [
+            32,
+            32,
+            32
+          ],
+          "oracle": {
+            "candidate": "ijk-tile16",
+            "latency_ms": 0.0019976286,
+            "candidate_evaluations": 6
+          },
+          "branch_best": {
+            "ijk": {
+              "candidate": "ijk-tile16",
+              "latency_ms": 0.0019976286
+            },
+            "ikj": {
+              "candidate": "ikj-tile16",
+              "latency_ms": 0.0102621143
+            }
+          },
+          "greedy_loss_above_noise": false,
+          "policies": [
+            {
+              "policy": "static",
+              "query_ids": [
+                "default",
+                "ijk-tile16",
+                "ijk-unroll4",
+                "ikj-none"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.0019976286,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.869243991561234,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.44358219317248
+              },
+              "bookkeeping_seconds": 8.771196007728577e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "greedy",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ijk-unroll4"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.0019976286,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.869243991561234,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.44358219317248
+              },
+              "bookkeeping_seconds": 7.261522114276886e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "lookahead",
+              "query_ids": [
+                "default",
+                "ikj-none",
+                "ijk-tile16",
+                "ikj-tile16"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.0019976286,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.8628534283488989,
+                "timing_batches": 60,
+                "native_timed_seconds": 3.42030004371456
+              },
+              "bookkeeping_seconds": 6.413087248802185e-06,
+              "regret_ratio": 1.0
+            },
+            {
+              "policy": "B1-static",
+              "query_ids": [
+                "default",
+                "ijk-tile16",
+                "ijk-unroll4",
+                "ikj-none"
+              ],
+              "selected": "ijk-tile16",
+              "latency_ms": 0.0019976286,
+              "costs": {
+                "candidate_compiles": 4,
+                "compile_seconds": 0.869243991561234,
+                "timing_batches": 60,
+                "native_timed_seconds": 2.44358219317248
+              },
+              "bookkeeping_seconds": 6.886199116706848e-06,
+              "regret_ratio": 1.0
+            }
+          ]
+        }
+      ],
+      "candidate_costs": [
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "default",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2209709184244275,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.25242250952704
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ijk-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2203322984278202,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.24281036685312
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ijk-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22263824194669724,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.28454472957952
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ikj-none",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.20530253276228905,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.6638045872128
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ikj-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21624767873436213,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.2612625801216
+        },
+        {
+          "case_id": "matmul-32x32x32",
+          "candidate_id": "ikj-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22282737772911787,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.684945354752
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "default",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.20163094718009233,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.228060147712
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ijk-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2890106560662389,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.2411325052416
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ijk-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21306258626282215,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.180938464768
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ikj-none",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22192986030131578,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.29760070886400003
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ikj-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2567066065967083,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.9125451374079999
+        },
+        {
+          "case_id": "matmul-127x65x93",
+          "candidate_id": "ikj-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22529248148202896,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.41786492953599996
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "default",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.2009959351271391,
+          "timing_batches": 15,
+          "native_timed_seconds": 1.9957109763999998
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ijk-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.22026033978909254,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.1996648898
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ijk-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.20852460898458958,
+          "timing_batches": 15,
+          "native_timed_seconds": 2.0045699608
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ikj-none",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21060105506330729,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.17249244826000001
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ikj-tile16",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.21253225672990084,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.6934193418
+        },
+        {
+          "case_id": "matmul-1024x256x256",
+          "candidate_id": "ikj-unroll4",
+          "candidate_compiles": 1,
+          "compile_seconds": 0.23418275080621243,
+          "timing_batches": 15,
+          "native_timed_seconds": 0.2521951143
+        }
+      ]
+    }
+  ]
+}

@@ -84,3 +84,11 @@ bash scripts/phase0.sh m4-report --records logs/20261018T101246162932Z/records.j
 ```
 
 `m4-interaction.json` 和两份自动生成的 Markdown 为派生结果；人工解读单独保存在 `experiments/reports/m4-findings.md`，重建统计报告不会覆盖它。
+
+## M5-A 只读数据分析
+
+```bash
+bash scripts/phase0.sh m5-a
+```
+
+只读取仓库内已提交的 M4 JSON，无需 MLIR 或重新测量；输出 `experiments/reports/m5-a.md` 与 `m5-a.json`。离线规则及成本限制见报告，不把 oracle 当作在线优化器。
