@@ -134,3 +134,12 @@ bash scripts/phase0.sh m6-report --records logs/20261018T171911048006Z/records.j
 ```
 
 派生报告为 m6-findings.md / m6-results.json / m6-model.json / m6-fusion-lineage.md；人工 m6-interpretation.md 不被覆盖。完整成本、短批测量噪声、模型外推失败和停止神经阶段的原因见人工解读。
+
+## M7 多算子上下文试点
+
+```bash
+bash scripts/phase0.sh collect --config experiments/m7-feasibility.json
+bash scripts/phase0.sh m7
+```
+
+第一条为8×8、18候选功能检查；第二条按[M7冻结协议](M7_PROTOCOL.md)执行两个规模、三个上下文的36候选两批实验、信息窗口对照和报告。无需新编译器Pass或模型依赖。窗口读取仅涉及原始high和低层决策前affine，相关成本与编译成本一起披露。旧M0–M6报告不被修改。

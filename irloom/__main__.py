@@ -81,6 +81,9 @@ def compile_all(config, output, logs, metadata):
                 else:
                     compile_candidate(source, dest, log, record, candidate["transforms"], defines,
                                       candidate.get("high_choice"))
+                if case["program"]=="context_graph":
+                    from .context import extract
+                    record["context_features"]=extract(record)
                 record["status"] = "compiled"
             except (CommandError, OSError, ValueError) as exc:
                 record["compile_seconds"] = sum(e["seconds"] for e in record["events"])
@@ -107,7 +110,7 @@ def compile_all(config, output, logs, metadata):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
-                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "m6-a", "m6", "m6-report", "compile", "run", "collect", "summarize", "report"])
+                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "m6-a", "m6", "m6-report", "m7", "m7-report", "compile", "run", "collect", "summarize", "report"])
     parser.add_argument("--config", type=Path)
     parser.add_argument("--order-seed", type=int, help="measurement order only; input seed stays fixed")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
@@ -116,6 +119,16 @@ def main():
     args = parser.parse_args()
     (ROOT / "tmp").mkdir(exist_ok=True)
     (ROOT / "logs").mkdir(exist_ok=True)
+    if args.action=="m7":
+        from .m7 import run
+        run(args.config or ROOT/"experiments/m7.json")
+        return
+    if args.action=="m7-report":
+        if not args.records:
+            parser.error("m7-report requires --records")
+        from .m7 import write_report
+        print(write_report(args.records))
+        return
     if args.action=="m6":
         from .m6 import run
         run(args.config or ROOT/"experiments/m6.json")
