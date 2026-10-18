@@ -56,3 +56,15 @@ bash scripts/phase0.sh collect --config experiments/phase0.json
 另已实际用临时 JSON 对三类 1×1 最小边界输入运行四条候选，12/12 成功。配置格式与实际记录字段见 [DATA_SCHEMA.md](DATA_SCHEMA.md)。`code_duplicate_of` 直接比较目标文件的标准化反汇编（含字节和重定位），不计算 hash。最小尺寸的四条路径均收敛为相同机器代码，主矩阵 24 条候选未发现此类重复。
 
 包装脚本在编译所需的 MLIR 不存在时自动执行本地 setup，已有工具则跳过。初次运行仍需网络下载约 43 MiB；uv 环境也由包装入口自动创建。
+
+## M3 证据报告
+
+以下命令已运行，输入来自干净 M2 提交的两轮完整实验：
+
+```bash
+bash scripts/phase0.sh report --records logs/20261018T093503802387Z/records.jsonl logs/20261018T093526501912Z/records.jsonl
+```
+
+输出到 `experiments/reports/`：`phase0-initial.md` 为报告，`phase0-summary.json` 为简明对照表，`phase0-initial.json` 为原始计时、输入、配置、工具/机器元数据、编译命令与快照路径的审计摘要。重复 report 会确定性重建这些派生文件，无需重新编译。它依赖每轮 JSONL 同目录的 `run.json`，适用于 collect 的完整实验输出。
+
+报告保留 median、MAD、IQR、范围、相对 default 加速比和同轮候选延迟比的探索性 bootstrap 区间。原始 JSONL/日志/快照/二进制仍只在本机保留。现有三家族六规格的数据不足以评估历史特征、未见程序泛化或在线搜索；不运行模型。

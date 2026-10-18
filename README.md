@@ -30,11 +30,12 @@ IRLoom 是一个面向编译器性能优化的研究项目。我们的出发点�
 ## 已验证的本机入口
 
 ```bash
-bash scripts/phase0.sh setup   # MLIR 本地解包至 tmp/，不安装系统软件
-bash scripts/phase0.sh m0      # 最小链路验收
-bash scripts/phase0.sh         # 配置驱动的多候选采集与汇总
+bash scripts/phase0.sh         # 自动准备本地 MLIR，编译、校验并采集 24 条候选
+bash scripts/phase0.sh m0      # 仅运行最小链路验收
 ```
 
 实际环境、产物位置、限制见 [运行指南](docs/RUNNING.md)，阶段结果见 [开发记录](docs/PROGRESS.md)。
+
+M0–M3 首轮已完成：三类工作负载、每类两个 Shape、每个 Case 四条合法路径；两轮正式采集均 24/24 正确、各有 360 个计时样本。见 [首批证据报告](experiments/reports/phase0-initial.md) 和 [简明结果汇总](experiments/reports/phase0-summary.json)。当前证据支持路径性能差异，尚未验证历史 IR 的预测价值，也未训练任何模型。
 
 > **给本地 Agent：** 从 [docs/AGENT_START.md](docs/AGENT_START.md) 开始，阅读相关实验协议后分阶段执行。不要跳过 baseline 与数据质量检查直接训练模型。

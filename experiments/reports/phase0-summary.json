@@ -1,0 +1,398 @@
+[
+  {
+    "records_path": "logs/20261018T093503802387Z/records.jsonl",
+    "git_commit": "ae7fd66f6ab68668204fd5277739a6c2f4cedefc",
+    "results": [
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.061741277,
+        "mad_ms": 0.0001097140999999982,
+        "speedup_vs_default": 5.106135219716949
+      },
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.299552452,
+        "mad_ms": 0.00030036999999999425,
+        "speedup_vs_default": 1.0524344130556473
+      },
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.315259309,
+        "mad_ms": 0.001048407000000029,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.697882173,
+        "mad_ms": 0.0002900489999999589,
+        "speedup_vs_default": 0.45173715735535774
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0205019332,
+        "mad_ms": 7.595919999999964e-05,
+        "speedup_vs_default": 4.512835233508614
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.0884993751,
+        "mad_ms": 4.29227000000032e-05,
+        "speedup_vs_default": 1.0454519751744553
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.0925218465,
+        "mad_ms": 6.849410000001055e-05,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.0937381992,
+        "mad_ms": 8.912679999999173e-05,
+        "speedup_vs_default": 0.98702393783558
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0124912513,
+        "mad_ms": 5.3703900000000304e-05,
+        "speedup_vs_default": 1.4333155878466715
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.0173316757,
+        "mad_ms": 2.5270300000001383e-05,
+        "speedup_vs_default": 1.0330163978316302
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.0179039052,
+        "mad_ms": 2.3002000000001133e-05,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.0270228029,
+        "mad_ms": 9.330319999999864e-05,
+        "speedup_vs_default": 0.6625480438226488
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0058642886,
+        "mad_ms": 4.205822000000019e-05,
+        "speedup_vs_default": 2.909508870351299
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.00625917346,
+        "mad_ms": 2.4134349999999777e-05,
+        "speedup_vs_default": 2.7259509277124265
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.0170621997,
+        "mad_ms": 8.821600000000207e-06,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.0171443235,
+        "mad_ms": 1.1715699999997886e-05,
+        "speedup_vs_default": 0.9952098547370504
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.006277176,
+        "mad_ms": 9.381440000000123e-06,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.00853999245,
+        "mad_ms": 2.1068900000000695e-05,
+        "speedup_vs_default": 0.7350329683253993
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0324905927,
+        "mad_ms": 9.582899999999173e-06,
+        "speedup_vs_default": 0.19319979964539089
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.0409829527,
+        "mad_ms": 2.751999999999616e-05,
+        "speedup_vs_default": 0.15316553802137345
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.00620132914,
+        "mad_ms": 4.637969999999637e-06,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.00825350207,
+        "mad_ms": 6.246859999999715e-06,
+        "speedup_vs_default": 0.7513573132235247
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.00827448503,
+        "mad_ms": 8.795719999999535e-06,
+        "speedup_vs_default": 0.7494519740523355
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0297846486,
+        "mad_ms": 0.00010801339999999895,
+        "speedup_vs_default": 0.20820554988854223
+      }
+    ]
+  },
+  {
+    "records_path": "logs/20261018T093526501912Z/records.jsonl",
+    "git_commit": "ae7fd66f6ab68668204fd5277739a6c2f4cedefc",
+    "results": [
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0617865117,
+        "mad_ms": 0.00013040330000000516,
+        "speedup_vs_default": 5.082552621270574
+      },
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.300255015,
+        "mad_ms": 0.0010771910000000329,
+        "speedup_vs_default": 1.045888266012809
+      },
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.314033197,
+        "mad_ms": 0.0029069989999999657,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "matmul-127x65x93",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.698559503,
+        "mad_ms": 0.0007717609999999819,
+        "speedup_vs_default": 0.44954394815526544
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0204720163,
+        "mad_ms": 0.00010221269999999977,
+        "speedup_vs_default": 4.5156304901926045
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.0885106092,
+        "mad_ms": 5.624860000000287e-05,
+        "speedup_vs_default": 1.0444404556194151
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.092444061,
+        "mad_ms": 0.0001110784000000059,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "matmul-64x64x64",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.093855786,
+        "mad_ms": 9.413630000000561e-05,
+        "speedup_vs_default": 0.9849585725061212
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0124381322,
+        "mad_ms": 2.8359900000000243e-05,
+        "speedup_vs_default": 1.4392847102879323
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.0173400167,
+        "mad_ms": 3.5407500000000924e-05,
+        "speedup_vs_default": 1.032410395544775
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.0179020135,
+        "mad_ms": 1.361700000000049e-05,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "reduction-127x259",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.0269344218,
+        "mad_ms": 8.898320000000001e-05,
+        "speedup_vs_default": 0.6646518582403725
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.00587693012,
+        "mad_ms": 2.7613619999999374e-05,
+        "speedup_vs_default": 2.9037978590087437
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.00626077235,
+        "mad_ms": 2.1293999999999827e-05,
+        "speedup_vs_default": 2.7257686665447918
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.0170654171,
+        "mad_ms": 9.774400000002459e-06,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "reduction-128x256",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.0171515167,
+        "mad_ms": 2.0983900000000333e-05,
+        "speedup_vs_default": 0.9949800591104575
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.00627642748,
+        "mad_ms": 5.547009999999804e-06,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.00855172175,
+        "mad_ms": 3.8017329999999114e-05,
+        "speedup_vs_default": 0.7339372892949891
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0324978769,
+        "mad_ms": 1.679789999999709e-05,
+        "speedup_vs_default": 0.19313346220472635
+      },
+      {
+        "case_id": "stencil-127x259",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.0410184562,
+        "mad_ms": 6.0523299999996893e-05,
+        "speedup_vs_default": 0.15301471731156963
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "default",
+        "status": "ok",
+        "median_ms": 0.00620502169,
+        "mad_ms": 7.21366000000067e-06,
+        "speedup_vs_default": 1.0
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "tile4",
+        "status": "ok",
+        "median_ms": 0.00825520829,
+        "mad_ms": 8.516959999999713e-06,
+        "speedup_vs_default": 0.7516493190749036
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "unroll4",
+        "status": "ok",
+        "median_ms": 0.00826922587,
+        "mad_ms": 9.707490000000069e-06,
+        "speedup_vs_default": 0.7503751605711066
+      },
+      {
+        "case_id": "stencil-128x256",
+        "candidate_id": "tile16",
+        "status": "ok",
+        "median_ms": 0.0297924789,
+        "mad_ms": 0.00011953490000000261,
+        "speedup_vs_default": 0.20827476997894256
+      }
+    ]
+  }
+]

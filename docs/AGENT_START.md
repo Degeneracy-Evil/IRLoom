@@ -2,6 +2,8 @@
 
 本文是给拉取 IRLoom 仓库的开发 Agent 的**具体执行顺序**。开始前先阅读 [RESEARCH_PLAN.md](RESEARCH_PLAN.md) 和 [PHASE0_PROTOCOL.md](PHASE0_PROTOCOL.md)。研究目标是提高最终生成代码的实际性能；当前任务是建立证据，不是发明复杂网络结构。
 
+**执行状态（2026-10-18）：** M0–M3 首轮已完成，真实命令与限制见 [RUNNING.md](RUNNING.md)，提交及验收结果见 [PROGRESS.md](PROGRESS.md)，结论见 [首批报告](../experiments/reports/phase0-initial.md)。用户明确禁止本轮计算 hash、编写单元测试；该约束优先，详见实验协议顶部说明。
+
 ## 任务执行原则
 
 先产出一条完整、正确且可复现的「程序 → 多阶段 IR → native binary → 正确性 → 多次计时 → 结构化记录」路径，再增加程序和变换。优先使用现有 MLIR/LLVM 工具；尽量用 Python 负责组织与采集，不为了调度实验就新写 C++ Pass。

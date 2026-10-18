@@ -76,10 +76,10 @@ def compile_all(config, output, logs, metadata):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
-                        choices=["probe", "m0", "compile", "run", "collect", "summarize"])
+                        choices=["probe", "m0", "compile", "run", "collect", "summarize", "report"])
     parser.add_argument("--config", type=Path, default=ROOT / "experiments/phase0.json")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
-    parser.add_argument("--records", type=Path, help="JSONL input used by summarize")
+    parser.add_argument("--records", type=Path, nargs="+", help="JSONL inputs for summarize/report")
     args = parser.parse_args()
     (ROOT / "tmp").mkdir(exist_ok=True)
     (ROOT / "logs").mkdir(exist_ok=True)
@@ -90,11 +90,19 @@ def main():
     if args.action == "probe":
         print(json.dumps(probe(), indent=2, ensure_ascii=False))
         return
+    if args.action == "report":
+        if not args.records:
+            parser.error("report requires --records")
+        from .report import write_report
+        print(write_report(args.records))
+        return
     if args.action == "summarize":
         if not args.records:
             parser.error("summarize requires --records")
-        records = [json.loads(line) for line in args.records.read_text().splitlines()]
-        path = args.records.parent / "summary.json"
+        if len(args.records) != 1:
+            parser.error("summarize accepts one JSONL file; use report for repeated runs")
+        records = [json.loads(line) for line in args.records[0].read_text().splitlines()]
+        path = args.records[0].parent / "summary.json"
         print(json.dumps(save_summary(records, path), indent=2, ensure_ascii=False))
         return
     stamp = datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
