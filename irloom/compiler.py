@@ -1,0 +1,125 @@
+"""Tool discovery, logged commands, and snapshot-level compilation lineage."""
+import json
+import os
+from pathlib import Path
+import platform
+import shutil
+import subprocess
+import time
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+def environment():
+    env = dict(os.environ)
+    env.update(TMPDIR=str(ROOT / "tmp"), OMP_NUM_THREADS="1",
+               OPENBLAS_NUM_THREADS="1", MKL_NUM_THREADS="1")
+    return env
+
+
+def tool(name):
+    override = os.environ.get(name.upper().replace("-", "_"))
+    paths = [override] if override else [
+        str(ROOT / "tmp/toolchain/usr/lib/llvm-18/bin" / name),
+        shutil.which(name), str(Path("/usr/lib/llvm-18/bin") / name)]
+    for path in paths:
+        if path and Path(path).is_file():
+            return str(Path(path).resolve())
+    raise FileNotFoundError(f"missing {name}; see docs/RUNNING.md")
+
+
+def probe():
+    result = {"os": platform.platform(), "arch": platform.machine(),
+              "affinity": sorted(os.sched_getaffinity(0)), "tools": {},
+              "environment": {k: environment()[k] for k in
+                              ("TMPDIR", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")}}
+    for name in ("mlir-opt", "mlir-translate", "clang", "llc", "llvm-config"):
+        try:
+            path = tool(name)
+            p = subprocess.run([path, "--version"], capture_output=True, text=True,
+                               timeout=10, env=environment())
+            result["tools"][name] = {"path": path, "version": p.stdout.strip(),
+                                      "returncode": p.returncode}
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            result["tools"][name] = {"error": str(exc)}
+    for name, command in (("cpu", ["lscpu", "-J"]),
+                          ("git_commit", ["git", "rev-parse", "HEAD"]),
+                          ("git_status", ["git", "status", "--porcelain"])):
+        p = subprocess.run(command, cwd=ROOT, capture_output=True, text=True, timeout=10)
+        result[name] = p.stdout.strip()
+    result["runtime_limits"] = {
+        "frequency_control": "uncontrolled", "pmu": "not collected",
+        "loadavg": os.getloadavg(),
+        "memory": Path("/proc/meminfo").read_text(),
+    }
+    return result
+
+
+class CommandError(RuntimeError):
+    pass
+
+
+def command(args, log, events, stage, timeout=120, cpu=None):
+    args = [str(x) for x in args]
+    event = {"stage": stage, "command": args, "cwd": str(ROOT), "log": str(log)}
+    events.append(event)
+    start = time.perf_counter()
+    try:
+        p = subprocess.run(args, cwd=ROOT, env=environment(), capture_output=True,
+                           text=True, timeout=timeout,
+                           preexec_fn=(lambda: os.sched_setaffinity(0, {cpu})) if cpu is not None else None)
+        event.update(returncode=p.returncode, status="ok" if p.returncode == 0 else "failed")
+        log.write_text(json.dumps(event, ensure_ascii=False) + "\n" + p.stdout + p.stderr)
+        if p.returncode:
+            raise CommandError(f"{stage}: exit {p.returncode}; see {log}")
+        return p.stdout
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        event.update(status="timeout" if isinstance(exc, subprocess.TimeoutExpired) else "failed",
+                     error=str(exc))
+        log.write_text(json.dumps(event, ensure_ascii=False) + "\n" + str(exc))
+        raise CommandError(f"{stage}: {exc}") from exc
+    finally:
+        event["seconds"] = time.perf_counter() - start
+
+
+def compile_candidate(source, output, logs, record, transforms=(), defines=()):
+    output.mkdir(parents=True, exist_ok=True)
+    logs.mkdir(parents=True, exist_ok=True)
+    events = record["events"]
+    record["snapshots"] = []
+    high = output / "high.mlir"
+    high.write_text(source)
+    record["snapshots"].append({"stage": "high", "path": str(high), "parent": None})
+    stages = [
+        ("affine", ["--convert-linalg-to-affine-loops"]),
+        ("transformed", list(transforms) + ["--canonicalize", "--cse"]),
+        ("scf", ["--lower-affine"]),
+        ("llvm_dialect", ["--convert-scf-to-cf", "--convert-arith-to-llvm",
+                          "--finalize-memref-to-llvm", "--convert-func-to-llvm",
+                          "--convert-cf-to-llvm", "--reconcile-unrealized-casts"]),
+    ]
+    previous = high
+    for stage, flags in stages:
+        path = output / f"{stage}.mlir"
+        command([tool("mlir-opt"), previous, *flags, "-o", path],
+                logs / f"{stage}.log", events, stage)
+        record["snapshots"].append({"stage": stage, "path": str(path),
+                                    "parent": str(previous), "flags": flags,
+                                    "event_index": len(events) - 1})
+        previous = path
+    ll = output / "kernel.ll"
+    command([tool("mlir-translate"), "--mlir-to-llvmir", previous, "-o", ll],
+            logs / "translate.log", events, "translate")
+    record["snapshots"].append({"stage": "llvm", "path": str(ll),
+                                "parent": str(previous), "event_index": len(events) - 1})
+    flags = ["-O3", "-march=native", "-ffp-contract=off"]
+    obj = output / "kernel.o"
+    command([tool("clang"), *flags, "-c", ll, "-o", obj],
+            logs / "codegen.log", events, "codegen")
+    binary = output / "runner"
+    command([tool("clang"), "-O2", "-ffp-contract=off", *defines,
+             ROOT / "benchmarks/runner.c", obj, "-lm", "-Wl,--build-id=none", "-o", binary],
+            logs / "link.log", events, "link")
+    record.update(binary=str(binary), object=str(obj),
+                  compile_seconds=sum(e["seconds"] for e in events))
+    return binary

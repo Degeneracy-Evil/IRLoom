@@ -27,4 +27,13 @@ IRLoom 是一个面向编译器性能优化的研究项目。我们的出发点�
 - **机制通用。** 首个可用原型可在一种 CPU 上建立，随后通过 ARM、RISC-V 或 Ascend NPU 检验跨平台适应性。
 - **先小后大。** 先验证跨层级信息的增量价值，再决定是否需要专用 Attention、持续状态更新网络或强化学习。
 
+## 已验证的本机入口
+
+```bash
+bash scripts/phase0.sh setup   # MLIR 本地解包至 tmp/，不安装系统软件
+bash scripts/phase0.sh         # M0：编译、校验与 10 次原生计时
+```
+
+实际环境、产物位置、限制见 [运行指南](docs/RUNNING.md)，阶段结果见 [开发记录](docs/PROGRESS.md)。
+
 > **给本地 Agent：** 从 [docs/AGENT_START.md](docs/AGENT_START.md) 开始，阅读相关实验协议后分阶段执行。不要跳过 baseline 与数据质量检查直接训练模型。
