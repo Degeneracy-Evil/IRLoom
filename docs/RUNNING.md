@@ -143,3 +143,11 @@ bash scripts/phase0.sh m7
 ```
 
 第一条为8×8、18候选功能检查；第二条按[M7冻结协议](M7_PROTOCOL.md)执行两个规模、三个上下文的36候选两批实验、信息窗口对照和报告。无需新编译器Pass或模型依赖。窗口读取仅涉及原始high和低层决策前affine，相关成本与编译成本一起披露。旧M0–M6报告不被修改。
+
+M7正式两批各36/36成功，独立数值校验、窗口来源、预算与代码跨批一致性通过。以下报告重建命令也已实际运行，除查表计时时钟外结果JSON完全一致：
+
+```bash
+bash scripts/phase0.sh m7-report --records logs/20261018T175248152318Z/records.jsonl logs/20261018T175323782674Z/records.jsonl
+```
+
+派生文件为m7-findings.md、m7-results.json、m7-lineage.md。m7-interpretation.md和m7-code.md为首轮人工解读/代码摘录，不被重建覆盖。结论仅为六个输入的上下文pilot，无神经网络训练；不要把所有上下文共用动作的事后下界当成部署策略。

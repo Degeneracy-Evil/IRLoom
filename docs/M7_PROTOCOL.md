@@ -58,3 +58,7 @@ L2：L1 + 原始high图的四项上游信息：D消费者数、generic数、有�
 单入口bash scripts/phase0.sh m7：两批独立collect、路径相对效应、噪声/上下文对照、信息窗口分组pilot和主要IR差异。m7-report可只用原始JSONL重建。完整IR/二进制/暂存文件放tmp/，日志和完整原始记录放logs/；提交m7-findings/results/lineage及单独人工m7-interpretation。沿用不计算hash、不新增单元测试，实际编译、数值、数据审计与报告重建为验收。
 
 若廉价当前IR统计或规则已解释上下文，或跨Shape效果不稳定，不增加神经网络；即使存在全局上下文增益，也不推出上游历史、Attention、持续状态有效。六个输入不足以评估泛化，先如实交付信号与限制，不通过重复堆Shape凑旧门槛。
+
+## 正式验收
+
+冻结实现4b9347d，两批均36/36正确、各540计时，从干净工作区完成。方向反转、轻量信息对照、成本/噪声边界及停止点见 [m7-interpretation.md](../experiments/reports/m7-interpretation.md)。正式规则/动作/特征未按结果修改。

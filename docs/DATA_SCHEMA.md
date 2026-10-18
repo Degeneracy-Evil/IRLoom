@@ -53,3 +53,11 @@
 - 随机汇总先逐seed对同家族同split的输入取regret几何均值，再报告种子均值/范围；不把种子或计时重复当成独立程序。
 - `m6-model.json` 保存特征顺序、train-only归一化、权重/截距、alpha验证选择、21参数、依赖版本和训练日志；prediction_metrics含每case的log RMSE及含特征提取的实测推理秒数。
 - 查询成本沿用M5，compile_seconds包含审计反汇编，compiler_processes计数不含它。k个查询并不等于相同墙钟；本轮为离线回放，原始全池费用和监督标签采集费用另外披露。
+
+## M7 的可选扩展（v1）
+
+- context_graph增加case/record.context=single/transpose/row_reduce，仍使用两维f32输入和原C ABI；transpose要求正方形。高层为separate/fused，八阶段含bufferized。
+- context_features在collect性能测量前从原始high与affine生成，含local_current/full_current九项计数、四项upstream、操作名、规范化local_window、来源stage和累计窗口提取seconds。原始producer文本标记仅用于匹配核查，不是通用Operation溯源。
+- m7-results.json保存逐候选原始timings/MAD/范围/费用、融合与分块效应/探索性区间、事后共享动作下界、信息表示分组/训练case/一次低层查询/计费与完整上下文元数据。
+- information中的leave_shape_out/leave_context_out按完整case划分，重复合并仅作训练标签，每批测试分开计分。高层固定，regret的oracle只含同一高层的三个低层动作。
+- L0/L1/L2是透明查表窗口，不是神经网络；全部标签采集费用仍由完整run给出，反事实成本求和不等于实际在线墙钟。只允许显式ranking_seconds/training_and_ranking_seconds在报告重建中因时钟变化。
