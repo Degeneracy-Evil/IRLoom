@@ -92,10 +92,10 @@ def simulate(records, policy):
 
 def analyze_case(records):
     records = [r for r in records if r.get("role")=="factorial"]
+    results = [simulate(records, policy) for policy in ("static", "greedy", "lookahead", "B1-static")]
     oracle = min(records, key=latency)
     if latency(oracle)==float("inf"):
         raise ValueError("candidate pool has no valid oracle")
-    results = [simulate(records, policy) for policy in ("static", "greedy", "lookahead", "B1-static")]
     for result in results:
         result["regret_ratio"] = result["latency_ms"]/latency(oracle)
     highs = sorted({r["high_choice"] for r in records})

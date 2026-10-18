@@ -100,3 +100,11 @@ bash scripts/phase0.sh m5
 ```
 
 使用 `experiments/m5.json`，每批六十条受控候选，共两批；先完成全部正确性与固定次数计时，再生成 M5-A 与 M5-B/C/D 报告。规则、信息边界、严格调用预算和墙钟费用的区别见 [M5_PROTOCOL.md](M5_PROTOCOL.md)。预览完整工作流已用两类共十二条候选的临时配置跑通，两批均通过；旧 M1 的自适应校准入口回归仍通过。
+
+正式完整单入口也已通过，两轮日志路径如下。仅重建统计/成本/来源报告可执行：
+
+```bash
+bash scripts/phase0.sh m5-report --records logs/20261018T151218131929Z/records.jsonl logs/20261018T151325422312Z/records.jsonl
+```
+
+`m5-findings.md`、`m5-results.json`、`m5-reduction-lineage.md` 为派生结果；`m5-interpretation.md` 是人工解读，不被重建命令覆盖。策略选择/成本/统计由原始数据确定；Python 离线记账耗时会在每次报告运行中重新测量，因此该字段允许变化。

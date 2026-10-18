@@ -46,6 +46,13 @@ bash scripts/phase0.sh m4      # 两轮跨阶段实验、C++ 参考、默认等�
 
 > **给本地 Agent：** 从 [docs/AGENT_START.md](docs/AGENT_START.md) 开始，阅读相关实验协议后分阶段执行。不要跳过 baseline 与数据质量检查直接训练模型。
 
-## 下一阶段：M5 前瞻优化决策
+## Phase 1 首轮：M5 前瞻优化决策
 
-M4 确认了高层循环顺序与后续 affine 变换之间可重复的性能交互，但仍未证明跨阶段历史信息的独立价值。下一步先基于受控候选池研究高层贪心决策的损失，再使用少量独立程序实例检验有限预算的跨阶段前瞻策略。详见 [M4 审查与 M5 实验任务](docs/M5_PLAN.md)。
+M4 确认了高层循环顺序与后续 affine 变换之间可重复的性能交互，但仍未证明跨阶段历史信息的独立价值。M5 基于受控候选池研究高层贪心决策的损失，再使用少量程序实例检验有限预算的跨阶段前瞻策略。详见 [M4 审查与 M5 实验任务](docs/M5_PLAN.md)。
+
+M5 规则实验已完成：两家族、十个输入实例，两轮各 60/60 正确，共 1,800 个计时样本。同样四次候选评估的离线前瞻在三个新 matmul 实例上避免了贪心损失，归约简单策略已近最优。见 [结果解读](experiments/reports/m5-interpretation.md)、[完整报告](experiments/reports/m5-findings.md) 和 [冻结协议](docs/M5_PROTOCOL.md)。没有训练模型或声称在线优化收益。
+
+```bash
+bash scripts/phase0.sh m5-a    # 仅分析已提交 M4 数据
+bash scripts/phase0.sh m5      # 两轮新池、固定预算对照与报告
+```
