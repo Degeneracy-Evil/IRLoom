@@ -4,6 +4,8 @@
 
 **执行状态（2026-10-18）：** M0–M3 首轮已完成，真实命令与限制见 [RUNNING.md](RUNNING.md)，提交及验收结果见 [PROGRESS.md](PROGRESS.md)，结论见 [首批报告](../experiments/reports/phase0-initial.md)。用户明确禁止本轮计算 hash、编写单元测试；该约束优先，详见实验协议顶部说明。
 
+审查后追加的 M4 也已完成：[实验设计](M4_PROTOCOL.md)、[结果解读](../experiments/reports/m4-findings.md)。观察到路径交互，不等于已证明历史信息的增量价值；继续以当前 IR 透明基线和更多独立证据为优先，不提前训练模型。
+
 ## 任务执行原则
 
 先产出一条完整、正确且可复现的「程序 → 多阶段 IR → native binary → 正确性 → 多次计时 → 结构化记录」路径，再增加程序和变换。优先使用现有 MLIR/LLVM 工具；尽量用 Python 负责组织与采集，不为了调度实验就新写 C++ Pass。

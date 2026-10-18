@@ -38,4 +38,10 @@ bash scripts/phase0.sh m0      # 仅运行最小链路验收
 
 M0–M3 首轮已完成：三类工作负载、每类两个 Shape、每个 Case 四条合法路径；两轮正式采集均 24/24 正确、各有 360 个计时样本。见 [首批证据报告](experiments/reports/phase0-initial.md) 和 [简明结果汇总](experiments/reports/phase0-summary.json)。当前证据支持路径性能差异，尚未验证历史 IR 的预测价值，也未训练任何模型。
 
+M4 已完成真实的 linalg 顺序 × affine 动作实验，含三个缓存容量规格及独立 C++ 性能参考。两轮各 21/21 正确，共 630 个计时样本；中、大尺寸观察到 tile16 收益随高层选择反转。见 [M4 结果解读](experiments/reports/m4-findings.md)、[完整交互报告](experiments/reports/m4-interaction.md) 及 [IR/函数代码样例](experiments/reports/m4-lineage.md)。区别仍保留在当前 affine IR，尚不证明历史状态有额外价值。
+
+```bash
+bash scripts/phase0.sh m4      # 两轮跨阶段实验、C++ 参考、默认等价检查及报告
+```
+
 > **给本地 Agent：** 从 [docs/AGENT_START.md](docs/AGENT_START.md) 开始，阅读相关实验协议后分阶段执行。不要跳过 baseline 与数据质量检查直接训练模型。

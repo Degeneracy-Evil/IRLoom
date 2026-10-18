@@ -76,3 +76,11 @@ bash scripts/phase0.sh m4
 ```
 
 自动完成三种 Shape 的两轮独立重编译与测量（每轮 6 个 A×B cell + 1 个 C++ 参考，共 21 个候选），校验原默认代码等价，导出交互与来源样例报告。设计、缓存规模和参考的适用边界见 [M4_PROTOCOL.md](M4_PROTOCOL.md)。可用 `CLANGXX` 覆盖 clang++，`LLVM_OBJDUMP` 覆盖反汇编工具。
+
+已验证的单独报告重建命令（不用重新测量）：
+
+```bash
+bash scripts/phase0.sh m4-report --records logs/20261018T101246162932Z/records.jsonl logs/20261018T101331335316Z/records.jsonl --workflow logs/m4-20261018T101246123107Z/workflow.json
+```
+
+`m4-interaction.json` 和两份自动生成的 Markdown 为派生结果；人工解读单独保存在 `experiments/reports/m4-findings.md`，重建统计报告不会覆盖它。
