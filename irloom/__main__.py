@@ -29,11 +29,15 @@ def load_config(path):
             raise ValueError("case/candidate ids must be unique, nonempty path-safe identifiers")
     for case in config["cases"]:
         dims = 3 if case["program"] == "matmul" else 2
-        if (case["program"] not in ("matmul", "reduction", "stencil", "pointwise_chain") or len(case["shape"]) != dims
+        if (case["program"] not in ("matmul", "reduction", "stencil", "pointwise_chain", "context_graph") or len(case["shape"]) != dims
                 or any(type(x) is not int or x <= 0 for x in case["shape"])):
             raise ValueError(f"invalid program or positive static shape: {case}")
         allowed = {"matmul": (None,"ijk","ikj"), "reduction":(None,"ij","ji"), "stencil":(None,),
-                   "pointwise_chain":("separate","fused")}
+                   "pointwise_chain":("separate","fused"), "context_graph":("separate","fused")}
+        if case["program"]=="context_graph":
+            from benchmarks.context_graph import CONTEXTS
+            if case.get("context") not in CONTEXTS or (case["context"]=="transpose" and case["shape"][0]!=case["shape"][1]):
+                raise ValueError("invalid graph context or transpose shape")
         if any(c.get("high_choice") not in allowed[case["program"]] for c in candidates_for(config,case)):
             raise ValueError("high choice incompatible with workload")
         if "iterations" in case and (type(case["iterations"]) is not int or case["iterations"]<1):
@@ -60,11 +64,13 @@ def compile_all(config, output, logs, metadata):
                       "role": candidate.get("role", "factorial")}
             if "split" in case:
                 record["split"]=case["split"]
+            if "context" in case:
+                record["context"]=case["context"]
             records.append(record)
             dest = output / case["id"] / candidate["id"]
             log = logs / case["id"] / candidate["id"]
             try:
-                source, defines = generate(case["program"], case["shape"])
+                source, defines = generate(case["program"], case["shape"],case.get("context"))
                 record["decision_features"] = {"program":case["program"],"shape":case["shape"],
                                                "stage":"high","layout":"row-major",
                                                "operation":next(op for op in ("linalg.matmul","linalg.generic","affine.for") if op in source)}

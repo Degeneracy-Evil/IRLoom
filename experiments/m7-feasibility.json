@@ -1,0 +1,91 @@
+{
+  "name": "m7-feasibility",
+  "seed": 1,
+  "samples": 10,
+  "min_batch_ms": 10,
+  "timeout_seconds": 60,
+  "correctness_seeds": [
+    0,
+    1,
+    7,
+    19
+  ],
+  "cases": [
+    {
+      "id": "single-8",
+      "program": "context_graph",
+      "context": "single",
+      "shape": [
+        8,
+        8
+      ],
+      "iterations": 1024
+    },
+    {
+      "id": "transpose-8",
+      "program": "context_graph",
+      "context": "transpose",
+      "shape": [
+        8,
+        8
+      ],
+      "iterations": 1024
+    },
+    {
+      "id": "row_reduce-8",
+      "program": "context_graph",
+      "context": "row_reduce",
+      "shape": [
+        8,
+        8
+      ],
+      "iterations": 1024
+    }
+  ],
+  "candidates": [
+    {
+      "id": "separate-none",
+      "high_choice": "separate",
+      "low_choice": "none",
+      "transforms": []
+    },
+    {
+      "id": "separate-tile8",
+      "high_choice": "separate",
+      "low_choice": "tile8",
+      "transforms": [
+        "--affine-loop-tile=tile-size=8"
+      ]
+    },
+    {
+      "id": "separate-tile32",
+      "high_choice": "separate",
+      "low_choice": "tile32",
+      "transforms": [
+        "--affine-loop-tile=tile-size=32"
+      ]
+    },
+    {
+      "id": "fused-none",
+      "high_choice": "fused",
+      "low_choice": "none",
+      "transforms": []
+    },
+    {
+      "id": "fused-tile8",
+      "high_choice": "fused",
+      "low_choice": "tile8",
+      "transforms": [
+        "--affine-loop-tile=tile-size=8"
+      ]
+    },
+    {
+      "id": "fused-tile32",
+      "high_choice": "fused",
+      "low_choice": "tile32",
+      "transforms": [
+        "--affine-loop-tile=tile-size=32"
+      ]
+    }
+  ]
+}

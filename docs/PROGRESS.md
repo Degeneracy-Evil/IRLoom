@@ -109,3 +109,10 @@
 - 在tmp/m6-rebuilt重建报告，权重/标准化、全部种子分数数组、查询/选择和费用完全相同，只有实测Python时钟可变。日志审计摘要位于logs/m6-20261018T171911007953Z/audit.json；未写单元测试、未计算hash。
 - 公开m6-findings/results/model/fusion-lineage与人工m6-interpretation；README、入口指南、schema和本记录同步。澄清协议compile_seconds含审计反汇编，与既有实现一致，不修改冻结决策或数据。
 - M6.3样本/信号门槛未满足，记录为未触发，停止扩展网络。下一轮应先冻结独立模板/输入、tile4/tile32强固定参考与新盲测，再考虑在线可中断预算。
+
+## M7.0 — 合法性与路径可达性已完成（2026-10-19）
+
+- 拉取b1b60b9并读完M7新增规划；从局部完全一致D=A*B出发，构造single、transpose复用、row_reduce复用三上下文。未修改旧M0–M6数据。
+- MLIR18现成elementwise fusion与bufferization可达，六条高低层组合×三上下文，8×8功能规格18/18编译/四种子正确性通过，共180计时。报告m7-feasibility.md，配置experiments/m7-feasibility.json。
+- 发现原生融合不会强制内联多消费者D：single从2到1个generic，transpose从3到2，row_reduce从4到3；buffer alloc分别1→1、2→2、3→2。此为工具实际限制与现成编译器上下文能力，不开发自定义Pass掩盖它。
+- 下一步冻结两规模正式矩阵和轻量信息对照，再从干净实现提交采集；不通过堆相同Shape或增大模型参数推进研究。

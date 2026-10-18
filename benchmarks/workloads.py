@@ -1,7 +1,10 @@
 """Static-shape MLIR inputs; all candidate changes are compiler passes."""
 
 
-def generate(program, shape):
+def generate(program, shape, context=None):
+    if program=="context_graph":
+        from .context_graph import generate as generate_graph
+        return generate_graph(context,shape)
     m, n = shape[:2]
     k = shape[2] if program == "matmul" else 1
     if program == "matmul":

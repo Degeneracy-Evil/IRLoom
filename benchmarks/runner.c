@@ -54,6 +54,9 @@ static double reference(Matrix a, Matrix b, int i, int j) {
   return ((double)a.aligned[(i+1)*width+j+1] + a.aligned[(i+1)*width+j]
           + a.aligned[(i+1)*width+j+2] + a.aligned[i*width+j+1]
           + a.aligned[(i+2)*width+j+1]) * 0.2;
+#elif KIND == 5
+  return ((double)a.aligned[i*N+j]*b.aligned[i*N+j] + a.aligned[i*N+j])
+         + (double)a.aligned[j*N+i]*b.aligned[j*N+i];
 #else
   return (double)a.aligned[i*N+j]*b.aligned[i*N+j] + a.aligned[i*N+j];
 #endif
@@ -84,9 +87,19 @@ int main(int argc, char **argv) {
   for (int64_t i = 0; i < c.sizes[0]*c.sizes[1]; ++i) c.aligned[i] = NAN;
   double *expected = calloc((size_t)c.sizes[0]*c.sizes[1], sizeof(double));
   if (!expected) { perror("calloc"); return 2; }
-  for (int i = 0; i < M; ++i)
-    for (int j = 0; j < c.sizes[1]; ++j)
+  for (int i = 0; i < M; ++i) {
+#if KIND == 6
+    double row_sum = 0;
+    for (int j = 0; j < N; ++j)
+      row_sum += (double)a.aligned[i*N+j] * b.aligned[i*N+j];
+#endif
+    for (int j = 0; j < c.sizes[1]; ++j) {
       expected[i*c.sizes[1]+j] = reference(a, b, i, j);
+#if KIND == 6
+      expected[i*c.sizes[1]+j] += row_sum;
+#endif
+    }
+  }
   _mlir_ciface_kernel(&a, &b, &c);
   double max_error = 0;
   for (int i = 0; i < M; ++i) {
