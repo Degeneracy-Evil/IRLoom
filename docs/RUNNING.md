@@ -108,3 +108,11 @@ bash scripts/phase0.sh m5-report --records logs/20261018T151218131929Z/records.j
 ```
 
 `m5-findings.md`、`m5-results.json`、`m5-reduction-lineage.md` 为派生结果；`m5-interpretation.md` 是人工解读，不被重建命令覆盖。策略选择/成本/统计由原始数据确定；Python 离线记账耗时会在每次报告运行中重新测量，因此该字段允许变化。
+
+## M6.0 只读固定覆盖与随机参考
+
+```bash
+bash scripts/phase0.sh m6-a
+```
+
+只读取已提交 M5 JSON，输出 m6-coverage.md/json，不重跑基准或修改 M5 实验。穷举十五种四候选子集，并对 k=2/4/6 运行一百个种子的离线随机/分层随机参考。

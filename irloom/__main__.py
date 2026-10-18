@@ -98,7 +98,7 @@ def compile_all(config, output, logs, metadata):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
-                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "compile", "run", "collect", "summarize", "report"])
+                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "m6-a", "compile", "run", "collect", "summarize", "report"])
     parser.add_argument("--config", type=Path)
     parser.add_argument("--order-seed", type=int, help="measurement order only; input seed stays fixed")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
@@ -107,6 +107,10 @@ def main():
     args = parser.parse_args()
     (ROOT / "tmp").mkdir(exist_ok=True)
     (ROOT / "logs").mkdir(exist_ok=True)
+    if args.action=="m6-a":
+        from .coverage import analyze
+        print(analyze())
+        return
     if args.action == "m5-a":
         from .m5 import analyze_m4
         print(analyze_m4())
