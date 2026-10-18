@@ -26,6 +26,33 @@ def generate(program, shape):
       linalg.yield %sum : f32
     }}"""
         kind = 1
+    elif program == "pointwise_chain":
+        a=b=c=f"{m}x{n}"
+        tensor=f"tensor<{c}xf32>"
+        memref=f"memref<{c}xf32>"
+        body=f"""
+    %ta = bufferization.to_tensor %a restrict : {memref}
+    %tb = bufferization.to_tensor %b restrict : {memref}
+    %empty = tensor.empty() : {tensor}
+    %product = linalg.generic {{
+      indexing_maps = [affine_map<(i,j)->(i,j)>, affine_map<(i,j)->(i,j)>, affine_map<(i,j)->(i,j)>],
+      iterator_types = ["parallel", "parallel"]
+    }} ins(%ta, %tb : {tensor}, {tensor}) outs(%empty : {tensor}) {{
+    ^bb0(%x: f32, %y: f32, %unused: f32):
+      %value = arith.mulf %x, %y : f32
+      linalg.yield %value : f32
+    }} -> {tensor}
+    %result = linalg.generic {{
+      indexing_maps = [affine_map<(i,j)->(i,j)>, affine_map<(i,j)->(i,j)>, affine_map<(i,j)->(i,j)>],
+      iterator_types = ["parallel", "parallel"]
+    }} ins(%product, %ta : {tensor}, {tensor}) outs(%empty : {tensor}) {{
+    ^bb0(%p: f32, %x: f32, %unused: f32):
+      %value = arith.addf %p, %x : f32
+      linalg.yield %value : f32
+    }} -> {tensor}
+    %buffer = bufferization.to_memref %result : {memref}
+    memref.copy %buffer, %c : {memref} to {memref}"""
+        kind=3
     elif program == "stencil":
         a, b, c = f"{m+2}x{n+2}", "1x1", f"{m}x{n}"
         body = f"""

@@ -3,4 +3,6 @@ name = "irloom"
 version = "0.1.0"
 description = "Reproducible MLIR compilation and native measurement"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "numpy>=2.4.6",
+]

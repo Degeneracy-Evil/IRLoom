@@ -93,3 +93,9 @@
 - 新增 k=2/4/6 的随机与分层随机，各 100 个固定种子，保留均值、分布、真实成本离线计费和样例查询。明确与全局固定子集描述性统计的区别。
 - 明确旧 lookahead 为 fixed balanced coverage，未依据反馈改变查询。报告为 experiments/reports/m6-coverage.md/json；入口 `bash scripts/phase0.sh m6-a`。
 - 下一步冻结更丰富候选、融合链模板和预先 train/validation/blind 划分，先真实编译与数值验收再采集；M6.2 仅做低参数透明模型，M6.3 按信号和独立样本门槛决定。
+
+## M6.1 / M6.2 — 实现冻结（2026-10-19）
+
+- 扩展到每实例2×6；新增 C=A*B+A 可融合链，独立 double 参考与 tensor→buffer→affine→LLVM 实际编译通过。融合前后高层2/1个 generic，两路都保留1个 alloc/dealloc，计入 kernel。
+- 候选、20个输入、整 case/template 划分、固定迭代次数、反馈式查询和20特征 ridge pilot 在正式标签采集前冻结，见 M6_PROTOCOL.md。训练只有8个输入/两个模板；M6.3 门槛未达到，不开发神经架构。
+- 不改旧 M5 规则与结论；新增包装入口 m6 / m6-report，唯一新增依赖 NumPy。小配置两批各48/48编译/数值通过，完整模型拟合与报告生成通过；链仅在 diagnostic，不参与模型验证。下一步从干净实现提交开始正式采集。

@@ -1,0 +1,552 @@
+{
+  "name": "m6-expanded-pilot",
+  "seed": 1,
+  "samples": 10,
+  "min_batch_ms": 10,
+  "timeout_seconds": 60,
+  "correctness_seeds": [
+    0,
+    1,
+    7,
+    19
+  ],
+  "cases": [
+    {
+      "id": "matmul-40x56x32",
+      "program": "matmul",
+      "shape": [
+        40,
+        56,
+        32
+      ],
+      "iterations": 512,
+      "split": "train"
+    },
+    {
+      "id": "matmul-64x64x48",
+      "program": "matmul",
+      "shape": [
+        64,
+        64,
+        48
+      ],
+      "iterations": 256,
+      "split": "train"
+    },
+    {
+      "id": "matmul-80x48x80",
+      "program": "matmul",
+      "shape": [
+        80,
+        48,
+        80
+      ],
+      "iterations": 256,
+      "split": "train"
+    },
+    {
+      "id": "matmul-96x96x64",
+      "program": "matmul",
+      "shape": [
+        96,
+        96,
+        64
+      ],
+      "iterations": 128,
+      "split": "train"
+    },
+    {
+      "id": "matmul-56x80x48",
+      "program": "matmul",
+      "shape": [
+        56,
+        80,
+        48
+      ],
+      "iterations": 256,
+      "split": "validation"
+    },
+    {
+      "id": "matmul-112x48x64",
+      "program": "matmul",
+      "shape": [
+        112,
+        48,
+        64
+      ],
+      "iterations": 256,
+      "split": "validation"
+    },
+    {
+      "id": "matmul-72x104x40",
+      "program": "matmul",
+      "shape": [
+        72,
+        104,
+        40
+      ],
+      "iterations": 256,
+      "split": "blind"
+    },
+    {
+      "id": "matmul-128x40x80",
+      "program": "matmul",
+      "shape": [
+        128,
+        40,
+        80
+      ],
+      "iterations": 256,
+      "split": "blind"
+    },
+    {
+      "id": "reduction-48x96",
+      "program": "reduction",
+      "shape": [
+        48,
+        96
+      ],
+      "iterations": 4096,
+      "split": "train"
+    },
+    {
+      "id": "reduction-96x64",
+      "program": "reduction",
+      "shape": [
+        96,
+        64
+      ],
+      "iterations": 4096,
+      "split": "train"
+    },
+    {
+      "id": "reduction-64x160",
+      "program": "reduction",
+      "shape": [
+        64,
+        160
+      ],
+      "iterations": 2048,
+      "split": "train"
+    },
+    {
+      "id": "reduction-160x64",
+      "program": "reduction",
+      "shape": [
+        160,
+        64
+      ],
+      "iterations": 2048,
+      "split": "train"
+    },
+    {
+      "id": "reduction-80x128",
+      "program": "reduction",
+      "shape": [
+        80,
+        128
+      ],
+      "iterations": 2048,
+      "split": "validation"
+    },
+    {
+      "id": "reduction-96x192",
+      "program": "reduction",
+      "shape": [
+        96,
+        192
+      ],
+      "iterations": 2048,
+      "split": "validation"
+    },
+    {
+      "id": "reduction-112x96",
+      "program": "reduction",
+      "shape": [
+        112,
+        96
+      ],
+      "iterations": 2048,
+      "split": "blind"
+    },
+    {
+      "id": "reduction-160x160",
+      "program": "reduction",
+      "shape": [
+        160,
+        160
+      ],
+      "iterations": 1024,
+      "split": "blind"
+    },
+    {
+      "id": "pointwise_chain-32x64",
+      "program": "pointwise_chain",
+      "shape": [
+        32,
+        64
+      ],
+      "iterations": 8192,
+      "split": "blind"
+    },
+    {
+      "id": "pointwise_chain-65x97",
+      "program": "pointwise_chain",
+      "shape": [
+        65,
+        97
+      ],
+      "iterations": 4096,
+      "split": "blind"
+    },
+    {
+      "id": "pointwise_chain-128x128",
+      "program": "pointwise_chain",
+      "shape": [
+        128,
+        128
+      ],
+      "iterations": 2048,
+      "split": "blind"
+    },
+    {
+      "id": "pointwise_chain-257x129",
+      "program": "pointwise_chain",
+      "shape": [
+        257,
+        129
+      ],
+      "iterations": 1024,
+      "split": "blind"
+    }
+  ],
+  "candidates_by_program": {
+    "matmul": [
+      {
+        "id": "a0-none",
+        "high_choice": "ijk",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "a0-tile4",
+        "high_choice": "ijk",
+        "low_choice": "tile4",
+        "transforms": [
+          "--affine-loop-tile=tile-size=4"
+        ]
+      },
+      {
+        "id": "a0-tile8",
+        "high_choice": "ijk",
+        "low_choice": "tile8",
+        "transforms": [
+          "--affine-loop-tile=tile-size=8"
+        ]
+      },
+      {
+        "id": "a0-tile16",
+        "high_choice": "ijk",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "a0-tile32",
+        "high_choice": "ijk",
+        "low_choice": "tile32",
+        "transforms": [
+          "--affine-loop-tile=tile-size=32"
+        ]
+      },
+      {
+        "id": "a0-unroll4",
+        "high_choice": "ijk",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      },
+      {
+        "id": "a1-none",
+        "high_choice": "ikj",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "a1-tile4",
+        "high_choice": "ikj",
+        "low_choice": "tile4",
+        "transforms": [
+          "--affine-loop-tile=tile-size=4"
+        ]
+      },
+      {
+        "id": "a1-tile8",
+        "high_choice": "ikj",
+        "low_choice": "tile8",
+        "transforms": [
+          "--affine-loop-tile=tile-size=8"
+        ]
+      },
+      {
+        "id": "a1-tile16",
+        "high_choice": "ikj",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "a1-tile32",
+        "high_choice": "ikj",
+        "low_choice": "tile32",
+        "transforms": [
+          "--affine-loop-tile=tile-size=32"
+        ]
+      },
+      {
+        "id": "a1-unroll4",
+        "high_choice": "ikj",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      }
+    ],
+    "reduction": [
+      {
+        "id": "a0-none",
+        "high_choice": "ij",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "a0-tile4",
+        "high_choice": "ij",
+        "low_choice": "tile4",
+        "transforms": [
+          "--affine-loop-tile=tile-size=4"
+        ]
+      },
+      {
+        "id": "a0-tile8",
+        "high_choice": "ij",
+        "low_choice": "tile8",
+        "transforms": [
+          "--affine-loop-tile=tile-size=8"
+        ]
+      },
+      {
+        "id": "a0-tile16",
+        "high_choice": "ij",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "a0-tile32",
+        "high_choice": "ij",
+        "low_choice": "tile32",
+        "transforms": [
+          "--affine-loop-tile=tile-size=32"
+        ]
+      },
+      {
+        "id": "a0-unroll4",
+        "high_choice": "ij",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      },
+      {
+        "id": "a1-none",
+        "high_choice": "ji",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "a1-tile4",
+        "high_choice": "ji",
+        "low_choice": "tile4",
+        "transforms": [
+          "--affine-loop-tile=tile-size=4"
+        ]
+      },
+      {
+        "id": "a1-tile8",
+        "high_choice": "ji",
+        "low_choice": "tile8",
+        "transforms": [
+          "--affine-loop-tile=tile-size=8"
+        ]
+      },
+      {
+        "id": "a1-tile16",
+        "high_choice": "ji",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "a1-tile32",
+        "high_choice": "ji",
+        "low_choice": "tile32",
+        "transforms": [
+          "--affine-loop-tile=tile-size=32"
+        ]
+      },
+      {
+        "id": "a1-unroll4",
+        "high_choice": "ji",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      }
+    ],
+    "pointwise_chain": [
+      {
+        "id": "a0-none",
+        "high_choice": "separate",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "a0-tile4",
+        "high_choice": "separate",
+        "low_choice": "tile4",
+        "transforms": [
+          "--affine-loop-tile=tile-size=4"
+        ]
+      },
+      {
+        "id": "a0-tile8",
+        "high_choice": "separate",
+        "low_choice": "tile8",
+        "transforms": [
+          "--affine-loop-tile=tile-size=8"
+        ]
+      },
+      {
+        "id": "a0-tile16",
+        "high_choice": "separate",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "a0-tile32",
+        "high_choice": "separate",
+        "low_choice": "tile32",
+        "transforms": [
+          "--affine-loop-tile=tile-size=32"
+        ]
+      },
+      {
+        "id": "a0-unroll4",
+        "high_choice": "separate",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      },
+      {
+        "id": "a1-none",
+        "high_choice": "fused",
+        "low_choice": "none",
+        "transforms": []
+      },
+      {
+        "id": "a1-tile4",
+        "high_choice": "fused",
+        "low_choice": "tile4",
+        "transforms": [
+          "--affine-loop-tile=tile-size=4"
+        ]
+      },
+      {
+        "id": "a1-tile8",
+        "high_choice": "fused",
+        "low_choice": "tile8",
+        "transforms": [
+          "--affine-loop-tile=tile-size=8"
+        ]
+      },
+      {
+        "id": "a1-tile16",
+        "high_choice": "fused",
+        "low_choice": "tile16",
+        "transforms": [
+          "--affine-loop-tile=tile-size=16"
+        ]
+      },
+      {
+        "id": "a1-tile32",
+        "high_choice": "fused",
+        "low_choice": "tile32",
+        "transforms": [
+          "--affine-loop-tile=tile-size=32"
+        ]
+      },
+      {
+        "id": "a1-unroll4",
+        "high_choice": "fused",
+        "low_choice": "unroll4",
+        "transforms": [
+          "--affine-loop-unroll=unroll-factor=4"
+        ]
+      }
+    ]
+  },
+  "budgets": [
+    2,
+    4,
+    6
+  ],
+  "random_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+  ],
+  "linear_alphas": [
+    0.1,
+    1.0,
+    10.0
+  ],
+  "split_policy": "whole case including both repetitions; pointwise_chain held out as entire template"
+}

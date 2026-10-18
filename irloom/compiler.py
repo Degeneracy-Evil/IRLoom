@@ -95,7 +95,10 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=(), h
     high.write_text(source)
     record["snapshots"].append({"stage": "high", "path": str(high), "parent": None})
     stages = []
-    if high_choice is not None:
+    if high_choice in ("separate","fused"):
+        stages.append(("high_decision",["--linalg-fuse-elementwise-ops"] if high_choice=="fused" else []))
+        stages.append(("bufferized",["--one-shot-bufferize","--buffer-deallocation","--canonicalize","--cse"]))
+    elif high_choice is not None:
         if high_choice not in ("ijk", "ikj", "ij", "ji"):
             raise ValueError(f"unsupported high choice: {high_choice}")
         schedule = output / "schedule.mlir"

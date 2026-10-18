@@ -29,10 +29,11 @@ def load_config(path):
             raise ValueError("case/candidate ids must be unique, nonempty path-safe identifiers")
     for case in config["cases"]:
         dims = 3 if case["program"] == "matmul" else 2
-        if (case["program"] not in ("matmul", "reduction", "stencil") or len(case["shape"]) != dims
+        if (case["program"] not in ("matmul", "reduction", "stencil", "pointwise_chain") or len(case["shape"]) != dims
                 or any(type(x) is not int or x <= 0 for x in case["shape"])):
             raise ValueError(f"invalid program or positive static shape: {case}")
-        allowed = {"matmul": (None,"ijk","ikj"), "reduction":(None,"ij","ji"), "stencil":(None,)}
+        allowed = {"matmul": (None,"ijk","ikj"), "reduction":(None,"ij","ji"), "stencil":(None,),
+                   "pointwise_chain":("separate","fused")}
         if any(c.get("high_choice") not in allowed[case["program"]] for c in candidates_for(config,case)):
             raise ValueError("high choice incompatible with workload")
         if "iterations" in case and (type(case["iterations"]) is not int or case["iterations"]<1):
@@ -57,6 +58,8 @@ def compile_all(config, output, logs, metadata):
                       "high_choice": candidate.get("high_choice"),
                       "low_choice": candidate.get("low_choice"),
                       "role": candidate.get("role", "factorial")}
+            if "split" in case:
+                record["split"]=case["split"]
             records.append(record)
             dest = output / case["id"] / candidate["id"]
             log = logs / case["id"] / candidate["id"]
@@ -98,7 +101,7 @@ def compile_all(config, output, logs, metadata):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
-                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "m6-a", "compile", "run", "collect", "summarize", "report"])
+                        choices=["probe", "m0", "m4", "m4-report", "m5-a", "m5", "m5-report", "m6-a", "m6", "m6-report", "compile", "run", "collect", "summarize", "report"])
     parser.add_argument("--config", type=Path)
     parser.add_argument("--order-seed", type=int, help="measurement order only; input seed stays fixed")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
@@ -107,6 +110,16 @@ def main():
     args = parser.parse_args()
     (ROOT / "tmp").mkdir(exist_ok=True)
     (ROOT / "logs").mkdir(exist_ok=True)
+    if args.action=="m6":
+        from .m6 import run
+        run(args.config or ROOT/"experiments/m6.json")
+        return
+    if args.action=="m6-report":
+        if not args.records:
+            parser.error("m6-report requires --records")
+        from .m6 import write_report
+        print(write_report(args.records))
+        return
     if args.action=="m6-a":
         from .coverage import analyze
         print(analyze())

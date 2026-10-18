@@ -49,11 +49,13 @@ static double reference(Matrix a, Matrix b, int i, int j) {
   double result = 0;
   for (int k = 0; k < N; ++k) result += (double)a.aligned[i*N+k];
   return result;
-#else
+#elif KIND == 2
   int width = N+2;
   return ((double)a.aligned[(i+1)*width+j+1] + a.aligned[(i+1)*width+j]
           + a.aligned[(i+1)*width+j+2] + a.aligned[i*width+j+1]
           + a.aligned[(i+2)*width+j+1]) * 0.2;
+#else
+  return (double)a.aligned[i*N+j]*b.aligned[i*N+j] + a.aligned[i*N+j];
 #endif
 }
 
@@ -72,8 +74,10 @@ int main(int argc, char **argv) {
   Matrix a = matrix(M, K), b = matrix(K, N), c = matrix(M, N);
 #elif KIND == 1
   Matrix a = matrix(M, N), b = matrix(1, 1), c = matrix(M, 1);
-#else
+#elif KIND == 2
   Matrix a = matrix(M+2, N+2), b = matrix(1, 1), c = matrix(M, N);
+#else
+  Matrix a = matrix(M, N), b = matrix(M, N), c = matrix(M, N);
 #endif
   fill(a, seed); fill(b, seed + 1);
   /* NaNs detect incomplete output writes, including all-zero input checks. */
