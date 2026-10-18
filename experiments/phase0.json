@@ -1,0 +1,22 @@
+{
+  "name": "phase0-initial",
+  "seed": 1,
+  "samples": 15,
+  "min_batch_ms": 10,
+  "timeout_seconds": 30,
+  "correctness_seeds": [0, 1, 7, 19],
+  "cases": [
+    {"id": "matmul-64x64x64", "program": "matmul", "shape": [64, 64, 64]},
+    {"id": "matmul-127x65x93", "program": "matmul", "shape": [127, 65, 93]},
+    {"id": "reduction-128x256", "program": "reduction", "shape": [128, 256]},
+    {"id": "reduction-127x259", "program": "reduction", "shape": [127, 259]},
+    {"id": "stencil-128x256", "program": "stencil", "shape": [128, 256]},
+    {"id": "stencil-127x259", "program": "stencil", "shape": [127, 259]}
+  ],
+  "candidates": [
+    {"id": "default", "transforms": []},
+    {"id": "tile4", "transforms": ["--affine-loop-tile=tile-size=4"]},
+    {"id": "tile16", "transforms": ["--affine-loop-tile=tile-size=16"]},
+    {"id": "unroll4", "transforms": ["--affine-loop-unroll=unroll-factor=4"]}
+  ]
+}

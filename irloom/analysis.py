@@ -8,7 +8,7 @@ def summarize(records):
     rows = []
     for r in records:
         row = {k: r.get(k) for k in ("case_id", "candidate_id", "status", "failure_stage", "error",
-                                    "compile_seconds", "duplicate_of", "ir_changed")}
+                                    "compile_seconds", "duplicate_of", "code_duplicate_of", "ir_changed")}
         samples = r.get("timings_ms", [])
         if r["status"] == "ok" and r.get("correctness", {}).get("status") == "pass" and len(samples) >= 10:
             median = statistics.median(samples)

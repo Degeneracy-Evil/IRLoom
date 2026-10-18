@@ -116,12 +116,18 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=()):
     obj = output / "kernel.o"
     command([tool("clang"), *flags, "-c", ll, "-o", obj],
             logs / "codegen.log", events, "codegen")
+    assembly = command([tool("llvm-objdump"), "--disassemble", "--reloc", obj],
+                       logs / "disassembly.log", events, "disassembly")
+    disassembly = output / "kernel.disasm"
+    # Drop only the object filename header; retain offsets, opcodes and relocations.
+    disassembly.write_text("\n".join(line for line in assembly.splitlines()
+                                      if "file format" not in line).strip() + "\n")
     binary = output / "runner"
     runner = output / "runner.c"
     runner.write_text((ROOT / "benchmarks/runner.c").read_text())
     command([tool("clang"), "-O2", "-ffp-contract=off", *defines,
              runner, obj, "-lm", "-Wl,--build-id=none", "-o", binary],
             logs / "link.log", events, "link")
-    record.update(binary=str(binary), object=str(obj),
+    record.update(binary=str(binary), object=str(obj), disassembly=str(disassembly),
                   compile_seconds=sum(e["seconds"] for e in events))
     return binary

@@ -36,3 +36,23 @@ bash scripts/phase0.sh summarize --records logs/20261018T092943494129Z/records.j
 各候选先用 seeds 1/7/19 逐元素校验，再分别校准；同一 Case 最终统一取所有候选所需的最大批次次数。15 轮中每轮随机打乱候选顺序（种子固定），所有候选有同样的有效计时预算。校准、正确性、编译及执行命令均保留。随机测量仍无法排除频率漂移和共享机器负载。
 
 `ir_changed` 指 transformed 快照相对 default 的文本变化；`duplicate_of` 用完整可执行文件的直接字节比较识别重复，不计算 hash。不同字节不必然等于不同机器指令，解释时还须看代码与后续分析。
+
+## M2 完整工作负载
+
+```bash
+bash scripts/phase0.sh
+# 等价于：
+bash scripts/phase0.sh collect --config experiments/phase0.json
+```
+
+默认配置为三类 × 两个 Shape × 四条候选，共 24 个。每类使用 default、affine tile4、tile16、innermost unroll4，lowering 和后端优化参数统一；所有 Pass 在本机 LLVM 18 的 help 与实际编译中验证。程序生成与 C 参考分别位于 `benchmarks/workloads.py` 和 `benchmarks/runner.c`。配置仅改变静态 Shape 与合法 Pass；不在候选间手写不同 kernel。
+
+- matmul：M,N,K = 64,64,64 / 127,65,93；linalg.matmul + 输出清零。
+- row reduction：M,N = 128,256 / 127,259；linalg.generic + 输出清零，输出为 M×1。
+- 2D five-point stencil：内部 M,N = 128,256 / 127,259；输入含一圈 halo，不更新边界；输出等于中心和四个邻居之和乘 0.2。输入从 affine 循环开始，没有单独的高层 stencil dialect。
+
+所有尺寸均为 f32，独立 double 参考在候选执行前计算；校验 seeds 0/1/7/19，seed 0 为零输入，其他为确定性正负数。输出预填 NaN 检测未完整写入；输入输出前后添加哨兵，计时后再次检查输出及哨兵。没有允许浮点重关联或 fma contraction。哨兵不能替代完整的内存安全证明。
+
+另已实际用临时 JSON 对三类 1×1 最小边界输入运行四条候选，12/12 成功。配置格式与实际记录字段见 [DATA_SCHEMA.md](DATA_SCHEMA.md)。`code_duplicate_of` 直接比较目标文件的标准化反汇编（含字节和重定位），不计算 hash。最小尺寸的四条路径均收敛为相同机器代码，主矩阵 24 条候选未发现此类重复。
+
+包装脚本在编译所需的 MLIR 不存在时自动执行本地 setup，已有工具则跳过。初次运行仍需网络下载约 43 MiB；uv 环境也由包装入口自动创建。

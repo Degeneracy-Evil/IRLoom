@@ -9,6 +9,7 @@ import time
 from .analysis import save_summary
 from .compiler import ROOT, CommandError, compile_candidate, probe
 from .measurement import fail, measure
+from benchmarks.workloads import generate
 
 
 def load_config(path):
@@ -22,8 +23,10 @@ def load_config(path):
         if not ids or len(set(ids)) != len(ids) or any(not re.fullmatch(r"[a-zA-Z0-9_-]+", x) for x in ids):
             raise ValueError("case/candidate ids must be unique, nonempty path-safe identifiers")
     for case in config["cases"]:
-        if case["program"] != "matmul" or case["shape"] != [32, 32, 32]:
-            raise ValueError("M1 currently supports matmul [32,32,32]")
+        dims = 3 if case["program"] == "matmul" else 2
+        if (case["program"] not in ("matmul", "reduction", "stencil") or len(case["shape"]) != dims
+                or any(type(x) is not int or x <= 0 for x in case["shape"])):
+            raise ValueError(f"invalid program or positive static shape: {case}")
     return config
 
 
@@ -45,8 +48,8 @@ def compile_all(config, output, logs, metadata):
             dest = output / case["id"] / candidate["id"]
             log = logs / case["id"] / candidate["id"]
             try:
-                compile_candidate((ROOT / "benchmarks/matmul.mlir").read_text(), dest, log,
-                                  record, candidate["transforms"])
+                source, defines = generate(case["program"], case["shape"])
+                compile_candidate(source, dest, log, record, candidate["transforms"], defines)
                 record["status"] = "compiled"
             except (CommandError, OSError, ValueError) as exc:
                 record["compile_seconds"] = sum(e["seconds"] for e in record["events"])
@@ -64,6 +67,9 @@ def compile_all(config, output, logs, metadata):
         prior = [r for r in records[:records.index(record)] if r["case_id"] == record["case_id"] and r["status"] == "compiled"]
         record["duplicate_of"] = next((r["candidate_id"] for r in prior if
                                        Path(r["binary"]).read_bytes() == Path(record["binary"]).read_bytes()), None)
+        record["code_duplicate_of"] = next((r["candidate_id"] for r in prior if
+                                            Path(r["disassembly"]).read_bytes() ==
+                                            Path(record["disassembly"]).read_bytes()), None)
     return records
 
 
@@ -71,7 +77,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
                         choices=["probe", "m0", "compile", "run", "collect", "summarize"])
-    parser.add_argument("--config", type=Path, default=ROOT / "experiments/m1.json")
+    parser.add_argument("--config", type=Path, default=ROOT / "experiments/phase0.json")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
     parser.add_argument("--records", type=Path, help="JSONL input used by summarize")
     args = parser.parse_args()
