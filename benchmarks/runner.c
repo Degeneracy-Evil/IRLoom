@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include "memref.h"
 
 #ifndef M
 #define M 32
@@ -17,13 +18,6 @@
 
 #define GUARD 16
 #define CANARY 123456.0f
-
-typedef struct {
-  float *allocated, *aligned;
-  int64_t offset, sizes[2], strides[2];
-} Matrix;
-
-extern void _mlir_ciface_kernel(Matrix *, Matrix *, Matrix *);
 
 static Matrix matrix(int rows, int cols) {
   size_t count = (size_t)rows * cols;

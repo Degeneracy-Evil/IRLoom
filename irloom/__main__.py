@@ -7,7 +7,7 @@ import re
 import time
 
 from .analysis import save_summary
-from .compiler import ROOT, CommandError, compile_candidate, probe
+from .compiler import ROOT, CommandError, compile_candidate, compile_reference, probe
 from .measurement import fail, measure
 from benchmarks.workloads import generate
 
@@ -27,6 +27,8 @@ def load_config(path):
         if (case["program"] not in ("matmul", "reduction", "stencil") or len(case["shape"]) != dims
                 or any(type(x) is not int or x <= 0 for x in case["shape"])):
             raise ValueError(f"invalid program or positive static shape: {case}")
+        if case["program"] != "matmul" and any(c.get("high_choice") for c in config["candidates"]):
+            raise ValueError("linalg matmul interchange cannot be applied to another workload")
     return config
 
 
@@ -43,13 +45,22 @@ def compile_all(config, output, logs, metadata):
                       "input": {"shape": case["shape"], "dtype": "f32"},
                       "metadata": metadata, "events": [], "timings_ms": [],
                       "fingerprints": "disabled by user instruction", "status": "pending",
-                      "transforms": candidate["transforms"]}
+                      "transforms": candidate["transforms"],
+                      "high_choice": candidate.get("high_choice"),
+                      "low_choice": candidate.get("low_choice"),
+                      "role": candidate.get("role", "factorial")}
             records.append(record)
             dest = output / case["id"] / candidate["id"]
             log = logs / case["id"] / candidate["id"]
             try:
                 source, defines = generate(case["program"], case["shape"])
-                compile_candidate(source, dest, log, record, candidate["transforms"], defines)
+                if record["role"] == "reference":
+                    if case["program"] != "matmul":
+                        raise ValueError("C++ reference only supports matmul")
+                    compile_reference(dest, log, record, defines)
+                else:
+                    compile_candidate(source, dest, log, record, candidate["transforms"], defines,
+                                      candidate.get("high_choice"))
                 record["status"] = "compiled"
             except (CommandError, OSError, ValueError) as exc:
                 record["compile_seconds"] = sum(e["seconds"] for e in record["events"])
@@ -61,7 +72,7 @@ def compile_all(config, output, logs, metadata):
         dest = Path(record["binary"]).parent
         baseline = next((r for r in records if r["case_id"] == record["case_id"] and
                          r["candidate_id"] == "default" and r["status"] == "compiled"), None)
-        if baseline:
+        if baseline and record["role"] != "reference":
             base = Path(baseline["binary"]).parent
             record["ir_changed"] = (dest / "transformed.mlir").read_bytes() != (base / "transformed.mlir").read_bytes()
         prior = [r for r in records[:records.index(record)] if r["case_id"] == record["case_id"] and r["status"] == "compiled"]
@@ -76,13 +87,26 @@ def compile_all(config, output, logs, metadata):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("action", nargs="?", default="collect",
-                        choices=["probe", "m0", "compile", "run", "collect", "summarize", "report"])
-    parser.add_argument("--config", type=Path, default=ROOT / "experiments/phase0.json")
+                        choices=["probe", "m0", "m4", "m4-report", "compile", "run", "collect", "summarize", "report"])
+    parser.add_argument("--config", type=Path)
+    parser.add_argument("--order-seed", type=int, help="measurement order only; input seed stays fixed")
     parser.add_argument("--manifest", type=Path, help="compile manifest used by run")
     parser.add_argument("--records", type=Path, nargs="+", help="JSONL inputs for summarize/report")
+    parser.add_argument("--workflow", type=Path, help="M4 workflow.json for default-equivalence evidence")
     args = parser.parse_args()
     (ROOT / "tmp").mkdir(exist_ok=True)
     (ROOT / "logs").mkdir(exist_ok=True)
+    if args.action == "m4":
+        from .m4 import run
+        run(args.config or ROOT / "experiments/m4.json")
+        return
+    if args.action == "m4-report":
+        if not args.records:
+            parser.error("m4-report requires --records")
+        from .m4 import write_report
+        equivalence = json.loads(args.workflow.read_text())["default_equivalence"] if args.workflow else None
+        print(write_report(args.records, equivalence=equivalence))
+        return
     if args.action == "m0":
         from .collect import main as m0
         m0()
@@ -115,7 +139,9 @@ def main():
         manifest = json.loads(args.manifest.read_text())
         config, records = manifest["config"], manifest["records"]
     else:
-        config = load_config(args.config)
+        config = load_config(args.config or ROOT / "experiments/phase0.json")
+        if args.order_seed is not None:
+            config["order_seed"] = args.order_seed
         records = compile_all(config, ROOT / "tmp" / stamp, logs, probe())
         manifest = {"config": config, "records": records}
         (logs / "manifest.json").write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")

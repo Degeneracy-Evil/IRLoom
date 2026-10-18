@@ -1,0 +1,22 @@
+{
+  "name": "m4-cross-stage-interaction",
+  "seed": 1,
+  "samples": 15,
+  "min_batch_ms": 10,
+  "timeout_seconds": 60,
+  "correctness_seeds": [0, 1, 7, 19],
+  "cases": [
+    {"id": "matmul-32x32x32", "program": "matmul", "shape": [32, 32, 32]},
+    {"id": "matmul-127x65x93", "program": "matmul", "shape": [127, 65, 93]},
+    {"id": "matmul-1024x256x256", "program": "matmul", "shape": [1024, 256, 256]}
+  ],
+  "candidates": [
+    {"id": "default", "high_choice": "ijk", "low_choice": "none", "transforms": []},
+    {"id": "ijk-tile16", "high_choice": "ijk", "low_choice": "tile16", "transforms": ["--affine-loop-tile=tile-size=16"]},
+    {"id": "ijk-unroll4", "high_choice": "ijk", "low_choice": "unroll4", "transforms": ["--affine-loop-unroll=unroll-factor=4"]},
+    {"id": "ikj-none", "high_choice": "ikj", "low_choice": "none", "transforms": []},
+    {"id": "ikj-tile16", "high_choice": "ikj", "low_choice": "tile16", "transforms": ["--affine-loop-tile=tile-size=16"]},
+    {"id": "ikj-unroll4", "high_choice": "ikj", "low_choice": "unroll4", "transforms": ["--affine-loop-unroll=unroll-factor=4"]},
+    {"id": "cpp-ikj", "role": "reference", "transforms": []}
+  ]
+}

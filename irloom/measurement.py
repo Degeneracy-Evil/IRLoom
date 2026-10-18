@@ -17,7 +17,8 @@ def fail(record, exc):
 
 def measure(records, config, logs, cpu):
     start = time.perf_counter()
-    rng = random.Random(config["seed"])
+    order_seed = config.get("order_seed", config["seed"])
+    rng = random.Random(order_seed)
     active = [r for r in records if r["status"] == "compiled"]
     rng.shuffle(active)
     counts = {}
@@ -25,7 +26,7 @@ def measure(records, config, logs, cpu):
         record["timings_ms"] = []
         record["measurement"] = {"cpu": cpu, "threads": 1, "warmups": 3,
                                   "clock": "CLOCK_MONOTONIC", "unit": "ms/kernel",
-                                  "samples": config["samples"], "order_seed": config["seed"],
+                                  "samples": config["samples"], "order_seed": order_seed,
                                   "min_calibration_batch_ms": config["min_batch_ms"],
                                   "cache_policy": "same buffers, warm cache",
                                   "timeout_seconds": config["timeout_seconds"]}

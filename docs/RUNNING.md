@@ -68,3 +68,11 @@ bash scripts/phase0.sh report --records logs/20261018T093503802387Z/records.json
 输出到 `experiments/reports/`：`phase0-initial.md` 为报告，`phase0-summary.json` 为简明对照表，`phase0-initial.json` 为原始计时、输入、配置、工具/机器元数据、编译命令与快照路径的审计摘要。重复 report 会确定性重建这些派生文件，无需重新编译。它依赖每轮 JSONL 同目录的 `run.json`，适用于 collect 的完整实验输出。
 
 报告保留 median、MAD、IQR、范围、相对 default 加速比和同轮候选延迟比的探索性 bootstrap 区间。原始 JSONL/日志/快照/二进制仍只在本机保留。现有三家族六规格的数据不足以评估历史特征、未见程序泛化或在线搜索；不运行模型。
+
+## M4 跨阶段因子实验
+
+```bash
+bash scripts/phase0.sh m4
+```
+
+自动完成三种 Shape 的两轮独立重编译与测量（每轮 6 个 A×B cell + 1 个 C++ 参考，共 21 个候选），校验原默认代码等价，导出交互与来源样例报告。设计、缓存规模和参考的适用边界见 [M4_PROTOCOL.md](M4_PROTOCOL.md)。可用 `CLANGXX` 覆盖 clang++，`LLVM_OBJDUMP` 覆盖反汇编工具。

@@ -28,3 +28,11 @@
 这里的 lineage 仅表示文件级「上一阶段经过哪些命令得到下一阶段」，不是 Operation 级 N:M 溯源。多个 Pass 位于一个命令时，只记录该命令的整体成功；不把它当成每个内部 Pattern 的跟踪记录。编译器内部 clang -O3 优化也只记录边界和 Flags。
 
 指令字节不同仍不保证语义实现不同；反汇编相同也不等于密码学完整性证明。当前基准无外部数据依赖，后续若增加全局数据或链接库，需要扩展重复识别。报告必须披露这一限制。
+
+## M4 的可选扩展（保持 v1 兼容）
+
+- `high_choice/low_choice/role`：显式区分 ijk/ikj、none/tile16/unroll4 与 factorial/reference；reference 不进入交互计算。
+- `schedule` 与 `high_decision` 快照：前者为复制的 Transform 文件，后者记录 linalg 层决策的结果、上游 high 路径及执行事件。MLIR 候选现为七个边界，C++ 参考的 `snapshots=[]`，另记录 `reference_source`，不伪装成多级 IR。
+- `cpu_caches`：编译/测量主机探测中记录默认允许 CPU 的 sysfs cache level/type/size/shared_cpu_list。
+- `order_seed`：配置和 measurement 中与输入 seed 分开；两轮改变候选顺序时保持输入相同。
+- `logs/m4-<timestamp>/workflow.json`：两批 collect 命令及耗时、整体墙钟、原默认路径代码等价验证。每个等价验证另保存包含全部命令的 record.json。

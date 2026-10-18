@@ -18,7 +18,7 @@ def environment():
 
 
 def tool(name):
-    override = os.environ.get(name.upper().replace("-", "_"))
+    override = os.environ.get(name.upper().replace("-", "_").replace("++", "XX"))
     paths = [override] if override else [
         str(ROOT / "tmp/toolchain/usr/lib/llvm-18/bin" / name),
         shutil.which(name), str(Path("/usr/lib/llvm-18/bin") / name)]
@@ -33,7 +33,7 @@ def probe():
               "affinity": sorted(os.sched_getaffinity(0)), "tools": {},
               "environment": {k: environment()[k] for k in
                               ("TMPDIR", "OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS")}}
-    for name in ("mlir-opt", "mlir-translate", "clang", "llc", "llvm-config"):
+    for name in ("mlir-opt", "mlir-translate", "clang", "clang++", "llc", "llvm-config", "llvm-objdump"):
         try:
             path = tool(name)
             p = subprocess.run([path, "--version"], capture_output=True, text=True,
@@ -52,6 +52,10 @@ def probe():
         "loadavg": os.getloadavg(),
         "memory": Path("/proc/meminfo").read_text(),
     }
+    cache_dir = Path(f"/sys/devices/system/cpu/cpu{result['affinity'][0]}/cache")
+    result["cpu_caches"] = [{"cpu": result["affinity"][0], **{
+        key: (index / key).read_text().strip() for key in ("level", "type", "size", "shared_cpu_list")}}
+        for index in sorted(cache_dir.glob("index*"))]
     return result
 
 
@@ -82,7 +86,7 @@ def command(args, log, events, stage, timeout=120, cpu=None):
         event["seconds"] = time.perf_counter() - start
 
 
-def compile_candidate(source, output, logs, record, transforms=(), defines=()):
+def compile_candidate(source, output, logs, record, transforms=(), defines=(), high_choice=None):
     output.mkdir(parents=True, exist_ok=True)
     logs.mkdir(parents=True, exist_ok=True)
     events = record["events"]
@@ -90,7 +94,16 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=()):
     high = output / "high.mlir"
     high.write_text(source)
     record["snapshots"].append({"stage": "high", "path": str(high), "parent": None})
-    stages = [
+    stages = []
+    if high_choice is not None:
+        if high_choice not in ("ijk", "ikj"):
+            raise ValueError(f"unsupported high choice: {high_choice}")
+        schedule = output / "schedule.mlir"
+        schedule.write_text((ROOT / f"compiler/schedules/{high_choice}.mlir").read_text())
+        record["schedule"] = str(schedule)
+        stages.append(("high_decision", [f"--transform-preload-library=transform-library-paths={schedule}",
+                                         "--transform-interpreter"]))
+    stages += [
         ("affine", ["--convert-linalg-to-affine-loops"]),
         ("transformed", list(transforms) + ["--canonicalize", "--cse"]),
         ("scf", ["--lower-affine"]),
@@ -116,6 +129,25 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=()):
     obj = output / "kernel.o"
     command([tool("clang"), *flags, "-c", ll, "-o", obj],
             logs / "codegen.log", events, "codegen")
+    return finish_native(obj, output, logs, record, defines)
+
+
+def compile_reference(output, logs, record, defines):
+    output.mkdir(parents=True, exist_ok=True)
+    logs.mkdir(parents=True, exist_ok=True)
+    source = output / "matmul_reference.cpp"
+    source.write_text((ROOT / "benchmarks/matmul_reference.cpp").read_text())
+    (output / "memref.h").write_text((ROOT / "benchmarks/memref.h").read_text())
+    record["reference_source"] = str(source)
+    record["snapshots"] = []
+    obj = output / "kernel.o"
+    command([tool("clang++"), "-O3", "-march=native", "-ffp-contract=off", *defines,
+             "-c", source, "-o", obj], logs / "reference-codegen.log", record["events"], "codegen")
+    return finish_native(obj, output, logs, record, defines)
+
+
+def finish_native(obj, output, logs, record, defines):
+    events = record["events"]
     assembly = command([tool("llvm-objdump"), "--disassemble", "--reloc", obj],
                        logs / "disassembly.log", events, "disassembly")
     disassembly = output / "kernel.disasm"
@@ -125,6 +157,7 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=()):
     binary = output / "runner"
     runner = output / "runner.c"
     runner.write_text((ROOT / "benchmarks/runner.c").read_text())
+    (output / "memref.h").write_text((ROOT / "benchmarks/memref.h").read_text())
     command([tool("clang"), "-O2", "-ffp-contract=off", *defines,
              runner, obj, "-lm", "-Wl,--build-id=none", "-o", binary],
             logs / "link.log", events, "link")
