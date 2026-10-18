@@ -117,8 +117,10 @@ def compile_candidate(source, output, logs, record, transforms=(), defines=()):
     command([tool("clang"), *flags, "-c", ll, "-o", obj],
             logs / "codegen.log", events, "codegen")
     binary = output / "runner"
+    runner = output / "runner.c"
+    runner.write_text((ROOT / "benchmarks/runner.c").read_text())
     command([tool("clang"), "-O2", "-ffp-contract=off", *defines,
-             ROOT / "benchmarks/runner.c", obj, "-lm", "-Wl,--build-id=none", "-o", binary],
+             runner, obj, "-lm", "-Wl,--build-id=none", "-o", binary],
             logs / "link.log", events, "link")
     record.update(binary=str(binary), object=str(obj),
                   compile_seconds=sum(e["seconds"] for e in events))

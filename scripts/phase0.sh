@@ -6,4 +6,4 @@ export TMPDIR="$PWD/tmp"
 if [[ ${1:-} == setup ]]; then
   exec bash scripts/setup-toolchain.sh
 fi
-exec uv run python -m irloom.collect "$@"
+exec uv run python -m irloom "$@"

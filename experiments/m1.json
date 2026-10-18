@@ -1,0 +1,13 @@
+{
+  "name": "m1",
+  "seed": 1,
+  "samples": 15,
+  "min_batch_ms": 10,
+  "timeout_seconds": 30,
+  "correctness_seeds": [1, 7, 19],
+  "cases": [{"id": "matmul-32x32x32", "program": "matmul", "shape": [32, 32, 32]}],
+  "candidates": [
+    {"id": "default", "transforms": []},
+    {"id": "tile8", "transforms": ["--affine-loop-tile=tile-size=8"]}
+  ]
+}

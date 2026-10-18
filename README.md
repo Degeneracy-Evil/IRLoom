@@ -31,7 +31,8 @@ IRLoom 是一个面向编译器性能优化的研究项目。我们的出发点�
 
 ```bash
 bash scripts/phase0.sh setup   # MLIR 本地解包至 tmp/，不安装系统软件
-bash scripts/phase0.sh         # M0：编译、校验与 10 次原生计时
+bash scripts/phase0.sh m0      # 最小链路验收
+bash scripts/phase0.sh         # 配置驱动的多候选采集与汇总
 ```
 
 实际环境、产物位置、限制见 [运行指南](docs/RUNNING.md)，阶段结果见 [开发记录](docs/PROGRESS.md)。
