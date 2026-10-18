@@ -36,7 +36,7 @@ bash scripts/phase0.sh m0      # 仅运行最小链路验收
 
 实际环境、产物位置、限制见 [运行指南](docs/RUNNING.md)，阶段结果见 [开发记录](docs/PROGRESS.md)。
 
-M0–M3 首轮已完成：三类工作负载、每类两个 Shape、每个 Case 四条合法路径；两轮正式采集均 24/24 正确、各有 360 个计时样本。见 [首批证据报告](experiments/reports/phase0-initial.md) 和 [简明结果汇总](experiments/reports/phase0-summary.json)。当前证据支持路径性能差异，尚未验证历史 IR 的预测价值，也未训练任何模型。
+M0–M3 首轮已完成：三类工作负载、每类两个 Shape、每个 Case 四条合法路径；两轮正式采集均 24/24 正确、各有 360 个计时样本。见 [首批证据报告](experiments/reports/phase0-initial.md) 和 [简明结果汇总](experiments/reports/phase0-summary.json)。这批证据支持路径性能差异，尚未验证历史 IR 的预测价值；M0–M3 未训练模型。
 
 M4 已完成真实的 linalg 顺序 × affine 动作实验，含三个缓存容量规格及独立 C++ 性能参考。两轮各 21/21 正确，共 630 个计时样本；中、大尺寸观察到 tile16 收益随高层选择反转。见 [M4 结果解读](experiments/reports/m4-findings.md)、[完整交互报告](experiments/reports/m4-interaction.md) 及 [IR/函数代码样例](experiments/reports/m4-lineage.md)。区别仍保留在当前 affine IR，尚不证明历史状态有额外价值。
 
@@ -60,3 +60,10 @@ bash scripts/phase0.sh m5      # 两轮新池、固定预算对照与报告
 ## M6：可学习的跨阶段优化决策
 
 M5 已验证固定四候选的均衡探针覆盖在部分 Matmul Shape 上优于阶段贪心，但它并不是自适应前瞻或学习模型。下一步扩展合法优化空间，比较随机、静态、反馈式与小型可学习价值模型，并据此决定是否引入跨层级 Attention/持续状态。实施要求见 [M5 审查与 M6 规划](docs/M6_PLAN.md)。
+
+M6.0–M6.2 pilot 已完成：三个模板、20个输入、每输入12条候选，两批各240/240正确，共4,800个计时样本。透明 ridge 在小预算下改善部分决策，但 matmul 的强固定覆盖与模型持平，融合链简单规则已达池内最优；8个训练输入/两个训练模板不足以触发 M6.3，未开发神经网络。见 [首轮解读与下一步](experiments/reports/m6-interpretation.md)、[完整报告](experiments/reports/m6-findings.md)、[冻结协议](docs/M6_PROTOCOL.md) 和 [冻结模型](experiments/reports/m6-model.json)。
+
+```bash
+bash scripts/phase0.sh m6-a    # 仅读取 M5 数据，穷举覆盖与随机参考
+bash scripts/phase0.sh m6      # 两批扩展池、线性模型、盲测策略与成本报告
+```

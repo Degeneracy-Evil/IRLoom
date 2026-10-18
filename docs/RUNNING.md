@@ -126,3 +126,11 @@ bash scripts/phase0.sh m6
 单入口按冻结的 [M6 协议](M6_PROTOCOL.md) 完成两轮独立编译、校验、固定次数计时，随后仅使用 train/validation 拟合并保存 ridge 模型，再做 blind 离线策略回放和报告。12条候选/实例，20个输入，其中逐元素融合链整模板留出。线程环境在包装入口统一设为1。配置、随机种子、20个透明特征、反馈分配规则和神经阶段门槛在正式采集前固定。
 
 `m6-report --records <第一轮records.jsonl> <第二轮records.jsonl>` 可只重建报告；模型训练和离线推理计时时钟会变化，权重与策略选择应一致。旧 M5 统计不被重建。完整链路功能试跑使用 tmp/ 下的独立配置，输出到 tmp/m6-preview，未接触正式 blind 标签。
+
+正式单入口已完成，两批各240/240通过。已验证从以下原始记录重建结果；函数级重建预览在 tmp/m6-rebuilt，权重、全部种子分数数组、选路与费用相同：
+
+```bash
+bash scripts/phase0.sh m6-report --records logs/20261018T171911048006Z/records.jsonl logs/20261018T172045377274Z/records.jsonl
+```
+
+派生报告为 m6-findings.md / m6-results.json / m6-model.json / m6-fusion-lineage.md；人工 m6-interpretation.md 不被覆盖。完整成本、短批测量噪声、模型外推失败和停止神经阶段的原因见人工解读。

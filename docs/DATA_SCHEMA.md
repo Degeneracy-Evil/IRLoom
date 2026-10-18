@@ -44,3 +44,12 @@
 - `decision_features` 只来自输入 high 阶段的 operation/program/shape/layout；在未来 lowering 与性能测量前产生。
 - M5 摘要按候选保存 `costs`：真实进程耗时、编译/校验/采样次数及含预热/初始校验的 native_kernel_calls。原 JSONL 的 events 仍是成本依据。
 - 离线策略结果保留 query_ids、selected、regret_ratio、unique_implementations 和逐查询计费。未查询标签只能在事后 oracle 评分时使用。
+
+## M6 的可选扩展（v1）
+
+- `split` 从 case 配置复制为 train/validation/blind，两批同 case 不拆分；功能预览允许 diagnostic。
+- `pointwise_chain` 的 `high_choice=separate/fused`，新增 `bufferized` 快照；tensor 输入共有八阶段，普通高层调度仍为七阶段。
+- `m6-results.json` 的 runs 保留原始计时、median/MAD/min/max、静态特征向量、成本、split与源码版本；query_examples保留全部确定性策略和随机seed0查询，其余32种子分数/延迟/费用数组及种子在配置内，可据此重建查询。
+- 随机汇总先逐seed对同家族同split的输入取regret几何均值，再报告种子均值/范围；不把种子或计时重复当成独立程序。
+- `m6-model.json` 保存特征顺序、train-only归一化、权重/截距、alpha验证选择、21参数、依赖版本和训练日志；prediction_metrics含每case的log RMSE及含特征提取的实测推理秒数。
+- 查询成本沿用M5，compile_seconds包含审计反汇编，compiler_processes计数不含它。k个查询并不等于相同墙钟；本轮为离线回放，原始全池费用和监督标签采集费用另外披露。
