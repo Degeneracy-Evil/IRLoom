@@ -102,4 +102,4 @@ R1–R3已实跑：Zstd/SQLite四种完整程序编译配置，加上两个官�
 
 ## 真实程序首轮热点验证
 
-R1–R3 的正式强基线和调用审计已完成：Zstd 的增量 ThinLTO/PGO 收益较小，SQLite 的 PGO+ThinLTO 对 main 负载的提升较明显，但这不是新编译优化算法的收益。当前优先执行两个最小因果实验：**Zstd 跨 TU 热调用的内联 A/B** 和 **SQLite 训练覆盖差异的 PGO A/B**，确认成熟编译器是否仍存在值得学习模型协调的性能机会。详见 [docs/REAL_OPTIMIZATION_AB.md](docs/REAL_OPTIMIZATION_AB.md)。
+R1–R3 的正式强基线和调用审计已完成：Zstd 的增量 ThinLTO/PGO 收益较小，SQLite 的 PGO+ThinLTO 对 main 负载的提升较明显，但这不是新编译优化算法的收益。当前优先执行两个最小因果实验：**Zstd 热调用链上的内联 A/B** 和 **SQLite 训练覆盖差异的 PGO A/B**，确认成熟编译器是否仍存在值得学习模型协调的性能机会。详见 [docs/REAL_OPTIMIZATION_AB.md](docs/REAL_OPTIMIZATION_AB.md)。
