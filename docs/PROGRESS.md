@@ -170,3 +170,5 @@
 R1完成：5项正式负载均通过，Zstd/SQLite/Bullet进入秒级，tramp3d采用20次官方参数与逐次参考验证。无新下载、无单元测试/产物hash。单样本接入验收及规模数据见real-programs-baselines.md、real-programs-r1.json；下一步R2。
 
 R2实现：Zstd/SQLite整程序四种编译变体、独立PGO训练/合并/重建、代码大小/完整构建命令与交错计时。开发阶段保留两次构建失败及诊断；正式十轮采样待执行，不能把单样本接入结果当性能结论。
+
+R2完成：干净2f1a57e运行20261019T165654773769Z，14组合×10样本=140，全部功能与数据核查通过。O3/native/ThinLTO/PGO+ThinLTO均为完整Zstd/SQLite程序；两项目独立训练，官方Bullet/tramp3d为O3参考。原始主指标median/MAD、机器/源码/命令、构建/训练成本与限制见real-programs-baselines.md及同名JSON。未声称全量Clang或新优化算法收益；下一步R3。
