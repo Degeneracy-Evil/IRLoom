@@ -70,7 +70,11 @@ class Benchmarks:
             return p.stdout+p.stderr
         except (OSError,subprocess.TimeoutExpired) as exc:
             event.update(error=str(exc),seconds=time.perf_counter()-start)
-            Path(event["log"]).write_text(json.dumps(event)+"\n")
+            partial=""
+            if isinstance(exc,subprocess.TimeoutExpired):
+                for output in (exc.stdout,exc.stderr):
+                    partial+=output.decode(errors="replace") if isinstance(output,bytes) else (output or "")
+            Path(event["log"]).write_text(json.dumps(event)+"\n"+partial)
             raise
         finally:
             (self.logs/"events.json").write_text(json.dumps(self.events,indent=2)+"\n")
@@ -191,7 +195,7 @@ class Benchmarks:
 
     def build(self):
         for project in self.args.project:
-            print(f"build: {project} (-O3, jobs={self.args.jobs})",flush=True)
+            print(f"build: {project} ({' '.join(self.config['flags'])}, jobs={self.args.jobs})",flush=True)
             if project=="llvm":
                 build=self.cmake("llvm",self.source("llvm"),[
                     "-DLLVM_ENABLE_PROJECTS=clang","-DLLVM_TARGETS_TO_BUILD=X86","-DLLVM_INCLUDE_TESTS=OFF",
@@ -375,7 +379,7 @@ PRAGMA integrity_check;
                                      "median_wall_seconds":median,"mad_wall_seconds":statistics.median(abs(s["wall_seconds"]-median) for s in samples)})
 
     def save(self,status,error=None):
-        result={"status":status,"error":error,"action":self.args.action,"projects":self.args.project,
+        result={"status":status,"error":error,"action":self.args.action,"suite":self.args.suite,"projects":self.args.project,
                 "jobs":self.args.jobs,"repetitions":self.args.repetitions,"wall_seconds":time.perf_counter()-self.started,
                 "metadata":getattr(self,"metadata",None),"capabilities":getattr(self,"capabilities",{}),
                 "results":self.results,"events":self.events}
@@ -386,7 +390,8 @@ PRAGMA integrity_check;
                "Process wall times include startup; internal workload metrics are retained in results.json and raw logs.","",
                "| Workload | Repetitions | Median wall s | MAD wall s |","| --- | ---: | ---: | ---: |"]
         for r in self.results:
-            lines.append(f"| {r['name']} | {len(r['samples'])} | {r['median_wall_seconds']:.6f} | {r['mad_wall_seconds']:.6f} |")
+            label=r['name']+(" / "+r['variant'] if "variant" in r else "")
+            lines.append(f"| {label} | {len(r['samples'])} | {r['median_wall_seconds']:.6f} | {r['mad_wall_seconds']:.6f} |")
         if error:
             lines += ["",str(error)]
         (self.logs/"summary.md").write_text("\n".join(lines)+"\n")
@@ -397,10 +402,18 @@ def main():
     parser.add_argument("action",nargs="?",default="all",choices=("all","fetch","probe","build","run"))
     parser.add_argument("--project",nargs="+",choices=("llvm","zstd","sqlite","test-suite"),default=["llvm","zstd","sqlite","test-suite"])
     parser.add_argument("--jobs",type=int,default=2)
-    parser.add_argument("--repetitions",type=int,default=3)
+    parser.add_argument("--repetitions",type=int)
     parser.add_argument("--suite",choices=("smoke","formal"),default="smoke")
-    parser.add_argument("--variants",nargs="+",choices=("o3",),default=["o3"])
+    parser.add_argument("--variants",nargs="+",choices=("o3","o3-native","thinlto-native","pgo-thinlto-native"))
     args=parser.parse_args()
+    if args.repetitions is None:
+        args.repetitions=10 if args.suite=="formal" else 3
+    if args.variants is None:
+        args.variants=["o3","o3-native","thinlto-native","pgo-thinlto-native"] if args.suite=="formal" else ["o3"]
+    if len(set(args.variants))!=len(args.variants):
+        parser.error("duplicate variants are not allowed")
+    if args.suite=="smoke" and args.variants!=["o3"]:
+        parser.error("optimization variants require --suite formal")
     if not 1<=args.jobs<=8 or args.repetitions<1:
         parser.error("jobs must be 1..8; repetitions must be positive")
     if args.suite=="formal":

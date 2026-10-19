@@ -93,3 +93,23 @@ formal默认选择Zstd、SQLite、test-suite；LLVM/Clang能力检查继续使�
 数据与配方在benchmark-data/data/formal-v1。两项MultiSource保留官方输入/参数/验证命令；不修改上游源码。mafft虽有源码，但其上游参考验证需要HashProgramOutput，暂不纳入本轮“不计算hash”的集合。7zip/anagram继续保留旧smoke。正式样本的进程墙钟、Zstd内部吞吐、SQLite内部TOTAL、lit原生exec_time分别记录，不能混用。
 
 R1接入已实跑通过；tramp3d单次过短，formal入口生成20个官方RUN及逐次VERIFY的批次test，仅写外部构建目录，lit的exec_time为20次原生用户CPU时间之和（不是墙钟）。首轮失败的输出路径问题及修复见[阶段报告](../experiments/reports/real-programs-baselines.md)。R1规模/时间/原始样本归档在real-programs-r1.json，不能从单样本推断优化收益。
+
+## R2：强编译配置与独立PGO
+
+formal默认对Zstd和SQLite构建四个完整程序变体：o3（可移植）、o3-native（-march=native）、thinlto-native（native加-flto=thin/本地LLD）、pgo-thinlto-native（同一ThinLTO配置加-fprofile-instr-use）。test-suite的两项数值负载本轮保留O3参考，避免扩大构建矩阵。正式入口默认10次测量；--variants可选择子集：
+
+```bash
+bash scripts/benchmarks.sh all --suite formal
+bash scripts/benchmarks.sh all --suite formal --project zstd sqlite --variants o3-native thinlto-native --repetitions 10
+bash scripts/benchmarks.sh build --suite formal --project zstd --variants pgo-thinlto-native
+```
+
+缓存目录为builds/项目/版本/clang-18.1.3/formal-变体。完整静态压缩库与Zstd程序均按变体构建；SQLite使用同一amalgamation与speedtest1、相同功能选项。ThinLTO归档使用llvm-ar/llvm-ranlib，链接并行最多2；native变体保留inline优化记录（.opt.yaml），编译/链接命令、二进制文件大小、llvm-size和符号数进入每次metadata.builds。CMake的compile_commands.json及link.txt保存在各缓存中，SQLite原生Make命令保存在日志。配置诊断开关不会当作优化收益。
+
+PGO先独立构建formal-pgo-train（native+ThinLTO+Clang前端插桩），训练Zstd时只读取software-train与records-train，训练SQLite时只执行orm,cte size40；评测仍为software-eval/records-eval和main size200。训练语料的文件集合/记录种子与评测隔离；SQLite是不同testset而非较小的main前缀。不同测试仍共享实现与数据分布，不能据此宣称生产泛化。
+
+训练profraw/profile保存在各项目pgo-train/training-v1/时间戳；每次新采集都用新目录，合并后仅对应项目使用。训练缓存marker核对训练配方和二进制mtime/大小（不计算hash），匹配时复用profile并明确记录cache_hit；训练二进制重建后重新采集，旧profile不删除、不混入。PGO训练编译、采集、合并、最终重建成本分别可追溯；metadata.profiles保留首次训练成本，后续缓存命中不能冒充重新付费。PGO布局/策略只是这组固定训练输入的结果，不保证加速。
+
+每个正式负载一次预热后10轮，各轮旋转变体次序，单CPU串行运行。保存全部样本、进程墙钟及原生指标的median/MAD；Zstd以压缩/解压MB/s分别比较，SQLite以TOTAL秒、MultiSource以lit exec_time比较（其为timeit用户CPU秒）。所有变体先做Zstd逐字节往返、SQLite版本/已知SQL/文件完整性及跨变体数据库dump比较，官方MultiSource继续逐次参考校验。SMT sibling未预留，频率/邻核负载/页缓存不受控；不能仅凭小幅median差异宣称编译器优化有效。
+
+PGO-use目录再按训练profile的采集时间戳隔离，重新训练不会悄悄复用包含旧-fprofile-instr-use路径的SQLite对象。SQLite configure的conftest main与训练程序不是同一函数体，Clang可能报告profile不匹配；保留原始诊断而不把探测程序告警升级为构建错误，正式编译日志仍须审查。Zstd的ThinLTO内联记录通过LLD单独输出至各变体lto-inline.yaml及其thin分片。

@@ -168,3 +168,5 @@
 拉取c4946ae，阅读新增REAL_PROGRAM_NEXT.md。开始R1：新增formal套件，复用原统一入口、固定源码和外部缓存，接入两种Zstd语料、SQLite size200、官方Bullet/tramp3d-v4。强基线和热点审计随后分阶段执行，旧研究及smoke报告不覆盖。
 
 R1完成：5项正式负载均通过，Zstd/SQLite/Bullet进入秒级，tramp3d采用20次官方参数与逐次参考验证。无新下载、无单元测试/产物hash。单样本接入验收及规模数据见real-programs-baselines.md、real-programs-r1.json；下一步R2。
+
+R2实现：Zstd/SQLite整程序四种编译变体、独立PGO训练/合并/重建、代码大小/完整构建命令与交错计时。开发阶段保留两次构建失败及诊断；正式十轮采样待执行，不能把单样本接入结果当性能结论。
