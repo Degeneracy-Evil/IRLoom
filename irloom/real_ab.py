@@ -13,6 +13,46 @@ from .real_baselines import RealBaselines
 from .real_audit import inline_records
 
 
+def paired_comparisons(records):
+    """Round-matched speed ratios, kept separate by input/context/batch."""
+    if not records:
+        return []
+    reference="original" if "treatment" in records[0] else "P0"
+    indexed={(r["name"],r.get("context"),r["batch"],r.get("treatment",r["variant"])):r for r in records}
+    output=[]
+    for record in records:
+        group=record.get("treatment",record["variant"])
+        if group==reference:
+            continue
+        baseline=indexed[record["name"],record.get("context"),record["batch"],reference]
+        reference_samples={s["round"]:s for s in baseline["samples"]}
+        metrics=list(record.get("metrics",{}))
+        if reference=="P0":
+            metrics.append("wall_seconds")
+        for metric in metrics:
+            values=[]
+            for sample in record["samples"]:
+                a,b=sample[metric],reference_samples[sample["round"]][metric]
+                values.append(100*((a/b if metric.endswith("MB_s") else b/a)-1))
+            med=statistics.median(values)
+            output.append({"name":record["name"],"context":record.get("context"),"batch":record["batch"],"group":group,
+                "reference":reference,"metric":metric,"paired_speed_percent":values,"median_percent":med,
+                "mad_percent":statistics.median(abs(v-med) for v in values),"faster_rounds":sum(v>0 for v in values)})
+    return output
+
+
+def save_comparisons(bench):
+    comparisons=paired_comparisons(bench.results)
+    (bench.logs/"comparisons.json").write_text(json.dumps(comparisons,indent=2)+"\n")
+    if comparisons:
+        lines=["", "## Paired speed ratios", "", "Positive is faster; round-matched ratios, not a significance test.", "",
+               "| Input | Context | Batch | Group | Metric | Median % | MAD % |", "| --- | --- | ---: | --- | --- | ---: | ---: |"]
+        for r in comparisons:
+            lines.append(f"| {r['name']} | {r['context'] or 'PGO+ThinLTO'} | {r['batch']} | {r['group']} | {r['metric']} | {r['median_percent']:+.3f} | {r['mad_percent']:.3f} |")
+        with (bench.logs/"summary.md").open("a") as stream:
+            stream.write("\n".join(lines)+"\n")
+
+
 class ZstdAB(RealBaselines):
     treatments=("original","always-inline","noinline")
     contexts=("thinlto-native","pgo-thinlto-native")
@@ -125,6 +165,11 @@ class ZstdAB(RealBaselines):
         self.treatment=group
         self.variant=context
         self.profiles={"zstd":self.group_profiles[group]}
+
+    def save(self,status,error=None):
+        super().save(status,error)
+        if status=="pass" and self.results:
+            save_comparisons(self)
 
     def inspect(self,group,context):
         self.activate(group,context)
