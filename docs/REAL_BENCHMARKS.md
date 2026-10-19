@@ -134,3 +134,13 @@ SQLite上游Make会为shell与speedtest1的两个sqlite3.c编译写入同一个s
 configure及正确性运行也可能触发gprof输出，统一GMON_OUT_PREFIX预设在本次tmp，只有正式审计样本覆盖到logs前缀，防止gmon.out污染仓库。summary.md同时给出原生主指标和剖析概要，results.json仍为完整证据来源。
 
 R1–R3已完成实际验收：14个负载/配置组合各10个样本全部通过；两种Zstd分布、SQLite放大输入、Bullet/tramp3d官方参考有效。强基线结果、构建/训练/剖析成本、数据核查、两个下一步问题与限制见[正式报告](../experiments/reports/real-programs-baselines.md)，原始摘要见同名JSON及real-programs-audit.json。R3干净提交缓存复跑约37秒，不代表完整十轮性能流程耗时。
+
+## 函数属性与PGO训练覆盖A/B
+
+新增任务见REAL_OPTIMIZATION_AB.md；测量前冻结的处理组、输入、预算与判定规则见[REAL_AB_PROTOCOL.md](REAL_AB_PROTOCOL.md)。首先执行单函数Zstd内联实验，保持原始缓存/历史报告不变：
+
+```bash
+bash scripts/benchmarks.sh all --suite zstd-ab
+```
+
+默认两批，每批各一次预热+10次测量，三种函数属性×两种强编译上下文×两种语料；每个属性重新采集自己的兼容PGO profile。工作副本、构建、profile、保存的最终LTO bitcode均在外部版本化目录，原始样本/最终IR/汇编在logs，临时对象在tmp。只构建不测量用build；接入验收可用--batches 1 --repetitions 1，不作正式收益结论。SQLite的种子/查询量和等预算规则已预先冻结，Zstd正式结果完成后才执行其覆盖A/B。

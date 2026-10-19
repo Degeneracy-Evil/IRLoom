@@ -403,11 +403,12 @@ def main():
     parser.add_argument("--project",nargs="+",choices=("llvm","zstd","sqlite","test-suite"),default=["llvm","zstd","sqlite","test-suite"])
     parser.add_argument("--jobs",type=int,default=2)
     parser.add_argument("--repetitions",type=int)
-    parser.add_argument("--suite",choices=("smoke","formal"),default="smoke")
+    parser.add_argument("--suite",choices=("smoke","formal","zstd-ab"),default="smoke")
+    parser.add_argument("--batches",type=int,default=2)
     parser.add_argument("--variants",nargs="+",choices=("o3","o3-native","thinlto-native","pgo-thinlto-native"))
     args=parser.parse_args()
     if args.repetitions is None:
-        args.repetitions=10 if args.suite=="formal" else 3
+        args.repetitions=3 if args.suite=="smoke" else 10
     if args.variants is None:
         args.variants=["o3","o3-native","thinlto-native","pgo-thinlto-native"] if args.suite=="formal" else ["o3"]
     if len(set(args.variants))!=len(args.variants):
@@ -416,9 +417,12 @@ def main():
         parser.error("optimization variants require --suite formal")
     if args.suite=="smoke" and args.action=="audit":
         parser.error("audit requires --suite formal")
-    if not 1<=args.jobs<=8 or args.repetitions<1:
+    if not 1<=args.jobs<=8 or args.repetitions<1 or args.batches<1:
         parser.error("jobs must be 1..8; repetitions must be positive")
-    if args.suite=="formal":
+    if args.suite=="zstd-ab":
+        from .real_ab import ZstdAB
+        bench=ZstdAB(args)
+    elif args.suite=="formal":
         from .real_baselines import RealBaselines
         if args.project==["llvm","zstd","sqlite","test-suite"]:
             args.project=["zstd","sqlite","test-suite"]

@@ -1,0 +1,7 @@
+# Zstd单函数内联因果实验
+
+执行docs/REAL_OPTIMIZATION_AB.md及冻结协议REAL_AB_PROTOCOL.md。保持R1–R3报告不变，固定Zstd1.5.7/Clang+LLD18.1.3，源码只改ZSTD_buildSeqStore属性；目标边同TU，后继匹配器跨TU，不将本实验称为已验证的跨模块内联。
+
+构建接入20261019T174414997996Z通过：原始/always_inline/noinline各有ThinLTO、PGO生成与PGO应用目录，三个profile独立采集。20261019T174733285149Z在将临时IR移入logs时遇到跨文件系统rename失败，改为复制保留临时原件。随后20261019T174849641429Z六种生产配置均逐字节往返通过，每个语料各预热+一个测量样本，仅作接入检查。
+
+后端证据：原始和noinline在两种上下文均保留三处helper调用，函数符号分别约1941字节（ThinLTO）与1395字节（PGO+ThinLTO）；always_inline在4363/4399/4512三个源码调用位置均有AlwaysInline记录，最终优化IR无helper调用、最终程序无该函数符号。保留最终IR、汇编、完整编译/训练成本及源patch。正式两批十轮结果待执行，不用接入样本推断性能。
