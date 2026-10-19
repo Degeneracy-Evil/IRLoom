@@ -1,5 +1,6 @@
 /.venv/
 /tmp/
 /logs/
+/benchmark-data
 __pycache__/
 *.pyc

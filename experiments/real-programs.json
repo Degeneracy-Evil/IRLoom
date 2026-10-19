@@ -1,0 +1,104 @@
+{
+  "storage_root": "/mnt/data/chp/irloom-benchmarks",
+  "compiler": "/usr/lib/llvm-18/bin/clang",
+  "cxx": "/usr/lib/llvm-18/bin/clang++",
+  "profdata": "/usr/lib/llvm-18/bin/llvm-profdata",
+  "compiler_version": "18.1.3",
+  "flags": [
+    "-O3",
+    "-DNDEBUG"
+  ],
+  "sources": [
+    {
+      "name": "test-suite",
+      "version": "llvmorg-18.1.3",
+      "revision": "72a946a42cbce06afef68b2326ff6c3869d09799",
+      "url": "https://codeload.github.com/llvm/llvm-test-suite/tar.gz/72a946a42cbce06afef68b2326ff6c3869d09799",
+      "archive": "llvm-test-suite-72a946a.tar.gz",
+      "directory": "sources/llvm-test-suite-18.1.3",
+      "license": "Apache-2.0 WITH LLVM-exception; third-party benchmarks retain their own licenses",
+      "license_files": [
+        "LICENSE.TXT",
+        "MultiSource/Benchmarks/7zip/License.txt",
+        "MultiSource/Benchmarks/7zip/unRarLicense.txt",
+        "MultiSource/Benchmarks/Ptrdist/LICENSE.TXT"
+      ]
+    },
+    {
+      "name": "zstd",
+      "version": "1.5.7",
+      "revision": "f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "url": "https://codeload.github.com/facebook/zstd/tar.gz/f8745da6ff1ad1e7bab384bd1f9d742439278e99",
+      "archive": "zstd-1.5.7.tar.gz",
+      "directory": "sources/zstd-1.5.7",
+      "license": "BSD-3-Clause OR GPL-2.0-only",
+      "license_files": [
+        "LICENSE",
+        "COPYING"
+      ]
+    },
+    {
+      "name": "sqlite",
+      "version": "3.50.4",
+      "revision": "2025-07-30 19:33:53 4d8adfb30e03f9cf27f800a2c1ba3c48fb4ca1b08b0f5ed59a4d5ecbf45e20a3",
+      "url": "https://www.sqlite.org/2025/sqlite-src-3500400.zip",
+      "archive": "sqlite-src-3500400.zip",
+      "directory": "sources/sqlite-3.50.4",
+      "license": "Public domain; build tools may have separate licenses",
+      "license_files": [
+        "LICENSE.md"
+      ]
+    },
+    {
+      "name": "llvm",
+      "version": "18.1.3",
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.3/llvm-18.1.3.src.tar.xz",
+      "archive": "llvm-18.1.3.src.tar.xz",
+      "directory": "sources/llvm-project-18.1.3/llvm",
+      "license": "Apache-2.0 WITH LLVM-exception; see per-file notices",
+      "license_files": [
+        "LICENSE.TXT"
+      ]
+    },
+    {
+      "name": "clang",
+      "version": "18.1.3",
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.3/clang-18.1.3.src.tar.xz",
+      "archive": "clang-18.1.3.src.tar.xz",
+      "directory": "sources/llvm-project-18.1.3/clang",
+      "license": "Apache-2.0 WITH LLVM-exception; see per-file notices",
+      "license_files": [
+        "LICENSE.TXT"
+      ]
+    },
+    {
+      "name": "llvm-cmake",
+      "version": "18.1.3",
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.3/cmake-18.1.3.src.tar.xz",
+      "archive": "cmake-18.1.3.src.tar.xz",
+      "directory": "sources/llvm-project-18.1.3/cmake",
+      "license": "Apache-2.0 WITH LLVM-exception",
+      "license_files": []
+    },
+    {
+      "name": "llvm-third-party",
+      "version": "18.1.3",
+      "url": "https://github.com/llvm/llvm-project/releases/download/llvmorg-18.1.3/third-party-18.1.3.src.tar.xz",
+      "archive": "third-party-18.1.3.src.tar.xz",
+      "directory": "sources/llvm-project-18.1.3/third-party",
+      "license": "Per-component licenses; LLVM notices and bundled third-party LICENSE files",
+      "license_files": []
+    },
+    {
+      "name": "lld",
+      "version": "18.1.3-1ubuntu1",
+      "url": "https://archive.ubuntu.com/ubuntu/pool/universe/l/llvm-toolchain-18/lld-18_18.1.3-1ubuntu1_amd64.deb",
+      "archive": "lld-18_18.1.3-1ubuntu1_amd64.deb",
+      "directory": "install/lld-18.1.3",
+      "license": "Apache-2.0 WITH LLVM-exception; Ubuntu packaging notices",
+      "license_files": [
+        "usr/share/doc/lld-18/copyright"
+      ]
+    }
+  ]
+}
