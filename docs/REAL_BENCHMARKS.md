@@ -18,7 +18,7 @@
 
 ## 依赖与成本控制
 
-复用Ubuntu已有LLVM/Clang18.1.3、llvm-profdata、compiler-rt profile runtime、CMake3.28.3、GNU Make4.3、Tcl、C/C++系统头文件与链接库，以及现有uv Python环境。需要git/curl、tar/xz/zip支持、dpkg-deb；不执行系统安装。未安装Ninja，使用Make生成器即可。CMake内部Python通过scripts/benchmark-python.sh的uv包装调用。lit直接使用固定LLVM源码中的18.1.3版本，额外Python依赖仅psutil（uv.lock固定），用于60秒测试超时控制。
+复用Ubuntu已有LLVM/Clang18.1.3、llvm-profdata、compiler-rt profile runtime、CMake3.28.3、GNU Make4.3、Tcl、C/C++系统头文件与链接库，以及现有uv Python环境。需要git/curl、tar/xz/zip支持、dpkg-deb；不执行系统安装。未安装Ninja，使用Make生成器即可。CMake内部Python通过scripts/benchmark-python.sh的uv包装调用。lit直接使用固定LLVM源码中的18.1.3版本，新增Python依赖为psutil（BSD-3-Clause，https://github.com/giampaolo/psutil ，uv.lock固定），用于60秒测试超时控制。
 
 默认最多两个构建进程。LLVM/Clang源码已准备，主编译器复用系统安装；先配置LLVM+Clang并仅编译小型LLVMDemangle库，避免默认全量bootstrap/安装LLVM。源代码版本与Ubuntu编译器打包修订分别记录，不冒称为自己从源码构建的Clang。PGO/ThinLTO先做工具能力验证，后续真实项目对照须分开构建目录及训练/测试输入。
 
@@ -66,3 +66,7 @@ lit必须从MultiSource顶层配置，以保留上游traditional_output继承；
 后续正式对照须为o3/thinlto/pgo-generate/pgo-use建立独立目录，固定相同项目功能开关/输入，划分PGO训练与未见评测输入，记录标签获取与重建成本；不能拿能力探针数据当正式训练集或优化收益。
 
 运行进程固定到允许的第一个CPU，线程环境为1；一次预热后三次独立进程采样，记录median/MAD与原始样本。频率、邻核共享负载与OS缓存不可控，没有PMU；进程墙钟包含启动，lit墙钟还包含Python/验证开销，应优先查看其原生exec_time。当前目的是环境验收，不发布编译优化加速结论。工具内部CMake/configure诊断随外部build缓存保留，我们的命令/结果与lit运行日志均在仓库logs/。
+
+## 正式入口验收结果
+
+两次完整入口均通过，四个项目共六项工作负载，每项一次预热后三个样本；第二次没有新增下载或重新configure。首次94.36s含部分新构建，缓存复跑28.23s，均非优化加速比较。结果与硬件/源/构建/测量摘要见[首轮验收报告](../experiments/reports/real-programs-initial.md)。实际命令环境见environment.json的benchmark_environment；host是复用的通用机器/工具探针。外部目录当前约4.24GiB（含开发缓存），Git只提交入口、配置、文档和小型结果摘要。

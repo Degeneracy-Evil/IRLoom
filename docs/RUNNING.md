@@ -151,3 +151,11 @@ bash scripts/phase0.sh m7-report --records logs/20261018T175248152318Z/records.j
 ```
 
 派生文件为m7-findings.md、m7-results.json、m7-lineage.md。m7-interpretation.md和m7-code.md为首轮人工解读/代码摘录，不被重建覆盖。结论仅为六个输入的上下文pilot，无神经网络训练；不要把所有上下文共用动作的事后下界当成部署策略。
+
+## 大型真实程序环境（独立入口）
+
+```bash
+bash scripts/benchmarks.sh
+```
+
+固定LLVM test-suite、Zstd、SQLite/speedtest1、LLVM/Clang官方来源，数据存放/mnt/data/chp/irloom-benchmarks并软链接benchmark-data；已有LLVM18工具复用，默认不bootstrap整套编译器。两次完整入口均通过，详见[运行/许可/依赖指南](REAL_BENCHMARKS.md)与[初始结果](../experiments/reports/real-programs-initial.md)。本入口与M0–M7数据分开，不自动进行模型或新优化实验。

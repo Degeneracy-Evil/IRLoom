@@ -153,3 +153,10 @@
 - 干净提交d72893c完成默认全部流程，logs/benchmarks/20261019T145513159552Z。四项目六项工作负载各预热一次、测量三次，全部通过，流程94.36s，包含本轮尚未缓存的LLVM/Zstd/SQLite版本化构建。
 - ThinLTO与PGO generate→merge→use能力均通过；源码LLVM仅构建LLVMDemangle，Clang编译官方单个TU，未bootstrap整套编译器。Zstd roundtrip、SQLite版本/SOURCE_ID/SQL/文件完整性、7zip原生检查与anagram官方参考输出均通过。
 - 日志新增实际benchmark环境、逐命令CPU亲和与超时，区别通用host探针环境。接下来重复同一包装入口核查完整缓存复用，并把环境/样本摘要及限制提交到实验报告。
+
+## 真实程序环境 B2 — 缓存复跑与交付已完成（2026-10-19）
+
+- 干净15ad677再次默认全入口完成，logs/benchmarks/20261019T145759896060Z，耗时28.23s。六工作负载各三样本，全部通过；无curl下载、无重新configure、无未变LLVM驱动重链，四项目均命中来源/构建缓存。
+- 首轮94.36s与复跑28.23s共36个正式测量样本；记录进程墙钟与原生指标各自语义、编译环境/CPU亲和/超时/源版本/许可和ThinLTO/Clang前端PGO能力。审计确认production O3编译数据库没有混入LTO/PGO标志，lit没有hash指标，实际TMPDIR和大文件均位于用户指定外部目录。
+- 外部目录约4.24GiB（含开发缓存），源码约3.5GiB，官方归档434.31MiB；benchmark-data被Git忽略，仓库不含第三方源码/大构建/二进制。未系统安装、未写单元测试或额外计算hash。
+- 报告real-programs-initial.md/json和运行指南已完成；LLVM/Clang复用系统18.1.3且官方源码可用，仅源码构建Demangle组件，没有bootstrap全Clang，SPEC CPU2026未处理。下一阶段才冻结整项目ThinLTO/PGO独立变体及训练/评测数据，不把当前探针当性能增益证据。
