@@ -93,3 +93,7 @@ bash scripts/benchmarks.sh
 单入口自动获取缓存、增量构建、正确执行和-O3基线测量，并验证ThinLTO/PGO工具能力；本阶段不开发新的编译优化算法或神经网络。
 
 环境验收已完成：四项目六项工作负载，两次完整流程均通过；源码/大构建等约4.24GiB留在外部目录，缓存复跑约28s。ThinLTO与PGO基础能力通过，不代表整项目性能对照。详见[初始验收结果](experiments/reports/real-programs-initial.md)。
+
+## 真实程序：下一轮性能基线与优化机会审计
+
+官方源码与六项 smoke/环境验收已完成，但目前 LLVM/Clang 未构建完整被优化程序，正式真实负载的代表性与优化配置对照仍需加强。下一轮优先扩充 Zstd、SQLite 和官方 LLVM MultiSource 的执行负载，对至少两个项目建立 O3-native、ThinLTO-native（以及可行的 PGO+ThinLTO）强基线，再调查真实热点和跨函数决策。执行方案见 [docs/REAL_PROGRAM_NEXT.md](docs/REAL_PROGRAM_NEXT.md)。
