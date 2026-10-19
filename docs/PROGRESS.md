@@ -147,3 +147,9 @@
 - Zstd编译/逐字节roundtrip、SQLite shell/speedtest1文件与内存模式、LLVM源码组件/Clang单TU编译、ThinLTO与Clang前端PGO生成/合并/使用探针均已在预验收实跑。
 - test-suite的7zip限单线程/256KiB字典；anagram以官方lit/fpcmp参考输出通过。处理SQLite ZIP执行位、speedtest1本版--memdb参数、MultiSource父配置继承；生成配置关闭默认artifact hash，保留官方参考校验。psutil经uv加入以启用lit超时，无新单元测试。
 - 单项目/微型预验收已通过；下一步从已提交入口完整运行全部项目，核查缓存命中、源版本/环境、原始指标与限制，再提交最终报告。
+
+## 真实程序环境 B2 — 完整入口初验通过（2026-10-19）
+
+- 干净提交d72893c完成默认全部流程，logs/benchmarks/20261019T145513159552Z。四项目六项工作负载各预热一次、测量三次，全部通过，流程94.36s，包含本轮尚未缓存的LLVM/Zstd/SQLite版本化构建。
+- ThinLTO与PGO generate→merge→use能力均通过；源码LLVM仅构建LLVMDemangle，Clang编译官方单个TU，未bootstrap整套编译器。Zstd roundtrip、SQLite版本/SOURCE_ID/SQL/文件完整性、7zip原生检查与anagram官方参考输出均通过。
+- 日志新增实际benchmark环境、逐命令CPU亲和与超时，区别通用host探针环境。接下来重复同一包装入口核查完整缓存复用，并把环境/样本摘要及限制提交到实验报告。

@@ -46,7 +46,8 @@ class Benchmarks:
 
     def command(self,args,name,cwd=None,timeout=600,cpu=False,input=None,env=None):
         args=[str(a) for a in args]
-        event={"command":args,"cwd":str(cwd or ROOT),"log":str(self.logs/f"{len(self.events):03d}-{name}.log")}
+        event={"command":args,"cwd":str(cwd or ROOT),"log":str(self.logs/f"{len(self.events):03d}-{name}.log"),
+               "affinity_cpu":self.cpu if cpu else None,"timeout_seconds":timeout}
         if input is not None:
             event["stdin"]=input
         if env:
@@ -135,6 +136,7 @@ class Benchmarks:
         metadata={"host":probe(),"storage":str(self.storage),"link":str(self.root),"cpu":self.cpu,
                   "python":sys.version,"python_packages":{"psutil":package_version("psutil")},
                   "configuration":self.config,"tools":{},
+                  "benchmark_environment":{k:self.env[k] for k in ("TMPDIR","OMP_NUM_THREADS","OPENBLAS_NUM_THREADS","MKL_NUM_THREADS")},
                   "measurement_policy":{"warmups":1,"repetitions":self.args.repetitions,"affinity_cpu":self.cpu,
                                         "flags":self.config["flags"],"frequency":"uncontrolled","pmu":"not collected"}}
         for name,path in (("clang",self.config["compiler"]),("clang++",self.config["cxx"]),
@@ -275,7 +277,8 @@ class Benchmarks:
             elif project=="zstd":
                 binary=build/"programs/zstd"
                 info=self.command([binary,"--version"],"zstd-version")
-                if "v1.5.7" not in info:
+                version=next(s["version"] for s in self.config["sources"] if s["name"]=="zstd")
+                if "v"+version not in info:
                     raise ValueError("unexpected Zstd executable version")
                 self.metadata.setdefault("program_versions",{})["zstd"]=info.strip()
                 corpus=self.root/"data"/(self.source("zstd").name+"-code-8MiB.bin")
