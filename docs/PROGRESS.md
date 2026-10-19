@@ -172,3 +172,5 @@ R1完成：5项正式负载均通过，Zstd/SQLite/Bullet进入秒级，tramp3d�
 R2实现：Zstd/SQLite整程序四种编译变体、独立PGO训练/合并/重建、代码大小/完整构建命令与交错计时。开发阶段保留两次构建失败及诊断；正式十轮采样待执行，不能把单样本接入结果当性能结论。
 
 R2完成：干净2f1a57e运行20261019T165654773769Z，14组合×10样本=140，全部功能与数据核查通过。O3/native/ThinLTO/PGO+ThinLTO均为完整Zstd/SQLite程序；两项目独立训练，官方Bullet/tramp3d为O3参考。原始主指标median/MAD、机器/源码/命令、构建/训练成本与限制见real-programs-baselines.md及同名JSON。未声称全量Clang或新优化算法收益；下一步R3。
+
+R3实现接入：独立-pg构建的gprof采样/调用图、仅用于审计的评测PGO计数、Zstd最终ThinLTO内联记录及SQLite精确speedtest1核心前端记录。20261019T170927765410Z取得三项动态剖析；发现SQLite默认记录路径竞争后，20261019T171253028973Z用展开Make配方修复并全部通过，PGO核心以profile不匹配为错误的诊断也通过。接下来从干净提交验证缓存复跑并归档候选问题；不把Missed内联直接当作收益证据。

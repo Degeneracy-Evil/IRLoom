@@ -399,7 +399,7 @@ PRAGMA integrity_check;
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("action",nargs="?",default="all",choices=("all","fetch","probe","build","run"))
+    parser.add_argument("action",nargs="?",default="all",choices=("all","fetch","probe","build","run","audit"))
     parser.add_argument("--project",nargs="+",choices=("llvm","zstd","sqlite","test-suite"),default=["llvm","zstd","sqlite","test-suite"])
     parser.add_argument("--jobs",type=int,default=2)
     parser.add_argument("--repetitions",type=int)
@@ -414,6 +414,8 @@ def main():
         parser.error("duplicate variants are not allowed")
     if args.suite=="smoke" and args.variants!=["o3"]:
         parser.error("optimization variants require --suite formal")
+    if args.suite=="smoke" and args.action=="audit":
+        parser.error("audit requires --suite formal")
     if not 1<=args.jobs<=8 or args.repetitions<1:
         parser.error("jobs must be 1..8; repetitions must be positive")
     if args.suite=="formal":
@@ -430,10 +432,12 @@ def main():
         bench.fetch()
         if args.action!="fetch":
             bench.inventory()
-        if args.action in ("all","build","run"):
+        if args.action in ("all","build","run","audit"):
             bench.build()
         if args.action in ("all","run"):
             bench.run()
+        if args.suite=="formal" and args.action in ("all","audit"):
+            bench.audit()
         bench.save("pass")
     except Exception as exc:
         bench.save("failed",str(exc))

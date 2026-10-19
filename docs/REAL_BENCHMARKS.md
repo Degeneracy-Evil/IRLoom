@@ -113,3 +113,22 @@ PGO先独立构建formal-pgo-train（native+ThinLTO+Clang前端插桩），训�
 每个正式负载一次预热后10轮，各轮旋转变体次序，单CPU串行运行。保存全部样本、进程墙钟及原生指标的median/MAD；Zstd以压缩/解压MB/s分别比较，SQLite以TOTAL秒、MultiSource以lit exec_time比较（其为timeit用户CPU秒）。所有变体先做Zstd逐字节往返、SQLite版本/已知SQL/文件完整性及跨变体数据库dump比较，官方MultiSource继续逐次参考校验。SMT sibling未预留，频率/邻核负载/页缓存不受控；不能仅凭小幅median差异宣称编译器优化有效。
 
 PGO-use目录再按训练profile的采集时间戳隔离，重新训练不会悄悄复用包含旧-fprofile-instr-use路径的SQLite对象。SQLite configure的conftest main与训练程序不是同一函数体，Clang可能报告profile不匹配；保留原始诊断而不把探测程序告警升级为构建错误，正式编译日志仍须审查。Zstd的ThinLTO内联记录通过LLD单独输出至各变体lto-inline.yaml及其thin分片。
+
+## R3：热点/调用与优化记录审计
+
+formal的all入口在计时结束后执行审计；run只做正式采样。也可单独复用缓存：
+
+```bash
+bash scripts/benchmarks.sh audit --suite formal --project zstd sqlite
+bash scripts/benchmarks.sh run --suite formal --repetitions 10 # 只测量，不运行审计
+```
+
+本机没有perf命令，perf_event_paranoid=4，不改系统配置或安装系统包。复用已有GNU binutils的gprof：另外构建formal-audit-gprof（-O3 -march=native -pg -fno-omit-frame-pointer），验证后对两种Zstd输入和SQLite main采集用户态采样与动态调用弧。GMON_OUT_PREFIX将原始二进制采样文件放在本次logs目录，flat/call graph完整文本也随命令保存。这些插桩构建改变调用/内联成本，不能加入正式性能样本，也不能把库外时间或未插桩库调用当作已完整覆盖。
+
+若已准备PGO，则以formal-pgo-train对评测输入另行采集evaluation-only.profdata，只用于审计函数/基本块执行计数；目录在本次tmp内，与固定训练profile完全隔离，不更新最终PGO-use二进制。计数代表频度而非CPU周期。最后汇总各正式native配置的Clang前端及Zstd LLD ThinLTO内联记录，完整调用边记录留在logs/inline-项目-变体.json；前端与LTO记录通过stage区分，不能直接相加成独立优化次数。
+
+审计结果写metadata.audit，保留工具版本、限制、热点样本、调用图、PGO计数及优化记录路径。下一步候选必须同时核查热度、实际调用边、现有PGO/ThinLTO是否已经处理、合法A/B改动与完整输出校验；看到热点或Missed remark不等于编译器漏优化。
+
+SQLite上游Make会为shell与speedtest1的两个sqlite3.c编译写入同一个sqlite3.opt.yaml，原文件无法可靠归属。审计改用make -n -W读取真实speedtest1编译配方，去除链接输入及harness源文件，保持全部核心编译宏/优化参数，仅为sqlite3.c生成独立诊断对象与明确命名的记录。对象在本次tmp，记录缓存于对应变体audit-remarks；marker核对配置、源码及二进制mtime。此操作不覆盖正式二进制，相关成本进入事件日志；PGO核心诊断额外将profile函数体不匹配升级为错误，防止误用shell的profile解释评测目标。SQLite记录仅代表前端，不能冒充其最终ThinLTO后端决策。
+
+configure及正确性运行也可能触发gprof输出，统一GMON_OUT_PREFIX预设在本次tmp，只有正式审计样本覆盖到logs前缀，防止gmon.out污染仓库。summary.md同时给出原生主指标和剖析概要，results.json仍为完整证据来源。

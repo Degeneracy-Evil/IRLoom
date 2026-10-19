@@ -84,3 +84,7 @@ M7已按 [新规划](M7_PLAN.md) 完成合法性、上下文对照与轻量信�
 ## 阶段验收与后续决策
 
 M0 验收一条真实可复现的编译—执行数据闭环；M1 验收多个合法候选在同一测量规范下可比较；M2 验收三种计算类别与明确的实验限制；M3 验收有噪声与正确性分析支撑的研究结论。我们最终决定是否设计 Persistent IR State，取决于这些证据，而不是是否能实现一个 Attention 模块。
+
+## 当前真实程序阶段（2026-10-20）
+
+最新拉取的[REAL_PROGRAM_NEXT.md](REAL_PROGRAM_NEXT.md)将任务从环境smoke推进到R1正式负载、R2强编译基线、R3热点/调用审计；其范围优先于上文“只做能力验证”的旧状态。保持旧M0–M7/M8文档与原始smoke报告。统一入口增加--suite formal，固定官方源码与外部缓存继续复用；不开发神经模型、新优化算法或全量Clang bootstrap。已完成R1，R2/R3结果以PROGRESS及real-programs-baselines.md的最终记录为准。

@@ -84,6 +84,8 @@ class RealBaselines(Benchmarks):
             self.link_flags=[f"-fuse-ld={self.source('lld')/'usr/lib/llvm-18/bin/ld.lld'}", "-Wl,--thinlto-jobs=2","-Wl,--threads=2"]
         if variant=="pgo-train":
             flags+=["-fprofile-instr-generate"]
+        elif variant=="audit-gprof":
+            flags+=["-pg","-fno-omit-frame-pointer"]
         elif variant=="pgo-thinlto-native":
             if profile is None:
                 raise ValueError("PGO-use requires this project's training profile")
@@ -312,3 +314,29 @@ class RealBaselines(Benchmarks):
         # flags and native link commands are attached to each isolated build.
         self.config["flags"]=list(self.base_flags)
         super().save(status,error)
+        if self.results:
+            lines=["", "## Native workload metrics", "", "| Workload | Variant | Metric | Median | MAD |", "| --- | --- | --- | ---: | ---: |"]
+            for record in self.results:
+                for metric,values in record.get("metrics",{}).items():
+                    lines.append(f"| {record['name']} | {record['variant']} | {metric} | {values['median']:.6f} | {values['mad']:.6f} |")
+            with (self.logs/"summary.md").open("a") as output:
+                output.write("\n".join(lines)+"\n")
+        if hasattr(self,"metadata") and "audit" in self.metadata:
+            lines=["", "## Profiling evidence", "", "Separate instrumented builds; samples below are not baseline timings.", "",
+                   "| Workload | Largest self samples | Call graph log |", "| --- | --- | --- |"]
+            for profile in self.metadata["audit"]["profiles"]:
+                top="; ".join(f"{f['function']}: {f['self_percent']:.1f}%" for f in profile["top_functions"][:4])
+                lines.append(f"| {profile['name']} | {top} | {profile['call_graph_log']} |")
+            with (self.logs/"summary.md").open("a") as output:
+                output.write("\n".join(lines)+"\n")
+
+    def audit(self):
+        from .real_audit import audit
+        projects=list(self.args.project)
+        try:
+            self.args.project=[p for p in projects if p in ("zstd","sqlite")]
+            if not self.args.project:
+                return
+            audit(self)
+        finally:
+            self.args.project=projects
