@@ -97,3 +97,5 @@ bash scripts/benchmarks.sh
 ## 真实程序：下一轮性能基线与优化机会审计
 
 官方源码与六项 smoke/环境验收已完成，但目前 LLVM/Clang 未构建完整被优化程序，正式真实负载的代表性与优化配置对照仍需加强。下一轮优先扩充 Zstd、SQLite 和官方 LLVM MultiSource 的执行负载，对至少两个项目建立 O3-native、ThinLTO-native（以及可行的 PGO+ThinLTO）强基线，再调查真实热点和跨函数决策。执行方案见 [docs/REAL_PROGRAM_NEXT.md](docs/REAL_PROGRAM_NEXT.md)。
+
+R1–R3已实跑：Zstd/SQLite四种完整程序编译配置，加上两个官方MultiSource工作负载，共14组合、140个正式样本均通过；并完成gprof/PGO/内联记录审计。运行 `bash scripts/benchmarks.sh all --suite formal` 可复现完整流程。结果与后续最小A/B问题见[正式基线和审计报告](experiments/reports/real-programs-baselines.md)；这些是强基线与候选证据，尚未验证新的全局优化收益。

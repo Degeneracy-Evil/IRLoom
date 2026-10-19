@@ -28,6 +28,8 @@
 
 ## R2：十轮正式结果
 
+硬件为Intel Xeon 6986P-C，240个逻辑CPU、SMT2；Linux 6.8.0-55/glibc2.39，Clang/LLVM与本地LLD均为18.1.3。执行固定CPU0，sibling120未预留；默认构建jobs2，每个LLD内部并行2。可移植组为-O3 -DNDEBUG，native组增加-march=native，不启用fast-math；完整CPU/ISA/cache/工具版本与实际环境见JSON。
+
 干净提交2f1a57e，UTC日志20261019T165654773769Z；14个负载/配置组合，每组一次预热+10次独立样本，共140个测量样本，全部通过。完整工作流709.76秒，含PGO-use按profile批次新建目录的构建；不是缓存纯执行时间。
 
 | 工作负载 | 编译变体 | 主指标 median ± MAD | 相对O3-native |
@@ -78,3 +80,49 @@
 验收数据核查通过：全部命令exit0、140个测量样本、训练/评测源码文件集合无交集且记录种子不同、PGO-use目录与profile批次匹配、原始二进制大小匹配、官方参考PASS且无产物hash指标。没有新增单元测试。原始样本、环境、完整运行命令、编译/链接参数、profile和成本来源见[real-programs-baselines.json](real-programs-baselines.json)。
 
 这批结果支持两点有限结论：native ISA并非所有指标都更好（Zstd解压、SQLite主负载有退化）；ThinLTO在已很强的O3-native上增量较小，SQLite的PGO+ThinLTO在固定未训练main输入上更快，但仍是单机器单批次证据。Zstd结构化记录的0.2%–0.6%差异与波动同量级，不作为稳健加速结论。PGO的llvm-size text比O3-native分别减少约29%（Zstd）和18%（SQLite）；文件字节还受优化记录关联的调试信息等影响，不可直接当作指令缓存占用。不能仅凭PGO结果把原因归结为某一个内联决策。
+
+## R3：热点与调用决策审计完成
+
+使用已有GNU gprof，未安装工具或修改perf权限；本机无perf命令，perf_event_paranoid=4。独立的-pg/-fno-omit-frame-pointer native构建验证后采样，另以PGO训练程序采集**仅供审计**的评测计数，绝不合入原训练profile。Zstd记录包含最终ThinLTO阶段；SQLite通过Make展开真实speedtest1参数，单独编译核心TU，避开shell/核心并行编译覆盖默认opt.yaml的问题。PGO核心诊断启用-Werror=profile-instr-out-of-date并通过，不能把shell的少量profile告警套用到speedtest1核心。
+
+修正后接入日志20261019T171253028973Z，94.74秒，含SQLite三个核心诊断编译26.39/13.23/18.79秒。首次gprof程序构建成本分别为Zstd15.95秒、SQLite42.37秒（20261019T170927765410Z）。干净提交ba60f5e复跑20261019T171540350635Z，37.00秒；所有命令通过，源码/构建/训练/诊断记录缓存命中，无下载、无重新配置或核心诊断重编译。正式基线产物大小检查仍一致，根目录无gmon.out/default.profraw。原始调用图与抽样、评测计数及诊断记录留在logs/外部缓存，选取的调用图片段、具体决策和命令归档于[real-programs-audit.json](real-programs-audit.json)。
+
+| 工作负载 | 干净复跑gprof主要自采样占比 | 动态调用证据 |
+| --- | --- | --- |
+| Zstd software-eval | decompressSequences 44.87%，compressBlock_doubleFast 38.90%，encodeSequences 5.25% | compressBlock_internal→buildSeqStore→doubleFast，两个调用边各6246次 |
+| Zstd records-eval | decompressSequences 46.32%，compressBlock_doubleFast 36.82%，HUF fast asm loop 6.40% | 同一压缩调用链，每条边5439次 |
+| SQLite main size200 | VdbeExec 25.99%，BtreeIndexMoveto 12.50%，BtreeTableMoveto 6.25% | VdbeExec→BtreeIndexMoveto 3325350次，callee总计4121076次 |
+
+gprof每个样本0.01秒，百分比只是在可归属程序文本中的自采样比例，不能当作含libc/内核的完整应用时间；_init等归属不明项不作为优化目标。不同复跑百分比有数个百分点变化，主热点位置一致。Zstd内部按时间迭代，调用总数随机器速度/采样开销变化，不用绝对次数跨语料排名。gprof调用图的子时间还依赖传播估计；PGO的高频MEM_read/bit操作包括已内联函数，频度不等于真实调用开销。
+
+### 候选1：Zstd热调用链的内联与全程序代码预算
+
+可复核位置是固定1.5.7的lib/compress/zstd_compress.c:4399，compressBlock_internal调用buildSeqStore；后者经函数指针进入另一个TU中的doubleFast。动态调用图确认该链承担主要压缩工作，而非仅凭函数名称猜测热点。具体inline记录如下：
+
+| 配置 | 阶段 | 决策 | Cost / Threshold | 训练Hotness |
+| --- | --- | --- | --- | ---: |
+| O3-native | 前端 | TooCostly | 625 / 625 | 无 |
+| ThinLTO-native | 最终LTO | TooCostly | 660 / 625 | 无 |
+| PGO+ThinLTO-native | 最终LTO | TooCostly | 630 / 625 | 4757 |
+
+PGO/ThinLTO已知道热度并仍选择保留边界；这不是“编译器不知道跨函数信息”的证据。buildSeqStore自身几乎没有自采样，单纯省掉几千次call很可能无意义。值得核查的是：内联能否让调用方上下文进一步消除分支或约束压缩器分派，并在全程序代码预算下优于既有选择；反面可能是复制大的helper并恶化局部性。
+
+**下一次最小A/B：** 在独立临时源码副本中只改变buildSeqStore的内联属性（基线、强制inline、显式noinline），固定PGO+ThinLTO及训练输入，对其三个源码调用位置逐一核查行为，记录源码diff。对两种现有评测语料分别做10次交错吞吐、逐字节往返和text大小比较；若profile CFG不匹配，则各变体用相同训练负载重新采集并计费。先观察常量传播/间接调用/代码复制是否实际改变，再谈全局策略。该A/B尚未执行；若仅增大代码、效果落入噪声，就关闭此候选。暂不把该问题推广为历史状态或神经模型的必要性。
+
+### 候选2：SQLite opcode调用上下文与PGO训练覆盖
+
+VdbeExec→BtreeIndexMoveto在main评测中有3325350次动态调用。精确speedtest1核心前端记录中，这类边在O3/native ThinLTO下的成本有640/625、625/625等，PGO下记录为65/45、Hotness=0。原源码src/vdbe.c的Seek与Found等不同opcode在多个位置调用同一callee；本轮记录未精确对应每个opcode调用点，不能把累计3325350次直接分配给某一条remark。
+
+这里更直接的问题是训练orm,cte与评测main的覆盖差异：某些评测很忙的路径在训练中冷，现有PGO仍将其按冷路径处理。PGO整体已经改善main性能，并不意味着每条边都获益。SQLite核心又是一个amalgamation TU，编译器原本已可见大部分函数，当前没有充分证据支持“缺少跨模块可见性”或“需要比PGO更复杂的模型”。
+
+**下一次最小A/B先审计覆盖：** 先从仅审计的评测profile/IR对应到具体opcode调用点；再在相同训练执行预算下，对比既有orm,cte训练与预先冻结、不同种子的索引查询训练，保持编译选项不变。使用新的预先留出SQL评测集判断覆盖改进是否稳定；当前main已被观察，只能作诊断pilot，不能再次当作未见泛化集。只有代表性训练后仍有明确残留调用决策，再考虑对单一callee做属性A/B。该候选目前是强基线的覆盖限制，不是已确认的编译器漏优化。
+
+## 阶段边界与下一步
+
+R1、R2、R3要求的正式负载、两个完整项目强基线、独立PGO闭环及至少两个程序的热点/调用证据已建立。现有数据支持上面的有限后续问题，**没有验证某个新全局优化能带来收益**；下一轮应先完成最小合法A/B和训练覆盖核查，不启动神经网络、MLIR扩展或全LLVM bootstrap。
+
+实际全部缓存约5.6GiB，含开发阶段产物与诊断记录；本轮没有新下载，未删除旧缓存。源码/大型构建均经benchmark-data软链留在/mnt/data/chp/irloom-benchmarks，临时对象经./tmp，运行/剖析日志在./logs。复现完整流程：bash scripts/benchmarks.sh all --suite formal；仅重测用run，仅审计用audit。旧smoke入口、首轮报告及M0–M7/M8研究记录保持独立。
+
+限制保留：单CPU亲和但未预留SMT sibling，频率、邻核负载、系统页缓存不受控；正式性能只有一批十轮，不是跨机器/生产数据泛化证据。SQLite只对小文件进行已知结果/完整性及跨变体dump校验，大输入依赖程序自身执行检查，未运行全量上游测试。PGO当前为Clang前端插桩，Zstd计时包含固定内置benchmark循环；LLVM/Clang仍是源码/组件能力检查，并未构建完整被优化编译器。两项MultiSource本轮只有O3参考，SQLite最终LTO决策未单独采集，审计不能越过这些证据边界。
+
+最终兼容验收：旧smoke SQLite入口20261019T172041502021Z及formal单变体入口20261019T172109721568Z均通过，后者确认summary.md展示原生TOTAL及median/MAD。它们只是入口兼容检查，未加入上述140个正式样本。

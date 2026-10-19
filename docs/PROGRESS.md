@@ -174,3 +174,5 @@ R2实现：Zstd/SQLite整程序四种编译变体、独立PGO训练/合并/重�
 R2完成：干净2f1a57e运行20261019T165654773769Z，14组合×10样本=140，全部功能与数据核查通过。O3/native/ThinLTO/PGO+ThinLTO均为完整Zstd/SQLite程序；两项目独立训练，官方Bullet/tramp3d为O3参考。原始主指标median/MAD、机器/源码/命令、构建/训练成本与限制见real-programs-baselines.md及同名JSON。未声称全量Clang或新优化算法收益；下一步R3。
 
 R3实现接入：独立-pg构建的gprof采样/调用图、仅用于审计的评测PGO计数、Zstd最终ThinLTO内联记录及SQLite精确speedtest1核心前端记录。20261019T170927765410Z取得三项动态剖析；发现SQLite默认记录路径竞争后，20261019T171253028973Z用展开Make配方修复并全部通过，PGO核心以profile不匹配为错误的诊断也通过。接下来从干净提交验证缓存复跑并归档候选问题；不把Missed内联直接当作收益证据。
+
+R3完成：干净ba60f5e日志20261019T171540350635Z，三项工作负载在两个真实程序取得gprof采样/调用图、独立评测PGO计数及六组编译记录；37秒缓存复跑通过，无新下载/重配/训练/诊断重编译。实际PGO核心profile匹配检查通过，正式产物大小检查一致、无根目录临时溢出。报告提出Zstd热链内联/代码预算A/B和SQLite训练opcode覆盖核查，未声称已验证漏优化或神经模型必要性。完整记录见real-programs-baselines.md、real-programs-audit.json；本阶段停在可复核问题和下一次最小实验设计。

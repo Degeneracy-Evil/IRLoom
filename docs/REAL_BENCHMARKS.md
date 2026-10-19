@@ -104,7 +104,7 @@ bash scripts/benchmarks.sh all --suite formal --project zstd sqlite --variants o
 bash scripts/benchmarks.sh build --suite formal --project zstd --variants pgo-thinlto-native
 ```
 
-缓存目录为builds/项目/版本/clang-18.1.3/formal-变体。完整静态压缩库与Zstd程序均按变体构建；SQLite使用同一amalgamation与speedtest1、相同功能选项。ThinLTO归档使用llvm-ar/llvm-ranlib，链接并行最多2；native变体保留inline优化记录（.opt.yaml），编译/链接命令、二进制文件大小、llvm-size和符号数进入每次metadata.builds。CMake的compile_commands.json及link.txt保存在各缓存中，SQLite原生Make命令保存在日志。配置诊断开关不会当作优化收益。
+缓存目录为builds/项目/版本/clang-18.1.3/formal-变体。完整静态压缩库与Zstd程序均按变体构建；SQLite使用同一amalgamation与speedtest1、相同功能选项。ThinLTO归档使用llvm-ar/llvm-ranlib，每个链接器内部并行最多2（SQLite两个目标可由Make并发）；native变体保留inline优化记录（.opt.yaml），编译/链接命令、二进制文件大小、llvm-size和符号数进入每次metadata.builds。CMake的compile_commands.json及link.txt保存在各缓存中，SQLite原生Make命令保存在日志。配置诊断开关不会当作优化收益。
 
 PGO先独立构建formal-pgo-train（native+ThinLTO+Clang前端插桩），训练Zstd时只读取software-train与records-train，训练SQLite时只执行orm,cte size40；评测仍为software-eval/records-eval和main size200。训练语料的文件集合/记录种子与评测隔离；SQLite是不同testset而非较小的main前缀。不同测试仍共享实现与数据分布，不能据此宣称生产泛化。
 
@@ -132,3 +132,5 @@ bash scripts/benchmarks.sh run --suite formal --repetitions 10 # 只测量，不
 SQLite上游Make会为shell与speedtest1的两个sqlite3.c编译写入同一个sqlite3.opt.yaml，原文件无法可靠归属。审计改用make -n -W读取真实speedtest1编译配方，去除链接输入及harness源文件，保持全部核心编译宏/优化参数，仅为sqlite3.c生成独立诊断对象与明确命名的记录。对象在本次tmp，记录缓存于对应变体audit-remarks；marker核对配置、源码及二进制mtime。此操作不覆盖正式二进制，相关成本进入事件日志；PGO核心诊断额外将profile函数体不匹配升级为错误，防止误用shell的profile解释评测目标。SQLite记录仅代表前端，不能冒充其最终ThinLTO后端决策。
 
 configure及正确性运行也可能触发gprof输出，统一GMON_OUT_PREFIX预设在本次tmp，只有正式审计样本覆盖到logs前缀，防止gmon.out污染仓库。summary.md同时给出原生主指标和剖析概要，results.json仍为完整证据来源。
+
+R1–R3已完成实际验收：14个负载/配置组合各10个样本全部通过；两种Zstd分布、SQLite放大输入、Bullet/tramp3d官方参考有效。强基线结果、构建/训练/剖析成本、数据核查、两个下一步问题与限制见[正式报告](../experiments/reports/real-programs-baselines.md)，原始摘要见同名JSON及real-programs-audit.json。R3干净提交缓存复跑约37秒，不代表完整十轮性能流程耗时。

@@ -87,4 +87,4 @@ M0 验收一条真实可复现的编译—执行数据闭环；M1 验收多个�
 
 ## 当前真实程序阶段（2026-10-20）
 
-最新拉取的[REAL_PROGRAM_NEXT.md](REAL_PROGRAM_NEXT.md)将任务从环境smoke推进到R1正式负载、R2强编译基线、R3热点/调用审计；其范围优先于上文“只做能力验证”的旧状态。保持旧M0–M7/M8文档与原始smoke报告。统一入口增加--suite formal，固定官方源码与外部缓存继续复用；不开发神经模型、新优化算法或全量Clang bootstrap。已完成R1，R2/R3结果以PROGRESS及real-programs-baselines.md的最终记录为准。
+最新拉取的[REAL_PROGRAM_NEXT.md](REAL_PROGRAM_NEXT.md)将任务从环境smoke推进到R1正式负载、R2强编译基线、R3热点/调用审计；其范围优先于上文“只做能力验证”的旧状态。保持旧M0–M7/M8文档与原始smoke报告。统一入口增加--suite formal，固定官方源码与外部缓存继续复用；不开发神经模型、新优化算法或全量Clang bootstrap。R1–R3已完成，结果与限制见PROGRESS及real-programs-baselines.md；后续仅有最小A/B与训练覆盖候选，尚未验证新优化收益。

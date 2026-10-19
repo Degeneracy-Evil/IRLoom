@@ -2,6 +2,8 @@
 
 **状态：2026-10-20；供本地 Agent 执行。** 本方案承接 `docs/REAL_BENCHMARKS.md` 与 `experiments/reports/real-programs-initial.md`。旧的 M0–M7 与 M8 可行性研究文档保留不动。下一步优先在真实程序中寻找优化空间，不立即开发神经网络、MLIR 扩展或完整 LLVM 编译器。
 
+**执行验收：R1–R3已完成。** 14个正式负载/配置组合、140个样本全部通过；两个完整项目的强基线、独立PGO和热点/调用审计见[阶段报告](../experiments/reports/real-programs-baselines.md)。已给出Zstd内联/代码预算与SQLite训练覆盖两个后续问题，最小A/B尚未执行，未验证新的全局优化收益。下面保留原执行规范，不自动扩大到模型或新编译器算法。
+
 ## 1. 本轮验收和关键缺口
 
 现有四个项目六项工作负载已完成可复现的源码获取、构建与功能测试；统一入口和外部构建缓存正常。当前 **LLVM/Clang 只编译 LLVMDemangle 小库并以系统 Clang 测一个源文件**，还不是完整编译器作为被优化程序的基线。LLVM test-suite 只运行 7zip/anagram；Zstd 使用重复拼接的源码文本；SQLite `speedtest1 --memdb --size25` 仅约 0.4 秒；每项只有三次独立采样。因此它们可作 smoke baseline，但不能作为“真实大型软件性能优化已被验证”的证据。
