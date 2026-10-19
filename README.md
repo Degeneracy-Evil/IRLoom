@@ -99,3 +99,7 @@ bash scripts/benchmarks.sh
 官方源码与六项 smoke/环境验收已完成，但目前 LLVM/Clang 未构建完整被优化程序，正式真实负载的代表性与优化配置对照仍需加强。下一轮优先扩充 Zstd、SQLite 和官方 LLVM MultiSource 的执行负载，对至少两个项目建立 O3-native、ThinLTO-native（以及可行的 PGO+ThinLTO）强基线，再调查真实热点和跨函数决策。执行方案见 [docs/REAL_PROGRAM_NEXT.md](docs/REAL_PROGRAM_NEXT.md)。
 
 R1–R3已实跑：Zstd/SQLite四种完整程序编译配置，加上两个官方MultiSource工作负载，共14组合、140个正式样本均通过；并完成gprof/PGO/内联记录审计。运行 `bash scripts/benchmarks.sh all --suite formal` 可复现完整流程。结果与后续最小A/B问题见[正式基线和审计报告](experiments/reports/real-programs-baselines.md)；这些是强基线与候选证据，尚未验证新的全局优化收益。
+
+## 真实程序首轮热点验证
+
+R1–R3 的正式强基线和调用审计已完成：Zstd 的增量 ThinLTO/PGO 收益较小，SQLite 的 PGO+ThinLTO 对 main 负载的提升较明显，但这不是新编译优化算法的收益。当前优先执行两个最小因果实验：**Zstd 跨 TU 热调用的内联 A/B** 和 **SQLite 训练覆盖差异的 PGO A/B**，确认成熟编译器是否仍存在值得学习模型协调的性能机会。详见 [docs/REAL_OPTIMIZATION_AB.md](docs/REAL_OPTIMIZATION_AB.md)。
