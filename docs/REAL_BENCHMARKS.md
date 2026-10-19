@@ -168,3 +168,5 @@ bash scripts/benchmarks.sh all --suite sqlite-mix
 复用P0/P1各约60 CPU秒历史profile，Pmix计入约120 CPU秒历史数据，本轮新增训练0秒；不声称同预算优势。工具核查核心函数结构兼容、每个混合计数等于两输入之和，再以相同native ThinLTO功能配置编译。四家族point/range/orm/cte各权重1/4，两批各预热+10轮，主要指标为完整进程墙钟的同轮配对几何均值、最差退化及距三配置观测oracle的差距。整体是诊断性比较，不称blind泛化。
 
 官方ORM/CTE使用speedtest1 size60，计时harness禁用hash。独立验证harness逐步记录完整SQL结果，与相同功能配置的O0参考核心按字节比较；验证结果流及额外链接不加入性能样本，费用照实记录。Pmix/官方harness/参考核心存外部pgo-mix-v1，原缓存不覆盖。`build --suite sqlite-mix`只准备构建；`--batches 1 --repetitions 1`仅接入检查，不并入正式报告。缺少前轮PGO缓存时明确失败，应先按sqlite-ab协议准备，而不自动改变训练配方。无论结果如何，本轮后停止SQLite局部权重/属性试验。
+
+正式两批十轮240样本已通过，见[Pmix报告](../experiments/reports/real-sqlite-pmix.md)及同名JSON。简单合并距小矩阵观测oracle约1%，达到冻结停止点；仅为诊断性结果，已结束本轮局部试验。

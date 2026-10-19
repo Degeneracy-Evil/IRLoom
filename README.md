@@ -105,3 +105,5 @@ R1–R3已实跑：Zstd/SQLite四种完整程序编译配置，加上两个官�
 R1–R3 的正式强基线和调用审计已完成：Zstd 的增量 ThinLTO/PGO 收益较小，SQLite 的 PGO+ThinLTO 对 main 负载的提升较明显，但这不是新编译优化算法的收益。当前优先执行两个最小因果实验：**Zstd 热调用链上的内联 A/B** 和 **SQLite 训练覆盖差异的 PGO A/B**，确认成熟编译器是否仍存在值得学习模型协调的性能机会。详见 [docs/REAL_OPTIMIZATION_AB.md](docs/REAL_OPTIMIZATION_AB.md)。
 
 两项最小因果A/B也已完成：Zstd强制内联在PGO下对测试压缩语料观察到小幅收益，SQLite改变PGO训练分布对新索引负载观察到收益；两者均未证明神经编译器架构贡献。审查结论和仅建议的最后一项混合PGO强基线见[docs/REAL_AB_REVIEW.md](docs/REAL_AB_REVIEW.md)。
+
+最后一项[SQLite Pmix对照](experiments/reports/real-sqlite-pmix.md)已完成：两批240样本全部通过，固定1:1传统合并距本次观测oracle约1%，达到预冻结停止条件；使用约120CPU秒历史数据，仅作诊断性比较。复现 `bash scripts/benchmarks.sh all --suite sqlite-mix`。本轮停止Zstd/SQLite局部试验，不继续调权或开发神经模型。

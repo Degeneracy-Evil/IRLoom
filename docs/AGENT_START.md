@@ -1,5 +1,7 @@
 # Local Agent 启动指令 — 从零到 Phase 0 首轮数据
 
+**最新停止状态（2026-10-20）：** REAL_AB_REVIEW建议的最后一项SQLite Pmix已按预冻结协议完成，两批240样本全部通过，简单合并距本次三配置观测前沿约1%，详见[报告](../experiments/reports/real-sqlite-pmix.md)。这是使用约120CPU秒历史训练数据的诊断性结果，不是同预算或blind泛化证据。Zstd和SQLite局部试验均已停止，不自动开展新权重/函数属性/模型试验；后续需先讨论真正的程序级联合决策及可重复交互证据。下文保留历史任务与实现规范。
+
 本文是给拉取 IRLoom 仓库的开发 Agent 的**具体执行顺序**。开始前先阅读 [RESEARCH_PLAN.md](RESEARCH_PLAN.md) 和 [PHASE0_PROTOCOL.md](PHASE0_PROTOCOL.md)。研究目标是提高最终生成代码的实际性能；当前任务是建立证据，不是发明复杂网络结构。
 
 **执行状态（2026-10-18）：** M0–M3 首轮已完成，真实命令与限制见 [RUNNING.md](RUNNING.md)，提交及验收结果见 [PROGRESS.md](PROGRESS.md)，结论见 [首批报告](../experiments/reports/phase0-initial.md)。用户明确禁止本轮计算 hash、编写单元测试；该约束优先，详见实验协议顶部说明。
