@@ -403,8 +403,8 @@ def main():
     parser.add_argument("--project",nargs="+",choices=("llvm","zstd","sqlite","test-suite"),default=["llvm","zstd","sqlite","test-suite"])
     parser.add_argument("--jobs",type=int,default=2)
     parser.add_argument("--repetitions",type=int)
-    parser.add_argument("--suite",choices=("smoke","formal","zstd-ab"),default="smoke")
-    parser.add_argument("--batches",type=int,default=2)
+    parser.add_argument("--suite",choices=("smoke","formal","zstd-ab","sqlite-ab"),default="smoke")
+    parser.add_argument("--batches",type=int,default=2,help="Independent measurement batches for the A/B suites only")
     parser.add_argument("--variants",nargs="+",choices=("o3","o3-native","thinlto-native","pgo-thinlto-native"))
     args=parser.parse_args()
     if args.repetitions is None:
@@ -417,9 +417,14 @@ def main():
         parser.error("optimization variants require --suite formal")
     if args.suite=="smoke" and args.action=="audit":
         parser.error("audit requires --suite formal")
+    if args.suite.endswith("-ab") and args.action=="audit":
+        parser.error("A/B suites collect code/coverage evidence as part of all or run")
     if not 1<=args.jobs<=8 or args.repetitions<1 or args.batches<1:
-        parser.error("jobs must be 1..8; repetitions must be positive")
-    if args.suite=="zstd-ab":
+        parser.error("jobs must be 1..8; repetitions and batches must be positive")
+    if args.suite=="sqlite-ab":
+        from .real_sqlite_ab import SQLiteAB
+        bench=SQLiteAB(args)
+    elif args.suite=="zstd-ab":
         from .real_ab import ZstdAB
         bench=ZstdAB(args)
     elif args.suite=="formal":

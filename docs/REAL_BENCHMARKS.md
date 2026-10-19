@@ -144,3 +144,13 @@ bash scripts/benchmarks.sh all --suite zstd-ab
 ```
 
 默认两批，每批各一次预热+10次测量，三种函数属性×两种强编译上下文×两种语料；每个属性重新采集自己的兼容PGO profile。工作副本、构建、profile、保存的最终LTO bitcode均在外部版本化目录，原始样本/最终IR/汇编在logs，临时对象在tmp。只构建不测量用build；接入验收可用--batches 1 --repetitions 1，不作正式收益结论。SQLite的种子/查询量和等预算规则已预先冻结，Zstd正式结果完成后才执行其覆盖A/B。
+
+Zstd正式结果见[独立报告](../experiments/reports/real-zstd-inline-ab.md)。随后执行SQLite独立PGO覆盖对照：
+
+```bash
+bash scripts/benchmarks.sh all --suite sqlite-ab
+```
+
+P0为官方speedtest1的orm,cte size40完整工作单位，P1为固定种子的索引点查询；各至少60进程CPU秒，末次工作单位量化差异必须不超过1.2秒。生成新SQLite amalgamation并复用官方核心编译配方，两组相同功能宏、native ThinLTO及C++查询驱动；PGO仅应用于SQLite核心。新point/range输入的种子、规模、参考答案及训练隔离在冻结协议中定义。每次运行先核对版本、索引计划、数据库完整性和每条SQL整数答案，再完成两批各十轮；报告完整进程墙钟与查询循环耗时，两者均包含必要的答案核查。
+
+源码调用点覆盖来自llvm-cov，保存训练及单独评测的region计数、前端/最终内联记录、最终LTO IR与所选汇编。评测profile只做审计，永不合并到训练。`build --suite sqlite-ab`只准备独立构建及训练缓存；缓存复用配置、源码/驱动mtime和profile路径，配方改变应使用新命名空间。`--batches 1 --repetitions 1`仅作接入验收。全量源码、构建、profile与bitcode留在benchmark-data外部缓存，不提交Git。
