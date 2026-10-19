@@ -156,3 +156,15 @@ P0为官方speedtest1的orm,cte size40完整工作单位，P1为固定种子的�
 源码调用点覆盖来自llvm-cov，保存训练及单独评测的region计数、前端/最终内联记录、最终LTO IR与所选汇编。评测profile只做审计，永不合并到训练。`build --suite sqlite-ab`只准备独立构建及训练缓存；缓存复用配置、源码/驱动mtime和profile路径，配方改变应使用新命名空间。`--batches 1 --repetitions 1`仅作接入验收。全量源码、构建、profile与bitcode留在benchmark-data外部缓存，不提交Git。
 
 两项A/B均已完成两批十轮，分别240与80个正式样本；结果、费用及限制见[Zstd报告](../experiments/reports/real-zstd-inline-ab.md)和[SQLite报告](../experiments/reports/real-sqlite-pgo-ab.md)。SQLite新索引训练对当前新输入表现较好，但第二批有系统漂移；报告使用同轮配对统计并保留全部离群样本，不把未测负载的性能当作已知。
+
+## 最后一项 SQLite 混合 PGO 对照
+
+按[审查](REAL_AB_REVIEW.md)和首次评测前提交的[冻结协议](REAL_PMIX_PROTOCOL.md)，只执行一个固定1:1原始计数合并，不扫描权重：
+
+```bash
+bash scripts/benchmarks.sh all --suite sqlite-mix
+```
+
+复用P0/P1各约60 CPU秒历史profile，Pmix计入约120 CPU秒历史数据，本轮新增训练0秒；不声称同预算优势。工具核查核心函数结构兼容、每个混合计数等于两输入之和，再以相同native ThinLTO功能配置编译。四家族point/range/orm/cte各权重1/4，两批各预热+10轮，主要指标为完整进程墙钟的同轮配对几何均值、最差退化及距三配置观测oracle的差距。整体是诊断性比较，不称blind泛化。
+
+官方ORM/CTE使用speedtest1 size60，计时harness禁用hash。独立验证harness逐步记录完整SQL结果，与相同功能配置的O0参考核心按字节比较；验证结果流及额外链接不加入性能样本，费用照实记录。Pmix/官方harness/参考核心存外部pgo-mix-v1，原缓存不覆盖。`build --suite sqlite-mix`只准备构建；`--batches 1 --repetitions 1`仅接入检查，不并入正式报告。缺少前轮PGO缓存时明确失败，应先按sqlite-ab协议准备，而不自动改变训练配方。无论结果如何，本轮后停止SQLite局部权重/属性试验。
