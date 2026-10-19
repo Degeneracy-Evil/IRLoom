@@ -33,10 +33,16 @@ class Benchmarks:
         self.root=link
         for name in ("downloads","sources","builds","install","data","tmp"):
             (self.root/name).mkdir(exist_ok=True)
+        temporary=ROOT/"tmp/real-benchmarks"
+        temporary.parent.mkdir(exist_ok=True)
+        if not temporary.exists() and not temporary.is_symlink():
+            temporary.symlink_to(self.storage/"tmp",target_is_directory=True)
+        if not temporary.is_symlink() or temporary.resolve()!=(self.storage/"tmp").resolve():
+            raise ValueError(f"{temporary} must link to {self.storage/'tmp'}; existing files will not be replaced")
         self.stamp=datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%S%fZ")
         self.logs=ROOT/"logs/benchmarks"/self.stamp
         self.logs.mkdir(parents=True)
-        self.work=self.root/"tmp"/self.stamp
+        self.work=temporary/self.stamp
         self.work.mkdir(parents=True)
         self.events=[]
         self.results=[]

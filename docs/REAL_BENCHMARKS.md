@@ -4,7 +4,7 @@
 
 ## 存储与来源
 
-仓库benchmark-data是被Git忽略的软链接，指向/mnt/data/chp/irloom-benchmarks。downloads保留官方归档，sources为固定版本源码，builds为分项目/工具链/配置的增量构建，install为本地工具，data为固定输入，tmp为临时目录。日志始终保存在仓库logs/benchmarks/。源码、归档、二进制与大构建均不提交；首次实际下载434.31 MiB，其中test-suite约336.30 MiB。避免下载LLVM完整历史，使用官方拆分源码。
+仓库benchmark-data是被Git忽略的软链接，指向/mnt/data/chp/irloom-benchmarks。downloads保留官方归档，sources为固定版本源码，builds为分项目/工具链/配置的增量构建，install为本地工具，data为固定输入，tmp为临时目录，并经仓库tmp/real-benchmarks软链接访问，以保留./tmp约定。日志始终保存在仓库logs/benchmarks/。源码、归档、二进制与大构建均不提交；首次实际下载434.31 MiB，其中test-suite约336.30 MiB。避免下载LLVM完整历史，使用官方拆分源码。
 
 | 项目 | 固定版本/提交 | 官方来源 | 许可证/声明 |
 | --- | --- | --- | --- |

@@ -160,3 +160,5 @@
 - 首轮94.36s与复跑28.23s共36个正式测量样本；记录进程墙钟与原生指标各自语义、编译环境/CPU亲和/超时/源版本/许可和ThinLTO/Clang前端PGO能力。审计确认production O3编译数据库没有混入LTO/PGO标志，lit没有hash指标，实际TMPDIR和大文件均位于用户指定外部目录。
 - 外部目录约4.24GiB（含开发缓存），源码约3.5GiB，官方归档434.31MiB；benchmark-data被Git忽略，仓库不含第三方源码/大构建/二进制。未系统安装、未写单元测试或额外计算hash。
 - 报告real-programs-initial.md/json和运行指南已完成；LLVM/Clang复用系统18.1.3且官方源码可用，仅源码构建Demangle组件，没有bootstrap全Clang，SPEC CPU2026未处理。下一阶段才冻结整项目ThinLTO/PGO独立变体及训练/评测数据，不把当前探针当性能增益证据。
+
+- 收尾将执行临时路径统一为仓库tmp/real-benchmarks→外部tmp，兼容既有./tmp约定与本轮外置存储要求。probe再次通过且实际TMPDIR解析到指定外部目录，既有基线数据/编译选项未改。
