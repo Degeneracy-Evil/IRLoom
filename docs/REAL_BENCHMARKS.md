@@ -154,3 +154,5 @@ bash scripts/benchmarks.sh all --suite sqlite-ab
 P0为官方speedtest1的orm,cte size40完整工作单位，P1为固定种子的索引点查询；各至少60进程CPU秒，末次工作单位量化差异必须不超过1.2秒。生成新SQLite amalgamation并复用官方核心编译配方，两组相同功能宏、native ThinLTO及C++查询驱动；PGO仅应用于SQLite核心。新point/range输入的种子、规模、参考答案及训练隔离在冻结协议中定义。每次运行先核对版本、索引计划、数据库完整性和每条SQL整数答案，再完成两批各十轮；报告完整进程墙钟与查询循环耗时，两者均包含必要的答案核查。
 
 源码调用点覆盖来自llvm-cov，保存训练及单独评测的region计数、前端/最终内联记录、最终LTO IR与所选汇编。评测profile只做审计，永不合并到训练。`build --suite sqlite-ab`只准备独立构建及训练缓存；缓存复用配置、源码/驱动mtime和profile路径，配方改变应使用新命名空间。`--batches 1 --repetitions 1`仅作接入验收。全量源码、构建、profile与bitcode留在benchmark-data外部缓存，不提交Git。
+
+两项A/B均已完成两批十轮，分别240与80个正式样本；结果、费用及限制见[Zstd报告](../experiments/reports/real-zstd-inline-ab.md)和[SQLite报告](../experiments/reports/real-sqlite-pgo-ab.md)。SQLite新索引训练对当前新输入表现较好，但第二批有系统漂移；报告使用同轮配对统计并保留全部离群样本，不把未测负载的性能当作已知。

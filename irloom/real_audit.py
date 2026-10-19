@@ -17,9 +17,9 @@ def inline_records(path):
                     yield record
                 record={"kind":line.strip().split("!")[-1],"path":str(path),"stage":"lto" if path.name.startswith("lto-inline") else "frontend"}
             if "source" not in record and "DebugLoc:" in line:
-                source=re.search(r"File:\s*'([^']+)'",line)
+                source=re.search(r"File:\s*('[^']+'|\"[^\"]+\"|[^,}]+)",line)
                 if source:
-                    record["source"]=source[1]
+                    record["source"]=source[1].strip("'\" ")
             if "source" in record and "line" not in record:
                 lineno=re.search(r"Line:\s*(\d+)",line)
                 if lineno:
