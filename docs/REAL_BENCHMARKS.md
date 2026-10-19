@@ -18,7 +18,7 @@
 
 ## 依赖与成本控制
 
-复用Ubuntu已有LLVM/Clang18.1.3、llvm-profdata、compiler-rt profile runtime、CMake3.28.3、GNU Make4.3、Tcl、C/C++系统头文件与链接库，以及现有uv Python环境。需要git/curl、tar/xz/zip支持、dpkg-deb；不执行系统安装。未安装Ninja，使用Make生成器即可。CMake内部Python通过scripts/benchmark-python.sh的uv包装调用。
+复用Ubuntu已有LLVM/Clang18.1.3、llvm-profdata、compiler-rt profile runtime、CMake3.28.3、GNU Make4.3、Tcl、C/C++系统头文件与链接库，以及现有uv Python环境。需要git/curl、tar/xz/zip支持、dpkg-deb；不执行系统安装。未安装Ninja，使用Make生成器即可。CMake内部Python通过scripts/benchmark-python.sh的uv包装调用。lit直接使用固定LLVM源码中的18.1.3版本，额外Python依赖仅psutil（uv.lock固定），用于60秒测试超时控制。
 
 默认最多两个构建进程。LLVM/Clang源码已准备，主编译器复用系统安装；先配置LLVM+Clang并仅编译小型LLVMDemangle库，避免默认全量bootstrap/安装LLVM。源代码版本与Ubuntu编译器打包修订分别记录，不冒称为自己从源码构建的Clang。PGO/ThinLTO先做工具能力验证，后续真实项目对照须分开构建目录及训练/测试输入。
 
@@ -31,4 +31,38 @@ bash scripts/benchmarks.sh probe
 
 均为幂等操作：完整归档缓存后不重复下载，源码marker校验URL/版本/提交身份；临时下载只有成功后才转成正式缓存。按用户约定不计算产物hash，使用固定官方来源/版本、归档字节数和元数据记录关联，因此没有额外提供密码学完整性校验。SQLite ZIP的执行位由ZIP原始属性恢复，避免configure助手缺权限；不修改上游源码文本。
 
-fetch/probe已实跑，第二次获取全部命中缓存，环境记录在logs/benchmarks/<时间戳>/environment.json；保存CPU/ISA/cache/内存/亲和、频率控制边界、工具绝对路径与版本、源码来源与许可。完整运行入口与结果将在构建/执行验收后补充。
+fetch/probe已实跑，第二次获取全部命中缓存，环境记录在logs/benchmarks/<时间戳>/environment.json；保存CPU/ISA/cache/内存/亲和、频率控制边界、工具绝对路径与版本、源码来源与许可。构建/执行入口如下，运行时会自动做增量构建。
+
+## 统一入口
+
+```bash
+bash scripts/benchmarks.sh                         # 默认全部项目，jobs=2，每项一次预热+三次测量
+bash scripts/benchmarks.sh build                   # 只准备源码/配置并增量构建
+bash scripts/benchmarks.sh run --project sqlite    # 单项目也自动保证产物已构建
+bash scripts/benchmarks.sh all --project zstd sqlite --repetitions 5
+```
+
+可选项目为llvm、zstd、sqlite、test-suite；--jobs限制1..8，默认2。所有入口在仓库内执行，Python经uv，无--python和直接pip调用。fetch/probe/run的新日志路径会打印，summary.md与results.json包含状态、逐次样本、median/MAD、工作负载内部指标、完整命令和构建/执行耗时；失败保留日志并返回非零。
+
+构建缓存位于benchmark-data/builds/<项目>/<固定版本>/clang-18.1.3/o3。配置和compile_commands.json记录实际编译选项，SQLite使用原生Makefile并保存configure设置；改动SQLite编译选项不得悄悄复用既有o3目录。所有基线统一-O3 -DNDEBUG，不加-march=native/fast-math；源代码和CMake缓存可复用，源码版本与工具链/变体目录分开。
+
+## 已接入的工作负载与校验
+
+| 项目 | 内容 | 校验/测量方式 |
+| --- | --- | --- |
+| LLVM/Clang | 官方LLVM的LLVMDemangle源码库与C++驱动；Clang编译官方ItaniumDemangle.cpp单个TU | API已知结果检查；内部循环秒数与进程墙钟；编译吞吐仅记录单TU墙钟 |
+| Zstd1.5.7 | level3，单线程，8MiB固定源码文本语料 | 压缩/解压后直接逐字节相同；内置-b3 -i1吞吐与进程墙钟 |
+| SQLite3.50.4 | sqlite3 shell、speedtest1 main；正式基线--memdb --size25 | 版本/SOURCE_ID匹配，事务/聚合/JSON/FTS5/RTree已知结果；小文件工作负载后integrity_check；内部TOTAL与进程墙钟 |
+| LLVM test-suite | 内置p7zip9.20的7zip-benchmark；Ptrdist/anagram | 7zip b 1 -mmt=1 -md=18内置检查，约6MiB需求；anagram通过原版lit/timeit/fpcmp比较官方参考输出，保留exec_time |
+
+Zstd语料由该固定版本lib/**/*.c按路径排序、拼接、重复后截取8MiB，生成说明随data缓存保存；只是环境基线，不代表Silesia/生产数据。SQLite内存模式减少磁盘噪声，不能当作持久化数据库性能；文件模式只做较小完整性检查，不运行全量上游测试。7zip显式限制线程和字典，不直接使用可能扩大并发/内存的上游默认参数。
+
+lit必须从MultiSource顶层配置，以保留上游traditional_output继承；仅构建/运行上表两个target，未验证整个test-suite。BENCHMARKING_ONLY排除UnitTests，未编写新单元测试。生成的lit.site.cfg移除默认二进制hash指标并把执行/日志目录指到本次logs下，保留原官方fpcmp数值/文本参考检查；上游源码文本不做补丁。
+
+## ThinLTO/PGO准备与限制
+
+全入口的llvm项目会做能力探针：C++驱动以-flto=thin配合本地LLD链接并执行；再以-fprofile-instr-generate产生独立临时profraw、llvm-profdata merge合并、-fprofile-instr-use重新构建并执行。ThinLTO缓存和profile均在外部专用目录，链接并行不超过2。这里仅证明Clang前端插桩PGO与ThinLTO基础设施可用，LLVMDemangle静态库仍是O3 native；**没有做整项目ThinLTO/PGO性能对照，也未源码bootstrap Clang**。
+
+后续正式对照须为o3/thinlto/pgo-generate/pgo-use建立独立目录，固定相同项目功能开关/输入，划分PGO训练与未见评测输入，记录标签获取与重建成本；不能拿能力探针数据当正式训练集或优化收益。
+
+运行进程固定到允许的第一个CPU，线程环境为1；一次预热后三次独立进程采样，记录median/MAD与原始样本。频率、邻核共享负载与OS缓存不可控，没有PMU；进程墙钟包含启动，lit墙钟还包含Python/验证开销，应优先查看其原生exec_time。当前目的是环境验收，不发布编译优化加速结论。工具内部CMake/configure诊断随外部build缓存保留，我们的命令/结果与lit运行日志均在仓库logs/。

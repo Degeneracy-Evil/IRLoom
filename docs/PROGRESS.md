@@ -140,3 +140,10 @@
 - 在/mnt/data/chp/irloom-benchmarks存放源码/归档/构建，以仓库忽略的benchmark-data软链接访问；官方固定源码与本地LLD已获取，归档合计434.31MiB。LLVM使用拆分包，主编译器复用既有18.1.3。
 - fetch/probe实跑成功，重复获取全部命中缓存；来源、版本/提交、许可证与工具/主机环境已记录。ZIP执行位恢复集成到统一入口，无系统安装、无hash或单元测试。
 - 下一步用受限并行的-O3真实构建与原生执行验收，准备ThinLTO/PGO能力探针，补齐运行文档与结果后提交。
+
+## 真实程序环境 B1 — 构建与测量入口（2026-10-19）
+
+- 实现统一benchmarks.sh默认all及fetch/probe/build/run，按项目/固定版本/编译器/o3分目录，最多两个默认构建进程、一次预热和三次测量。只构建LLVM Demangle组件并复用现有Clang，不bootstrap全LLVM。
+- Zstd编译/逐字节roundtrip、SQLite shell/speedtest1文件与内存模式、LLVM源码组件/Clang单TU编译、ThinLTO与Clang前端PGO生成/合并/使用探针均已在预验收实跑。
+- test-suite的7zip限单线程/256KiB字典；anagram以官方lit/fpcmp参考输出通过。处理SQLite ZIP执行位、speedtest1本版--memdb参数、MultiSource父配置继承；生成配置关闭默认artifact hash，保留官方参考校验。psutil经uv加入以启用lit超时，无新单元测试。
+- 单项目/微型预验收已通过；下一步从已提交入口完整运行全部项目，核查缓存命中、源版本/环境、原始指标与限制，再提交最终报告。

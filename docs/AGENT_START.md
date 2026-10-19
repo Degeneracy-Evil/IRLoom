@@ -12,6 +12,8 @@ M6.0–M6.2 pilot 已按 [新规划](M6_PLAN.md) 完成，见 [冻结协议](M6_
 
 M7已按 [新规划](M7_PLAN.md) 完成合法性、上下文对照与轻量信息pilot，见 [结果解读](../experiments/reports/m7-interpretation.md)。两批各36/36正确，约5%的上下文效应在大规模复现；但低层融合窗口不再完全局部匹配，且动作作用全图，不能过度归因。完整当前IR统计的查表优于部分局部对照，却仍差于fixed-none；上游历史无额外选路收益。停止增加神经复杂度，下一研究切入点应先审查严格局部变换与上下文的信息差。
 
+用户最新任务优先：准备大型真实程序Benchmark环境，见[运行指南](REAL_BENCHMARKS.md)。源码与大构建位于/mnt/data/chp/irloom-benchmarks并链接至仓库；统一benchmarks.sh入口，复用LLVM18，只做环境/基线与ThinLTO/PGO能力验证。本阶段不推进M8、SPEC CPU2026、模型或新优化算法。
+
 ## 任务执行原则
 
 先产出一条完整、正确且可复现的「程序 → 多阶段 IR → native binary → 正确性 → 多次计时 → 结构化记录」路径，再增加程序和变换。优先使用现有 MLIR/LLVM 工具；尽量用 Python 负责组织与采集，不为了调度实验就新写 C++ Pass。

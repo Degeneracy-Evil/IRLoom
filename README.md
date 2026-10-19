@@ -81,3 +81,13 @@ bash scripts/phase0.sh m7
 ## M7 审查后的研究重定位
 
 M7 的上下文反转来自整图 Pass，严格局部匹配场景尚无独立选路收益。继续扩大相同场景的数据不足以证明跨层级神经架构。研究焦点转向**影响生产者与消费者接口的联合编译决策**，优先检查中间布局、物化/融合与后续执行代价之间的真实耦合。见 [研究重评估与下一项可行性验证](docs/RESEARCH_REASSESSMENT.md)。下一步仅从 M8.0 的工具链合法性调查开始，不自动启动模型训练。
+
+## 大型真实程序 Benchmark 环境
+
+当前优先准备LLVM test-suite、Zstd、SQLite（含speedtest1）与LLVM/Clang，固定官方版本，源码/大构建放在/mnt/data/chp/irloom-benchmarks，经忽略的benchmark-data软链接访问。默认复用已安装Clang/LLVM18.1.3，仅构建小型LLVM组件，避免整套bootstrap成本；不处理SPEC CPU2026。见[运行与来源说明](docs/REAL_BENCHMARKS.md)。
+
+```bash
+bash scripts/benchmarks.sh
+```
+
+单入口自动获取缓存、增量构建、正确执行和-O3基线测量，并验证ThinLTO/PGO工具能力；本阶段不开发新的编译优化算法或神经网络。
