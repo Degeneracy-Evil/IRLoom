@@ -70,3 +70,26 @@ lit必须从MultiSource顶层配置，以保留上游traditional_output继承；
 ## 正式入口验收结果
 
 两次完整入口均通过，四个项目共六项工作负载，每项一次预热后三个样本；第二次没有新增下载或重新configure。首次94.36s含部分新构建，缓存复跑28.23s，均非优化加速比较。结果与硬件/源/构建/测量摘要见[首轮验收报告](../experiments/reports/real-programs-initial.md)。实际命令环境见environment.json的benchmark_environment；host是复用的通用机器/工具探针。外部目录当前约4.24GiB（含开发缓存），Git只提交入口、配置、文档和小型结果摘要。
+
+## RealBench Phase 1：正式负载
+
+新方案见[REAL_PROGRAM_NEXT.md](REAL_PROGRAM_NEXT.md)。旧入口默认仍为smoke；新增正式负载入口复用相同源码缓存与工具链，不覆盖初始报告：
+
+```bash
+bash scripts/benchmarks.sh all --suite formal --repetitions 1  # 接入验收，不能用于性能结论
+bash scripts/benchmarks.sh all --suite formal --repetitions 10 # 一次预热、十次独立测量
+```
+
+formal默认选择Zstd、SQLite、test-suite；LLVM/Clang能力检查继续使用smoke入口。新缓存formal-o3与旧o3隔离。
+
+| 正式负载 | 输入/计算 | 校验与限制 |
+| --- | --- | --- |
+| Zstd software-eval | 固定1.5.7的lib下.c/.h按路径排序，索引非4倍数的文件打包为确定性USTAR；无重复填充 | level3单线程逐字节压缩往返；-b3 -i2分别报告压缩和解压吞吐；训练只用剩余文件 |
+| Zstd records-eval | 300000条JSONL，seed=20261021，时间戳/租户/状态/数值/96-bit token | 固定生成配方随数据缓存；训练seed=20261020且30000条；属于合成结构化数据，不能当作生产流量 |
+| SQLite main-memdb-size200 | 官方speedtest1 main，相比旧size25放大8倍；内存数据库 | 版本及SOURCE_ID、小文件main size10的integrity_check及非空表；不使用会计算校验hash的--verify；磁盘只做功能校验 |
+| Bullet | 官方bullet target；7组物理模拟各100帧 | 官方完整文本参考输出，经lit/fpcmp；源码带zlib式许可声明 |
+| tramp3d-v4 | 官方tramp3d-v4 target；模板数值程序，32³网格10步 | 官方参考输出，绝对误差1e-7；README声明FreePOOMA为BSD3，其余Public Domain |
+
+数据与配方在benchmark-data/data/formal-v1。两项MultiSource保留官方输入/参数/验证命令；不修改上游源码。mafft虽有源码，但其上游参考验证需要HashProgramOutput，暂不纳入本轮“不计算hash”的集合。7zip/anagram继续保留旧smoke。正式样本的进程墙钟、Zstd内部吞吐、SQLite内部TOTAL、lit原生exec_time分别记录，不能混用。
+
+R1接入已实跑通过；tramp3d单次过短，formal入口生成20个官方RUN及逐次VERIFY的批次test，仅写外部构建目录，lit的exec_time为20次原生用户CPU时间之和（不是墙钟）。首轮失败的输出路径问题及修复见[阶段报告](../experiments/reports/real-programs-baselines.md)。R1规模/时间/原始样本归档在real-programs-r1.json，不能从单样本推断优化收益。

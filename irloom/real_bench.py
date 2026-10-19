@@ -178,6 +178,7 @@ class Benchmarks:
                 f"-DCMAKE_C_FLAGS_RELEASE={' '.join(self.config['flags'])}",f"-DCMAKE_CXX_FLAGS_RELEASE={' '.join(self.config['flags'])}",
                 f"-DPython3_EXECUTABLE={ROOT/'scripts/benchmark-python.sh'}",
                 f"-DPYTHON_EXECUTABLE={ROOT/'scripts/benchmark-python.sh'}"]
+        common+=getattr(self,"cmake_extra",[])
         settings={"source":str(source),"common":common,"options":options}
         marker=build/".irloom-configure.json"
         if not marker.exists() or json.loads(marker.read_text())!=settings:
@@ -211,6 +212,8 @@ class Benchmarks:
                 build=self.build_dir("sqlite")
                 flags=" ".join(self.config["flags"])
                 settings={"CC":self.config["compiler"],"CFLAGS":flags}
+                if getattr(self,"link_flags",[]):
+                    settings["LDFLAGS"]=" ".join(self.link_flags)
                 marker=build/".irloom-configure.json"
                 if marker.exists() and json.loads(marker.read_text())!=settings:
                     raise ValueError("SQLite flags changed in an existing O3 build; use a separate configuration directory")
@@ -226,7 +229,7 @@ class Benchmarks:
                     "-DTEST_SUITE_COLLECT_CODE_SIZE=OFF","-DTEST_SUITE_COLLECT_COMPILE_TIME=OFF",
                     f"-DTEST_SUITE_LLVM_SIZE=/usr/lib/llvm-18/bin/llvm-size",
                     f"-DTEST_SUITE_LLVM_PROFDATA={self.config['profdata']}"],
-                    ["7zip-benchmark","anagram"])
+                    getattr(self,"suite_targets",["7zip-benchmark","anagram"]))
                 # Generated configuration only: upstream source is unchanged.
                 site=build/"lit.site.cfg"
                 text=site.read_text().replace("config.test_exec_root = _directory",'config.test_exec_root = os.environ["IRLOOM_LIT_LOG_ROOT"]')
@@ -395,10 +398,20 @@ def main():
     parser.add_argument("--project",nargs="+",choices=("llvm","zstd","sqlite","test-suite"),default=["llvm","zstd","sqlite","test-suite"])
     parser.add_argument("--jobs",type=int,default=2)
     parser.add_argument("--repetitions",type=int,default=3)
+    parser.add_argument("--suite",choices=("smoke","formal"),default="smoke")
+    parser.add_argument("--variants",nargs="+",choices=("o3",),default=["o3"])
     args=parser.parse_args()
     if not 1<=args.jobs<=8 or args.repetitions<1:
         parser.error("jobs must be 1..8; repetitions must be positive")
-    bench=Benchmarks(args)
+    if args.suite=="formal":
+        from .real_baselines import RealBaselines
+        if args.project==["llvm","zstd","sqlite","test-suite"]:
+            args.project=["zstd","sqlite","test-suite"]
+        if "llvm" in args.project:
+            parser.error("formal suite uses zstd/sqlite/test-suite; LLVM remains a smoke capability check")
+        bench=RealBaselines(args)
+    else:
+        bench=Benchmarks(args)
     print(f"logs: {bench.logs}",flush=True)
     try:
         bench.fetch()

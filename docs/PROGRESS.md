@@ -162,3 +162,9 @@
 - 报告real-programs-initial.md/json和运行指南已完成；LLVM/Clang复用系统18.1.3且官方源码可用，仅源码构建Demangle组件，没有bootstrap全Clang，SPEC CPU2026未处理。下一阶段才冻结整项目ThinLTO/PGO独立变体及训练/评测数据，不把当前探针当性能增益证据。
 
 - 收尾将执行临时路径统一为仓库tmp/real-benchmarks→外部tmp，兼容既有./tmp约定与本轮外置存储要求。probe再次通过且实际TMPDIR解析到指定外部目录，既有基线数据/编译选项未改。
+
+## RealBench Phase 1（2026-10-20）
+
+拉取c4946ae，阅读新增REAL_PROGRAM_NEXT.md。开始R1：新增formal套件，复用原统一入口、固定源码和外部缓存，接入两种Zstd语料、SQLite size200、官方Bullet/tramp3d-v4。强基线和热点审计随后分阶段执行，旧研究及smoke报告不覆盖。
+
+R1完成：5项正式负载均通过，Zstd/SQLite/Bullet进入秒级，tramp3d采用20次官方参数与逐次参考验证。无新下载、无单元测试/产物hash。单样本接入验收及规模数据见real-programs-baselines.md、real-programs-r1.json；下一步R2。
