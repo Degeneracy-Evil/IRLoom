@@ -10,9 +10,9 @@ R1–R3 已建立 Zstd、SQLite 四种完整编译变体、两项 LLVM MultiSour
 
 本次建议将 **Zstd 内联 A/B 作为最先执行的一项**，SQLite PGO 覆盖为随后独立的较小实验。不要同时拓展到新的大型项目或全 LLVM bootstrap。
 
-## A. Zstd：跨 TU 热调用的内联选择是否存在可利用空间
+## A. Zstd：热调用链中的内联选择是否存在可利用空间
 
-固定 Zstd 1.5.7、两种已验收的评测语料、`-O3 -march=native -flto=thin` 与相同的 Clang/LLD 18.1.3。报告已有链条 `compressBlock_internal → buildSeqStore → doubleFast`，以及 PGO+ThinLTO 下 `buildSeqStore` 被判 TooCostly 的记录（例如 cost 630 vs threshold 625）；但 buildSeqStore 的自采样很低，调用次数不是性能增益证据。
+固定 Zstd 1.5.7、两种已验收的评测语料、`-O3 -march=native -flto=thin` 与相同的 Clang/LLD 18.1.3。报告已有链条 `compressBlock_internal → buildSeqStore → doubleFast`，以及 PGO+ThinLTO 下 `buildSeqStore` 被判 TooCostly 的记录（例如 cost 630 vs threshold 625）；但 buildSeqStore 的自采样很低，调用次数不是性能增益证据。 **源码确认 `ZSTD_buildSeqStore` 是 `zstd_compress.c` 中的 `static` 函数，与 `ZSTD_compressBlock_internal` 同处一个翻译单元；本次拟操作的边本身不是跨 TU 内联。** 压缩实现经函数指针分派到其它 TU 中的匹配器，因此这是一个可能影响跨文件调用链的局部内联决策，不能把它直接称为已经验证的跨模块优化。
 
 **最小三个处理组：** 原始函数属性；`always_inline` / `__attribute__((always_inline))`（依源码语法与合法性）；`noinline`。仅在**独立、版本化的源码工作副本/patch**上改变目标函数属性，不直接污染缓存中的原始源码；优先只动一个确切函数，不修改算法、数据布局或 benchmark harness。原函数若因内联约束失败，保留真实诊断和记录，不伪造“已强制生效”。
 
