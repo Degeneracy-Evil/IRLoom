@@ -50,3 +50,53 @@ def fit_smoke(model, path, steps=25):
         raise RuntimeError("terminal loss has no gradient to first-stage hidden state")
     return {"kind": "single-smoke-trajectory behavior fit; not N4", "loss": losses,
             "terminal_to_first_hidden_gradient_l1": gradient, "steps": steps}
+
+
+def measured_loss(model, paths, resource_weight):
+    """Rank sampled complete continuations; no claim of global optimal values."""
+    records = [trajectory(path) for path in paths]
+    baseline = records[0][0]["median_latency_ms"]
+    policy, latency, values, resources = [], [], [], []
+    for report, observations in records:
+        state, selected_score = None, torch.tensor(0.0)
+        choices = {t["source"]: t["action"] for t in report["transitions"]}
+        for observation in observations:
+            (scores, value, resource), state = model(observation, state)
+            chosen = choices.get(observation.snapshot, {"kind": "advance", "target": 0, "parameters": {}})
+            index = next(i for i, c in enumerate(observation.graph["candidates"])
+                         if all(c[k] == chosen[k] for k in ("kind", "target", "parameters")))
+            selected_score = selected_score + scores.log_softmax(0)[index]
+        target = math.log(report["median_latency_ms"] / baseline)
+        compile_s = sum(e["seconds"] for e in report["events"]
+                        if e["stage"] in ("import", "observe", "apply", "lower-S0", "lower-S1", "lower-S2", "translate", "codegen", "link"))
+        policy.append(selected_score); latency.append(target)
+        values.append((value - target).square())
+        resources.append((resource - torch.tensor([math.log1p(report["measurement"]["code_bytes"]) / 10,
+                                                   math.log1p(compile_s) / 10])).square().mean())
+    pairs = []
+    for i in range(len(policy)):
+        for j in range(i):
+            direction = math.copysign(1, latency[i] - latency[j])
+            pairs.append(torch.nn.functional.softplus(direction * (policy[i] - policy[j])))
+    ranking = torch.stack(pairs).mean() if pairs else torch.tensor(0.0)
+    return ranking + torch.stack(values).mean() + resource_weight * torch.stack(resources).mean()
+
+
+def fit_measured(model, train_paths, validation_paths, config):
+    optimizer = torch.optim.Adam(model.parameters(), lr=config["learning_rate"])
+    curves, best, best_state = [], math.inf, None
+    for epoch in range(config["epochs"]):
+        model.train()
+        optimizer.zero_grad()
+        loss = measured_loss(model, train_paths, config["resource_weight"])
+        loss.backward(); optimizer.step()
+        model.eval()
+        with torch.no_grad():
+            validation = float(measured_loss(model, validation_paths, config["resource_weight"]))
+        curves.append({"epoch": epoch, "train": float(loss.detach()), "validation": validation})
+        if validation < best:
+            best, best_state = validation, {k: v.detach().clone() for k, v in model.state_dict().items()}
+        model.costs.clear()
+    model.load_state_dict(best_state)
+    return {"objective": config["objective"], "curves": curves, "selected_validation_loss": best,
+            "selection": "minimum validation loss across the prelocked epochs; test family never loaded"}

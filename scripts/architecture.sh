@@ -13,7 +13,7 @@ cmake -S compiler/mlir_bridge -B benchmark-data/architecture/build \
   > logs/architecture/configure.log 2>&1
 cmake --build benchmark-data/architecture/build -j 2 > logs/architecture/build.log 2>&1
 for argument in "$@"; do
-  if [[ "$argument" == --program || "$argument" == --pilot ]]; then
+  if [[ "$argument" == --program || "$argument" == --program=* || "$argument" == --pilot || "$argument" == --compare-pilot ]]; then
     frontend=benchmark-data/architecture/frontends/build/bin/irloom-polygeist-bridge
     if [[ ! -f "$frontend" || compiler/mlir_bridge/main.cpp -nt "$frontend" || compiler/mlir_bridge/CMakeLists.txt -nt "$frontend" || scripts/prepare-polygeist.sh -nt "$frontend" ]]; then
       bash scripts/prepare-polygeist.sh --build > logs/architecture/prepare-frontend.log 2>&1

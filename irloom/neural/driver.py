@@ -60,8 +60,13 @@ class Session:
         save(self.output / "manifest.json", MANIFEST)
 
     def run(self, args, label):
+        timeout = self.manifest["budget"]["command_timeout_s"]
+        if hasattr(self, "deadline"):
+            timeout = min(timeout, self.deadline - time.perf_counter())
+            if timeout <= 0:
+                raise CommandError("shared optimization deadline exhausted")
         return command(args, self.logs / f"{len(self.events):03}-{label}.log",
-                       self.events, label, timeout=self.manifest["budget"]["command_timeout_s"], cpu=self.cpu)
+                       self.events, label, timeout=timeout, cpu=self.cpu)
 
     def observe(self, stage):
         snapshot = f"{self.branch}-{self.serial}"
@@ -84,6 +89,19 @@ class Session:
         import torch
         return Checkpoint(self.ir, copy.deepcopy(self.current), clone_state(self.state),
                           copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining)
+
+    def fork(self, name):
+        child = object.__new__(Session)
+        child.__dict__ = self.__dict__.copy()
+        child.output, child.logs = CACHE / "runs" / name, ROOT / "logs/architecture" / name
+        child.output.mkdir(parents=True, exist_ok=False)
+        child.logs.mkdir(parents=True, exist_ok=True)
+        for field in ("events", "observations", "transitions", "decisions"):
+            setattr(child, field, copy.deepcopy(getattr(self, field)))
+        child.restore(self.checkpoint(), name)
+        save(child.output / "environment.json", child.hardware)
+        save(child.output / "manifest.json", child.manifest)
+        return child
 
     def restore(self, checkpoint, branch=None):
         import torch
@@ -173,7 +191,17 @@ def main():
     parser.add_argument("--weights", type=Path)
     parser.add_argument("--fit-report", type=Path, help="integration fit only; no held-out performance claim")
     parser.add_argument("--steps", type=int, default=25)
+    parser.add_argument("--pilot", action="store_true", help="run the checked-in whole-program collection/training/evaluation budget")
+    parser.add_argument("--compare-pilot", type=Path, help="N5 common bounded search using frozen pilot weights")
     args = parser.parse_args()
+    if args.pilot:
+        from .pilot import run
+        run(args.name)
+        return
+    if args.compare_pilot:
+        from .search import compare
+        compare(args.name, args.compare_pilot.resolve())
+        return
     if args.state_audit and args.model != "B":
         parser.error("state audit requires B")
     if args.audit and args.model != "default":
@@ -193,7 +221,7 @@ def main():
         if checkpoint:
             if checkpoint["model"] != args.model:
                 raise ValueError("checkpoint architecture mismatch")
-            config = {**checkpoint["config"], "history": not args.no_history}
+            config = {**checkpoint["config"], "history": checkpoint["config"]["history"] and not args.no_history}
         if args.model == "B":
             config["incremental"] = args.incremental
         model = (Interleaved if args.model == "A" else Recurrent)(**config)
