@@ -10,7 +10,7 @@ import time
 
 from benchmarks.context_graph import generate
 from irloom.compiler import ROOT, CommandError, command, probe
-from .schema import Observation, TerminalMeasurement, Transition
+from .schema import Observation, TerminalMeasurement, Transition, Decision
 from .lineage import Checkpoint, align, clone_state
 
 CACHE = ROOT / "benchmark-data/architecture"
@@ -136,11 +136,59 @@ def main():
     parser.add_argument("--context", choices=("single", "transpose", "row_reduce"), default="single")
     parser.add_argument("--size", type=int, default=32)
     parser.add_argument("--audit", action="store_true", help="N1 integration rejection/rollback/replay; scripted actions, not a model")
+    parser.add_argument("--model", choices=("default", "A"), default="default")
+    parser.add_argument("--hidden", type=int, default=128)
+    parser.add_argument("--heads", type=int, default=4)
+    parser.add_argument("--seed", type=int, default=17)
+    parser.add_argument("--no-history", action="store_true")
+    parser.add_argument("--weights", type=Path)
+    parser.add_argument("--fit-report", type=Path, help="integration fit only; no held-out performance claim")
+    parser.add_argument("--steps", type=int, default=25)
     args = parser.parse_args()
+    if args.audit and args.model != "default":
+        parser.error("scripted audit and neural selection are separate modes")
     session = Session(args.name, args.context, args.size)
+    model, metadata = None, {}
+    if args.model != "default":
+        start = time.perf_counter()
+        import torch
+        from .interleaved import Interleaved
+        from .training import fit_smoke
+        torch.set_num_threads(1)
+        torch.manual_seed(args.seed)
+        config = {"hidden": args.hidden, "heads": args.heads, "history": not args.no_history}
+        checkpoint = torch.load(args.weights.resolve(), weights_only=True) if args.weights else None
+        if checkpoint:
+            if checkpoint["model"] != args.model:
+                raise ValueError("checkpoint architecture mismatch")
+            config = {**checkpoint["config"], "history": not args.no_history}
+        model = Interleaved(**config)
+        if checkpoint:
+            model.load_state_dict(checkpoint["state_dict"])
+        metadata = {"architecture": args.model, "config": config, "seed": args.seed,
+                    "parameters": sum(p.numel() for p in model.parameters()), "load_s": time.perf_counter() - start}
+        if args.fit_report:
+            start = time.perf_counter()
+            metadata["integration_fit"] = fit_smoke(model, args.fit_report.resolve(), args.steps)
+            metadata["training_s"] = time.perf_counter() - start
+        torch.save({"model": args.model, "config": config, "state_dict": model.state_dict()}, session.output / "weights.pt")
+        model.eval()
+        model.costs.clear()
     audit = {}
     for stage in MANIFEST["stages"]:
         observation = session.observe(stage["id"])
+        if model is not None:
+            if len(observation.graph["nodes"]) * model.hidden * 4 * 8 > MANIFEST["budget"]["max_state_bytes"]:
+                raise RuntimeError("neural state memory budget exceeded")
+            with torch.no_grad():
+                (scores, value, resources), session.state = model(observation, session.state)
+            if not torch.isfinite(scores).all():
+                raise RuntimeError("non-finite neural ranking")
+            ranking = scores.argsort(descending=True, stable=True).tolist()
+            selected = observation.graph["candidates"][ranking[0]]
+            session.decisions.append(asdict(Decision(observation.snapshot, ranking, selected, scores.tolist(),
+                                                     value.item(), resources.tolist())))
+            session.apply(selected)
         if args.audit:
             candidates = observation.graph["candidates"]
             selected = candidates[1] if len(candidates) > 1 else candidates[0]
@@ -165,6 +213,9 @@ def main():
                 audit[stage["id"]] = selected["kind"]
         session.advance(stage)
     report = session.finalize()
+    if model is not None:
+        metadata["costs"] = model.costs
+        save(session.output / "model.json", metadata)
     if args.audit:
         save(session.output / "audit.json", audit)
     print(json.dumps({"report": str(session.output / "report.json"), "correct": True,
