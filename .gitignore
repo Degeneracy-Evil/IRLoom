@@ -1,4 +1,5 @@
 /.venv/
+/experiments/architecture/.venv/
 /tmp/
 /logs/
 /benchmark-data

@@ -1,0 +1,18 @@
+{
+  "schema": 1,
+  "id": "native-structured-18.1.3-v1",
+  "llvm_version": "18.1.3",
+  "stages": [
+    {"id": "S0", "invariant": "verified tensor/linalg + func module", "actions": ["advance", "fuse"],
+     "lowering": ["--one-shot-bufferize", "--buffer-deallocation", "--canonicalize", "--cse", "--convert-linalg-to-affine-loops"]},
+    {"id": "S1", "invariant": "bufferized affine structured loops", "actions": ["advance", "unroll2"],
+     "lowering": ["--lower-affine"]},
+    {"id": "S2", "invariant": "bufferized scf/memref; observation only", "actions": ["advance"],
+     "lowering": ["--convert-scf-to-cf", "--convert-arith-to-llvm", "--finalize-memref-to-llvm", "--convert-func-to-llvm", "--convert-cf-to-llvm", "--reconcile-unrealized-casts"]}
+  ],
+  "budget": {"decisions_per_stage": 1, "attempts": 6, "command_timeout_s": 120, "max_graph_nodes": 100000, "max_state_bytes": 536870912},
+  "backend": ["-O3", "-march=native", "-ffp-contract=off"],
+  "semantics": {"element": "f32", "fast_math": false, "abi": "MLIR ranked memref C interface", "lto": false, "pgo": false},
+  "failure": "reject unregistered/stale/illegal actions; trial on a copy; charge failed attempts; retain last verified checkpoint",
+  "lineage": "snapshot-local IDs; unchanged module/function anchors known; general lowering internal correspondence unknown"
+}
