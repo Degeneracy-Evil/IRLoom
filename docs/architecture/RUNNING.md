@@ -61,7 +61,9 @@ bash scripts/architecture.sh --program trie
 
 上述三个完整原始程序均已通过独立 Clang 输出比较和测量：`import-pc1-default`、`import-llu-default`、`import-trie-default-2`。PC1 的 `import-pc1-audit` 还通过定点内联、循环展开、非法动作拒绝和失败恢复。该适配器明确没有 tensor/linalg 层，S0 是有合法性接口检查的调用内联，S1 是 affine 展开（包含有 cleanup 的动态界），S2 观察后固定 lowering。作用于完整源程序，不抽取或复制 kernel；这些仍是规模有限的真实测试程序，不能代表 SQLite/Clang 的全项目覆盖。
 
-trie 的 empty-index LLVM GEP 暴露了固定开发版 MLIR 的自定义打印/解析不一致；末端改用 `--mlir-print-op-generic` 后可往返并通过原始程序输出检查，没有文本替换 IR。各阶段使用真实结构 API；完整程序计时为进程 wall time，包含启动、捕获和日志开销，特别小的程序受此开销影响。
+trie 的 empty-index LLVM GEP 暴露了固定开发版 MLIR 的自定义打印/解析不一致；末端改用 `--mlir-print-op-generic` 后可往返并通过原始程序输出检查，没有文本替换 IR。各阶段使用真实结构 API。
+
+测量修正：`pilot-v1` 的外层 subprocess wall time 混入了常驻 PyTorch 大进程的 fork/捕获开销，不能用于短程序性能结论。保留这些原始记录作诊断，正式结果改用 v2 计时并重新采集/训练。新增 C++ `irloom-time` 在独立轻量父进程中计量原始程序的 fork/exec/wait、输出和峰值 RSS；Python 驱动启动及日志仍计入总优化成本，另存 `driver_wall_ms`。`timer-calibration` 的 trie 原生中位时间约 0.924 ms，外层约 6.8 ms，说明修正是必要的。两者不可混作相同指标；原生启动/I/O 仍在完整程序时间内，短程序也仍受系统噪声影响。
 
 保留的失败记录：RC4 的部分二维数组初始化触发 `ValueCategory::store` 断言，两种其他 ABI 选项也失败；bmm 同类数组断言；anagram 在第 347 行出现 `arith.shli` 类型不一致；sim 拒绝旧式局部声明；dijkstra 触发 IntegerType cast 断言；MD5 默认输出 `ca42…` 与独立 Clang 的 `acb2…` 不一致，排除。均未关闭 verifier 或更改源程序来冒充支持。许可证、来源、输入和程序族分配记录于 `experiments/architecture/programs.json`；正式 pilot 配置在采集神经轨迹前锁定于 `pilot.json`，不支持的导入会明确排除。
 

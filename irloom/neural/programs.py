@@ -46,10 +46,12 @@ def measure(session):
         raise RuntimeError("warmup output mismatch")
     samples = []
     for _ in range(5):
-        actual = session.run([exe, *args], "measure")
+        metric = session.logs / f"native-{len(session.events):03}.json"
+        actual = session.run([ROOT / "benchmark-data/architecture/build/irloom-time", metric, exe, *args], "measure")
         if actual != expected:
             raise RuntimeError("measured output mismatch")
-        samples.append({"latency_ms": session.events[-1]["seconds"] * 1000, "iterations": 1})
+        native = json.loads(metric.read_text())
+        samples.append({**native, "iterations": 1, "driver_wall_ms": session.events[-1]["seconds"] * 1000})
     return TerminalMeasurement(checks, samples, obj.stat().st_size,
                                {"commands_s": sum(e["seconds"] for e in session.events),
-                                "timing_scope": "entire process including launch/capture/log overhead"})
+                                "timing_scope": "lean C++ parent times native fork/exec/wait/output; neural driver launch and logging excluded from latency, included in optimization costs"})

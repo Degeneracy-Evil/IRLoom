@@ -152,7 +152,7 @@ class Session:
         if self.program:
             from .programs import measure
             measurement = measure(self)
-            return self.report(measurement, "complete original source through Polygeist; process wall time")
+            return self.report(measurement, "complete original source through Polygeist; native process wall time measured by independent C++ parent")
         ll, obj, exe = (self.output / x for x in ("program.ll", "program.o", "program"))
         self.run([SDK / "bin/mlir-translate", "--mlir-to-llvmir", self.ir, "-o", ll], "translate")
         self.run(["clang-18", *MANIFEST["backend"], "-c", ll, "-o", obj], "codegen")

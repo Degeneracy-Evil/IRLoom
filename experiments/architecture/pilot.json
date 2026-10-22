@@ -1,5 +1,6 @@
 {
   "schema": 1,
+  "measurement": "v2: independent lean C++ process timer, native child wall time and RSS; Python launch/log overhead counted separately",
   "seed": 23,
   "programs": ["llu", "pc1", "trie"],
   "compatibility_revision": "RC4 excluded for import assertion; MD5 excluded for incorrect default output; sim rejected legacy declaration statements. LLU/trie selected before any neural training; no performance-based replacement.",

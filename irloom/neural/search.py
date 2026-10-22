@@ -110,7 +110,7 @@ def summarize(single, searches):
         beam_rows[variant] = {"geomean_speedup": math.exp(sum(math.log(r) for r in ratios) / len(ratios)),
                               "worst_speedup": min(ratios)}
     return {"single": rows, "beam": beam_rows,
-            "interpretation": "Exploratory single-machine process-wall ratios; five repeats, no frequency control, serial method order, no confidence interval. Small changes are not evidence of speedup. Beam uses sampled online measurements, not an offline all-pool oracle."}
+            "interpretation": "Exploratory single-machine native process-wall ratios from independent C++ timer; five repeats, no frequency control, serial method order, no confidence interval. Small changes are not evidence of speedup. Beam uses sampled online measurements, not an offline all-pool oracle."}
 
 
 def compare(name, pilot_dir):
