@@ -66,6 +66,22 @@ struct Graph {
     (*nodes[id].getAsObject())["features"] = json::Array{
         int64_t(op->getNumOperands()), int64_t(op->getNumResults()),
         int64_t(op->getNumRegions()), int64_t(isMemoryEffectFree(op))};
+    auto &features = *nodes[id].getAsObject()->getArray("features");
+    if (auto loop = dyn_cast<affine::AffineForOp>(op)) {
+      features.push_back(loop.hasConstantBounds() ? loop.getConstantLowerBound() : -1);
+      features.push_back(loop.hasConstantBounds() ? loop.getConstantUpperBound() : -1);
+      features.push_back(loop.getStepAsInt());
+    }
+    if (auto integer = op->getAttrOfType<IntegerAttr>("value"))
+      if (integer.getValue().getBitWidth() <= 64) features.push_back(integer.getInt());
+    if (auto number = op->getAttrOfType<FloatAttr>("value")) features.push_back(number.getValueAsDouble());
+    // Structural attributes come from typed IR, never text matching. Do not
+    // feed symbol/benchmark names or dense constant payloads to the network.
+    std::string attributes;
+    raw_string_ostream attributeStream(attributes);
+    for (StringRef key : {"indexing_maps", "iterator_types", "map", "lower_bound", "upper_bound"})
+      if (Attribute attribute = op->getAttr(key)) attributeStream << key << '=' << attribute << ';';
+    (*nodes[id].getAsObject())["attributes"] = attributes;
     (*nodes[id].getAsObject())["memory"] = isMemoryEffectFree(op) ? "none" : "conservative-unknown-alias";
     if (parent >= 0) edge(parent, id, "contains");
     for (Value v : op->getResults()) edge(id, value(v), "defines");

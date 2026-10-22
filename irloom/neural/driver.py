@@ -23,7 +23,7 @@ def save(path, value):
 
 
 class Session:
-    def __init__(self, name, context="single", size=32):
+    def __init__(self, name, context="single", size=32, multi_function=False):
         self.output = CACHE / "runs" / name
         self.logs = ROOT / "logs/architecture" / name
         self.output.mkdir(parents=True, exist_ok=False)
@@ -36,6 +36,15 @@ class Session:
         self.hardware = probe()
         self.cpu = min(os.sched_getaffinity(0))
         source, self.defines = generate(context, (size, size))
+        if multi_function:
+            mem = f"memref<{size}x{size}xf32>"
+            source = source.replace("@kernel(", "@compute(")
+            source = source.rstrip()[:-1] + f'''  func.func @kernel(%a: {mem}, %b: {mem}, %c: {mem}) attributes {{llvm.emit_c_interface}} {{
+    func.call @compute(%a, %b, %c) : ({mem}, {mem}, {mem}) -> ()
+    return
+  }}
+}}
+'''
         self.ir = self.output / "input.mlir"
         self.ir.write_text(source)
         save(self.output / "environment.json", self.hardware)
@@ -136,7 +145,10 @@ def main():
     parser.add_argument("--context", choices=("single", "transpose", "row_reduce"), default="single")
     parser.add_argument("--size", type=int, default=32)
     parser.add_argument("--audit", action="store_true", help="N1 integration rejection/rollback/replay; scripted actions, not a model")
-    parser.add_argument("--model", choices=("default", "A"), default="default")
+    parser.add_argument("--model", choices=("default", "A", "B"), default="default")
+    parser.add_argument("--multi-function", action="store_true", help="call-graph integration smoke, not a real-program import")
+    parser.add_argument("--incremental", action="store_true", help="B: reuse only proven unchanged base encodings")
+    parser.add_argument("--state-audit", action="store_true", help="B: real fork/restore and full-vs-incremental integration checks")
     parser.add_argument("--hidden", type=int, default=128)
     parser.add_argument("--heads", type=int, default=4)
     parser.add_argument("--seed", type=int, default=17)
@@ -145,14 +157,17 @@ def main():
     parser.add_argument("--fit-report", type=Path, help="integration fit only; no held-out performance claim")
     parser.add_argument("--steps", type=int, default=25)
     args = parser.parse_args()
+    if args.state_audit and args.model != "B":
+        parser.error("state audit requires B")
     if args.audit and args.model != "default":
         parser.error("scripted audit and neural selection are separate modes")
-    session = Session(args.name, args.context, args.size)
+    session = Session(args.name, args.context, args.size, args.multi_function)
     model, metadata = None, {}
     if args.model != "default":
         start = time.perf_counter()
         import torch
         from .interleaved import Interleaved
+        from .recurrent import Recurrent
         from .training import fit_smoke
         torch.set_num_threads(1)
         torch.manual_seed(args.seed)
@@ -162,7 +177,9 @@ def main():
             if checkpoint["model"] != args.model:
                 raise ValueError("checkpoint architecture mismatch")
             config = {**checkpoint["config"], "history": not args.no_history}
-        model = Interleaved(**config)
+        if args.model == "B":
+            config["incremental"] = args.incremental
+        model = (Interleaved if args.model == "A" else Recurrent)(**config)
         if checkpoint:
             model.load_state_dict(checkpoint["state_dict"])
         metadata = {"architecture": args.model, "config": config, "seed": args.seed,
@@ -174,6 +191,11 @@ def main():
         torch.save({"model": args.model, "config": config, "state_dict": model.state_dict()}, session.output / "weights.pt")
         model.eval()
         model.costs.clear()
+        if args.state_audit:
+            from .audit import state_audit
+            metadata["state_audit"] = state_audit(model, args.name + "-audit", args.context, args.size)
+            model.incremental = args.incremental
+            model.costs.clear()
     audit = {}
     for stage in MANIFEST["stages"]:
         observation = session.observe(stage["id"])

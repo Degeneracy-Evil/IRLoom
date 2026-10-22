@@ -1,7 +1,6 @@
 """Structured node encoding and genuinely edge-wise (O(E)) graph attention."""
 import json
 import math
-import time
 
 import torch
 from torch import nn
@@ -25,7 +24,7 @@ def hardware_features(hardware):
 def numeric(node):
     features = list(node["features"][:8])
     features += [0] * (8 - len(features))
-    return [math.copysign(math.log1p(abs(x)), x) / 10 for x in features]
+    return [math.copysign(math.log1p(abs(x)), x) / 10 if math.isfinite(x) else 0 for x in features]
 
 
 class Encoder(nn.Module):
