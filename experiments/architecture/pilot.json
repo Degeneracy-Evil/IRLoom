@@ -1,0 +1,11 @@
+{
+  "schema": 1,
+  "seed": 23,
+  "programs": ["llu", "pc1", "trie"],
+  "compatibility_revision": "RC4 excluded for import assertion; MD5 excluded for incorrect default output; sim rejected legacy declaration statements. LLU/trie selected before any neural training; no performance-based replacement.",
+  "collection": {"train_and_validation_paths": ["default", "balanced", "random0", "random1"], "test_paths_before_fit": ["default"]},
+  "training": {"epochs": 20, "learning_rate": 0.0003, "objective": "pairwise measured trajectory log latency + relative log latency regression + resource supervision", "resource_weight": 0.01},
+  "models": {"A": {"hidden": 128, "heads": 4}, "B": {"hidden": 128, "heads": 4}, "B_capacity": {"hidden": 160, "heads": 4}, "current_only": {"hidden": 128, "heads": 4, "history": false}},
+  "evaluation": {"repetitions": 5, "warmups": 1, "variants": ["default", "current_only", "A", "A_no_history", "B", "B_reset", "B_capacity"], "beam_width": 2, "max_terminal_candidates": 8, "max_action_attempts": 24, "optimization_timeout_s": 180},
+  "limits": "Small single-machine pilot, process-wall timing, fixed Clang O3 backend without LTO/PGO; independent source-output oracle. Do not tune splits, epochs or capacity on test outcomes. Exclude unsupported imports before collecting neural labels and report exclusions; do not silently substitute kernels."
+}

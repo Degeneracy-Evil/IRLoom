@@ -1,0 +1,14 @@
+{
+  "schema": 1,
+  "id": "polygeist-26eb4285-v1",
+  "llvm_version": "18.0.0git-26eb4285b56edd8c897642078d91f16ff0fd3472",
+  "stages": [
+    {"id": "S0", "invariant": "complete source module; func/affine/scf/memref/polygeist; no tensor stage", "actions": ["advance", "inline"], "lowering": ["--canonicalize", "--cse"]},
+    {"id": "S1", "invariant": "structured affine/scf scheduling", "actions": ["advance", "unroll2"], "lowering": ["--lower-affine"]},
+    {"id": "S2", "invariant": "scf/memref/polygeist; observation only", "actions": ["advance"], "lowering": ["--convert-polygeist-to-llvm", "--mlir-print-op-generic"]}
+  ],
+  "budget": {"decisions_per_stage": 1, "attempts": 6, "command_timeout_s": 120, "max_graph_nodes": 100000, "max_state_bytes": 536870912},
+  "backend": ["-O3", "-march=native", "-ffp-contract=off"],
+  "semantics": {"fast_math": false, "abi": "Polygeist C-style memref lowering", "lto": false, "pgo": false},
+  "lineage": "function/module anchors retained; arbitrary lowering internals unknown"
+}

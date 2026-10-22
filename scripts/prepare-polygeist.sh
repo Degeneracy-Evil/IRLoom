@@ -38,13 +38,14 @@ if [[ "${1:-}" == --build ]]; then
     -DCMAKE_C_COMPILER=clang-18 -DCMAKE_CXX_COMPILER=clang++-18 \
     -DPython3_EXECUTABLE="$PWD/scripts/architecture-python.sh" \
     -DLLVM_ENABLE_PROJECTS='clang;mlir' -DLLVM_TARGETS_TO_BUILD=X86 \
-    -DLLVM_EXTERNAL_PROJECTS=polygeist -DLLVM_EXTERNAL_POLYGEIST_SOURCE_DIR="$base/Polygeist" \
+    -DLLVM_EXTERNAL_PROJECTS='polygeist;irloom' -DLLVM_EXTERNAL_POLYGEIST_SOURCE_DIR="$base/Polygeist" \
+    -DLLVM_EXTERNAL_IRLOOM_SOURCE_DIR="$PWD/compiler/mlir_bridge" \
     -DLLVM_INCLUDE_TESTS=OFF -DLLVM_INCLUDE_BENCHMARKS=OFF -DLLVM_ENABLE_BINDINGS=OFF \
     -DLLVM_ENABLE_ASSERTIONS=ON -DMLIR_ENABLE_BINDINGS_PYTHON=OFF \
     -DPOLYGEIST_ENABLE_CUDA=OFF -DPOLYGEIST_ENABLE_ROCM=OFF -DPOLYGEIST_ENABLE_POLYMER=OFF \
     -DPOLYGEIST_PGO_DEFAULT_DATA_DIR="$base/pgo-unused" \
     > logs/architecture/polygeist-configure.log 2>&1
-  cmake --build "$base/build" --target cgeist mlir-opt mlir-translate -j "${IRLOOM_FRONTEND_JOBS:-8}" \
+  cmake --build "$base/build" --target cgeist polygeist-opt mlir-opt mlir-translate irloom-polygeist-bridge -j "${IRLOOM_FRONTEND_JOBS:-8}" \
     > logs/architecture/polygeist-build.log 2>&1
 fi
 echo "Polygeist $polygeist_revision; LLVM $llvm_revision; cache $base"

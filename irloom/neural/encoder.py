@@ -6,7 +6,7 @@ import torch
 from torch import nn
 
 KINDS = {name: i for i, name in enumerate(("operation", "value", "block", "region", "function", "module"))}
-ACTIONS = {"advance": 0, "fuse": 1, "unroll2": 2}
+ACTIONS = {"advance": 0, "fuse": 1, "unroll2": 2, "inline": 3}
 
 
 def hardware_features(hardware):

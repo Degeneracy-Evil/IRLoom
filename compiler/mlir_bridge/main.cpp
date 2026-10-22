@@ -7,7 +7,15 @@
 #include "mlir/Dialect/Linalg/Transforms/Transforms.h"
 #include "mlir/Dialect/Affine/LoopUtils.h"
 #include "mlir/IR/PatternMatch.h"
+#include "mlir/Interfaces/CallInterfaces.h"
+#include "mlir/Interfaces/FunctionInterfaces.h"
+#include "mlir/Transforms/InliningUtils.h"
+#include "mlir/Dialect/Func/Extensions/InlinerExtension.h"
 #include "llvm/Support/MemoryBuffer.h"
+#ifdef IRLOOM_POLYGEIST
+#include "polygeist/Dialect.h"
+#endif
+
 #include "llvm/Support/JSON.h"
 #include "llvm/Support/FileSystem.h"
 #include <map>
@@ -20,13 +28,31 @@ using llvm::raw_fd_ostream;
 using llvm::errs;
 using llvm::formatv;
 
+static bool legalInlineBody(InlinerInterface &interface, Region &source,
+                            Region *destination, IRMapping &mapping) {
+  for (Block &block : source)
+    for (Operation &operation : block) {
+      if (!interface.isLegalToInline(&operation, destination, true, mapping)) return false;
+      if (interface.shouldAnalyzeRecursively(&operation))
+        for (Region &nested : operation.getRegions())
+          if (!legalInlineBody(interface, nested, destination, mapping)) return false;
+    }
+  return true;
+}
+
+#ifdef IRLOOM_POLYGEIST
+// Same external type models as the pinned official polygeist-opt driver.
+struct MemRefElement : MemRefElementTypeInterface::FallbackModel<MemRefElement> {};
+template <typename T>
+struct PointerElement : LLVM::PointerElementTypeInterface::ExternalModel<PointerElement<T>, T> {};
+#endif
+
 // All IDs are local to a single parsed snapshot. No pointer is serialized.
 struct Graph {
   json::Array nodes, edges, candidates;
   DenseMap<Operation *, int64_t> ops;
   DenseMap<Block *, int64_t> blocks;
   DenseMap<Value, int64_t> values;
-  std::map<std::string, int64_t> functions;
   int64_t node(StringRef kind, StringRef name, StringRef anchor = "") {
     int64_t id = nodes.size();
     nodes.push_back(json::Object{{"id", id}, {"kind", kind.str()}, {"name", name.str()},
@@ -57,12 +83,11 @@ struct Graph {
   void visit(Operation *op, int64_t parent = -1) {
     std::string kind = "operation", anchor;
     if (isa<ModuleOp>(op)) { kind = "module"; anchor = "module"; }
-    if (auto f = dyn_cast<func::FuncOp>(op)) {
-      kind = "function"; anchor = "function:" + f.getSymName().str();
+    if (isa<FunctionOpInterface>(op)) {
+      kind = "function"; anchor = "function:" + SymbolTable::getSymbolName(op).str();
     }
     auto id = node(kind, op->getName().getStringRef(), anchor);
     ops[op] = id;
-    if (auto f = dyn_cast<func::FuncOp>(op)) functions[f.getSymName().str()] = id;
     (*nodes[id].getAsObject())["features"] = json::Array{
         int64_t(op->getNumOperands()), int64_t(op->getNumResults()),
         int64_t(op->getNumRegions()), int64_t(isMemoryEffectFree(op))};
@@ -70,7 +95,7 @@ struct Graph {
     if (auto loop = dyn_cast<affine::AffineForOp>(op)) {
       features.push_back(loop.hasConstantBounds() ? loop.getConstantLowerBound() : -1);
       features.push_back(loop.hasConstantBounds() ? loop.getConstantUpperBound() : -1);
-      features.push_back(loop.getStepAsInt());
+      features.push_back(loop->getAttrOfType<IntegerAttr>("step").getInt());
     }
     if (auto integer = op->getAttrOfType<IntegerAttr>("value"))
       if (integer.getValue().getBitWidth() <= 64) features.push_back(integer.getInt());
@@ -104,12 +129,10 @@ struct Graph {
       auto id = ops.lookup(op);
       for (Value v : op->getOperands()) edge(value(v), id, "uses");
       for (Block *b : op->getSuccessors()) edge(id, blocks.lookup(b), "cfg");
-      if (auto call = dyn_cast<func::CallOp>(op)) {
-        auto found = functions.find(call.getCallee().str());
-        if (found != functions.end()) edge(id, found->second, "call");
-        (*nodes[id].getAsObject())["call"] = found != functions.end() ? "direct" : "external";
-      } else if (isa<func::CallIndirectOp>(op)) {
-        (*nodes[id].getAsObject())["call"] = "indirect-unknown";
+      if (auto call = dyn_cast<CallOpInterface>(op)) {
+        Operation *callee = call.resolveCallable();
+        if (callee && ops.count(callee)) edge(id, ops.lookup(callee), "call");
+        (*nodes[id].getAsObject())["call"] = callee ? "resolved-symbol" : "external-or-indirect-unknown";
       }
       if (!isMemoryEffectFree(op)) edge(0, id, "conservative-memory");
     });
@@ -117,6 +140,22 @@ struct Graph {
                                       {"parameters", json::Object{}}, {"precondition", "verified module"}});
     module.walk([&](Operation *op) {
       if (stage == "S0") {
+#ifdef IRLOOM_POLYGEIST
+        if (auto call = dyn_cast<func::CallOp>(op)) {
+          auto *calleeOp = cast<CallOpInterface>(op).resolveCallable();
+          auto callee = dyn_cast_or_null<func::FuncOp>(calleeOp);
+          InlinerInterface interface(module.getContext());
+          IRMapping mapping;
+          if (callee && !callee.isExternal() && callee.getNumArguments() == call.getNumOperands())
+            mapping.map(callee.getArguments(), call.getOperands());
+          if (callee && !callee.isExternal() && callee != op->getParentOfType<func::FuncOp>() &&
+              interface.isLegalToInline(op, calleeOp, true) &&
+              interface.isLegalToInline(op->getParentRegion(), &callee.getBody(), true, mapping) &&
+              legalInlineBody(interface, callee.getBody(), op->getParentRegion(), mapping))
+            candidates.push_back(json::Object{{"kind", "inline"}, {"target", ops.lookup(op)},
+                {"parameters", json::Object{}}, {"precondition", "defined non-self call; dialect legality; trial rechecks body"}});
+        }
+#endif
         if (auto generic = dyn_cast<linalg::GenericOp>(op))
           for (OpOperand &operand : generic->getOpOperands())
             if (isa_and_nonnull<linalg::GenericOp>(operand.get().getDefiningOp()) &&
@@ -127,9 +166,9 @@ struct Graph {
       }
       if (stage == "S1") {
         if (auto loop = dyn_cast<affine::AffineForOp>(op))
-          if (loop.hasConstantBounds() && loop.getConstantUpperBound() - loop.getConstantLowerBound() >= 2 * loop.getStepAsInt())
+          if (!loop.hasConstantBounds() || loop.getConstantUpperBound() - loop.getConstantLowerBound() >= 2 * loop->getAttrOfType<IntegerAttr>("step").getInt())
             candidates.push_back(json::Object{{"kind", "unroll2"}, {"target", ops.lookup(op)},
-                {"parameters", json::Object{}}, {"precondition", "constant affine bounds; trip count >= 2"}});
+                {"parameters", json::Object{}}, {"precondition", "affine loop; dynamic cleanup allowed; trial checks loopUnrollByFactor"}});
       }
     });
   }
@@ -152,6 +191,16 @@ static LogicalResult apply(ModuleOp module, Graph &graph, json::Object &action) 
   }
   if (!legal) return failure();
   if (*kind == "advance") return success();
+  if (*kind == "inline") {
+    auto call = dyn_cast<CallOpInterface>(op);
+    if (!call) return failure();
+    auto callable = dyn_cast_or_null<CallableOpInterface>(call.resolveCallable());
+    if (!callable || !callable.getCallableRegion()) return failure();
+    InlinerInterface interface(module.getContext());
+    if (failed(inlineCall(interface, call, callable, callable.getCallableRegion(), true))) return failure();
+    op->erase();
+    return success();
+  }
   IRRewriter rewriter(module.getContext());
   if (*kind == "fuse") {
     auto generic = cast<linalg::GenericOp>(op);
@@ -181,6 +230,21 @@ int main(int argc, char **argv) {
   }
   DialectRegistry registry;
   registerAllDialects(registry);
+  func::registerInlinerExtension(registry);
+#ifdef IRLOOM_POLYGEIST
+  registry.insert<polygeist::PolygeistDialect>();
+  registry.addExtension(+[](MLIRContext *ctx, LLVM::LLVMDialect *) {
+    LLVM::LLVMFunctionType::attachInterface<MemRefElement>(*ctx);
+    LLVM::LLVMArrayType::attachInterface<MemRefElement>(*ctx);
+    LLVM::LLVMPointerType::attachInterface<MemRefElement>(*ctx);
+    LLVM::LLVMStructType::attachInterface<MemRefElement>(*ctx);
+    LLVM::LLVMStructType::attachInterface<PointerElement<LLVM::LLVMStructType>>(*ctx);
+    LLVM::LLVMPointerType::attachInterface<PointerElement<LLVM::LLVMPointerType>>(*ctx);
+  });
+  registry.addExtension(+[](MLIRContext *ctx, memref::MemRefDialect *) {
+    MemRefType::attachInterface<PointerElement<MemRefType>>(*ctx);
+  });
+#endif
   MLIRContext context(registry);
   context.disableMultithreading();
   auto module = parseSourceFile<ModuleOp>(argv[1], &context);

@@ -1,4 +1,20 @@
 cmake_minimum_required(VERSION 3.20)
+if(TARGET MLIRIR)
+  # Optional external LLVM project, built inside Polygeist's exact revision.
+  get_property(dialect_libs GLOBAL PROPERTY MLIR_DIALECT_LIBS)
+  get_property(conversion_libs GLOBAL PROPERTY MLIR_CONVERSION_LIBS)
+  add_executable(irloom-polygeist-bridge main.cpp)
+  set_target_properties(irloom-polygeist-bridge PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${LLVM_BINARY_DIR}/bin")
+  target_compile_features(irloom-polygeist-bridge PRIVATE cxx_std_17)
+  target_compile_definitions(irloom-polygeist-bridge PRIVATE IRLOOM_POLYGEIST=1)
+  target_include_directories(irloom-polygeist-bridge SYSTEM PRIVATE
+    "${LLVM_MAIN_SRC_DIR}/../mlir/include" "${LLVM_BINARY_DIR}/tools/mlir/include"
+    "${LLVM_EXTERNAL_POLYGEIST_SOURCE_DIR}/include" "${LLVM_BINARY_DIR}/tools/polygeist/include")
+  target_link_libraries(irloom-polygeist-bridge PRIVATE ${dialect_libs} ${conversion_libs}
+    MLIRParser MLIRTransforms MLIRLinalgTransforms MLIRAffineUtils MLIRPolygeist MLIRFuncAllExtensions)
+  llvm_update_compile_flags(irloom-polygeist-bridge)
+  return()
+endif()
 project(irloom_bridge LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 find_package(LLVM 18.1.3 EXACT REQUIRED CONFIG PATHS /usr/lib/llvm-18/lib/cmake/llvm NO_DEFAULT_PATH)

@@ -44,6 +44,21 @@ bash scripts/architecture.sh --model B --weights "$PWD/benchmark-data/architectu
 
 ## 真实程序导入
 
-已查询官方 Polygeist 仓库，固定 `77c04bb2a7a2406ca9480bcc9e729b07d2c8d077`，其 LLVM 子模块为 `26eb4285b56edd8c897642078d91f16ff0fd3472`（LLVM 18.0.0git）。官方没有发布预编译 release。该开发版不能直接当作 MLIR 18.1.3 SDK 的匹配前端；独立源码接入正在准备。当前尚无完整 C/C++ 程序经过此 V1 入口，不把旧原生基线计为 A/B 结果。
+官方 Polygeist 固定为 `77c04bb2a7a2406ca9480bcc9e729b07d2c8d077`，其 LLVM 子模块为 `26eb4285b56edd8c897642078d91f16ff0fd3472`（LLVM 18.0.0git）。cgeist、polygeist-opt、mlir-translate 和独立 bridge 已在同一源码构建中通过；没有与 18.1.3 SDK 混链。Clang 18.1.3 仍作各方法共同的固定 native 后端。原生小图与 C 程序分别使用两个 manifest。
 
-`bash scripts/prepare-polygeist.sh --build` 下载固定官方 LLVM 归档，只解包 llvm/clang/mlir/cmake/third-party；仅构建 X86 的 cgeist、mlir-opt、mlir-translate，默认 8 个任务，可用 `IRLOOM_FRONTEND_JOBS` 调整。禁用 CUDA/ROCm/Polymer、测试及 benchmark 构建，不安装到系统。许可证均为 Apache-2.0 WITH LLVM-exception，原始许可证保留在源码缓存。该构建比 bridge 大得多，首次需要时间；后续复用归档和对象文件。构建日志为 `logs/architecture/polygeist-build.log`。
+`bash scripts/prepare-polygeist.sh --build` 下载固定官方 LLVM 归档，只解包 llvm/clang/mlir/cmake/third-party；仅构建 X86 的 cgeist、polygeist-opt、mlir-opt、mlir-translate 和 bridge，默认 8 个任务，可用 `IRLOOM_FRONTEND_JOBS` 调整。禁用 CUDA/ROCm/Polymer、测试及 benchmark 构建，不安装到系统。许可证均为 Apache-2.0 WITH LLVM-exception，原始许可证保留在源码缓存。该构建比 bridge 大得多，首次需要时间；后续复用归档和对象文件。构建日志为 `logs/architecture/polygeist-build.log`。统一入口发现前端缺失或 bridge 更新时也会自动调用此准备过程。
+
+```sh
+bash scripts/architecture.sh --program pc1
+bash scripts/architecture.sh --program pc1 --audit
+bash scripts/architecture.sh --program llu
+bash scripts/architecture.sh --program trie
+```
+
+上述三个完整原始程序均已通过独立 Clang 输出比较和测量：`import-pc1-default`、`import-llu-default`、`import-trie-default-2`。PC1 的 `import-pc1-audit` 还通过定点内联、循环展开、非法动作拒绝和失败恢复。该适配器明确没有 tensor/linalg 层，S0 是有合法性接口检查的调用内联，S1 是 affine 展开（包含有 cleanup 的动态界），S2 观察后固定 lowering。作用于完整源程序，不抽取或复制 kernel；这些仍是规模有限的真实测试程序，不能代表 SQLite/Clang 的全项目覆盖。
+
+trie 的 empty-index LLVM GEP 暴露了固定开发版 MLIR 的自定义打印/解析不一致；末端改用 `--mlir-print-op-generic` 后可往返并通过原始程序输出检查，没有文本替换 IR。各阶段使用真实结构 API；完整程序计时为进程 wall time，包含启动、捕获和日志开销，特别小的程序受此开销影响。
+
+保留的失败记录：RC4 的部分二维数组初始化触发 `ValueCategory::store` 断言，两种其他 ABI 选项也失败；bmm 同类数组断言；anagram 在第 347 行出现 `arith.shli` 类型不一致；sim 拒绝旧式局部声明；dijkstra 触发 IntegerType cast 断言；MD5 默认输出 `ca42…` 与独立 Clang 的 `acb2…` 不一致，排除。均未关闭 verifier 或更改源程序来冒充支持。许可证、来源、输入和程序族分配记录于 `experiments/architecture/programs.json`；正式 pilot 配置在采集神经轨迹前锁定于 `pilot.json`，不支持的导入会明确排除。
+
+工程问题：第一次构建期间编辑正在执行的 shell 脚本，导致其末尾解析失败并覆盖当时的进度日志；工具构建产物保留，随后固定脚本并完整重跑增量构建成功。以后不在脚本运行期间修改它。CMake 的 Python 工具通过项目 uv 包装器调用。

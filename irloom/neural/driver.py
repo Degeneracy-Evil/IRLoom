@@ -23,7 +23,7 @@ def save(path, value):
 
 
 class Session:
-    def __init__(self, name, context="single", size=32, multi_function=False):
+    def __init__(self, name, context="single", size=32, multi_function=False, program=None):
         self.output = CACHE / "runs" / name
         self.logs = ROOT / "logs/architecture" / name
         self.output.mkdir(parents=True, exist_ok=False)
@@ -35,6 +35,15 @@ class Session:
         self.branch, self.serial = "root", 0
         self.hardware = probe()
         self.cpu = min(os.sched_getaffinity(0))
+        self.manifest = MANIFEST
+        self.bridge, self.opt, self.translate = CACHE / "build/irloom-bridge", SDK / "bin/mlir-opt", SDK / "bin/mlir-translate"
+        self.program = program
+        if program:
+            from .programs import prepare
+            prepare(self, program)
+            save(self.output / "environment.json", self.hardware)
+            save(self.output / "manifest.json", self.manifest)
+            return
         source, self.defines = generate(context, (size, size))
         if multi_function:
             mem = f"memref<{size}x{size}xf32>"
@@ -52,20 +61,20 @@ class Session:
 
     def run(self, args, label):
         return command(args, self.logs / f"{len(self.events):03}-{label}.log",
-                       self.events, label, timeout=MANIFEST["budget"]["command_timeout_s"], cpu=self.cpu)
+                       self.events, label, timeout=self.manifest["budget"]["command_timeout_s"], cpu=self.cpu)
 
     def observe(self, stage):
         snapshot = f"{self.branch}-{self.serial}"
         self.serial += 1
         graph_path = self.output / f"{snapshot}.json"
-        self.run([CACHE / "build/irloom-bridge", self.ir, graph_path, snapshot, self.branch, stage], "observe")
+        self.run([self.bridge, self.ir, graph_path, snapshot, self.branch, stage], "observe")
         graph = json.loads(graph_path.read_text())
         for candidate in graph["candidates"]:
             candidate["snapshot"] = snapshot
-        if len(graph["nodes"]) > MANIFEST["budget"]["max_graph_nodes"]:
+        if len(graph["nodes"]) > self.manifest["budget"]["max_graph_nodes"]:
             raise RuntimeError("graph budget exceeded; refusing to truncate")
         previous = self.current.graph if self.current else None
-        obs = Observation(1, MANIFEST["id"], stage, snapshot, self.branch, graph, self.hardware,
+        obs = Observation(1, self.manifest["id"], stage, snapshot, self.branch, graph, self.hardware,
                           align(previous, graph), copy.deepcopy(self.history))
         self.current = obs
         self.observations.append(asdict(obs))
@@ -102,7 +111,7 @@ class Session:
         try:
             # The subprocess parses a private module. The checkpoint file is
             # never its output, even when mutation or verification fails.
-            self.run([CACHE / "build/irloom-bridge", self.ir, graph_path, source,
+            self.run([self.bridge, self.ir, graph_path, source,
                       self.branch, self.current.stage, request, output], "apply")
             self.ir = output
             lineage = json.loads(graph_path.read_text())
@@ -118,10 +127,14 @@ class Session:
 
     def advance(self, stage):
         path = self.output / f"after-{stage['id']}.mlir"
-        self.run([SDK / "bin/mlir-opt", self.ir, *stage["lowering"], "-o", path], f"lower-{stage['id']}")
+        self.run([self.opt, self.ir, *stage["lowering"], "-o", path], f"lower-{stage['id']}")
         self.ir = path
 
     def finalize(self):
+        if self.program:
+            from .programs import measure
+            measurement = measure(self)
+            return self.report(measurement, "complete original source through Polygeist; process wall time")
         ll, obj, exe = (self.output / x for x in ("program.ll", "program.o", "program"))
         self.run([SDK / "bin/mlir-translate", "--mlir-to-llvmir", self.ir, "-o", ll], "translate")
         self.run(["clang-18", *MANIFEST["backend"], "-c", ll, "-o", obj], "codegen")
@@ -131,10 +144,13 @@ class Session:
         samples = [json.loads(self.run([exe, "measure", "19", "2000"], "measure")) for _ in range(5)]
         measurement = TerminalMeasurement(checks, samples, obj.stat().st_size,
                                            {"commands_s": sum(e["seconds"] for e in self.events)})
+        return self.report(measurement, "native integration smoke; no general-program performance claim")
+
+    def report(self, measurement, scope):
         report = {"observations": self.observations, "events": self.events, "measurement": asdict(measurement),
                   "transitions": self.transitions, "decisions": self.decisions, "remaining_attempts": self.remaining,
-                  "median_latency_ms": statistics.median(x["latency_ms"] for x in samples),
-                  "scope": "native integration smoke; no general-program performance claim"}
+                  "median_latency_ms": statistics.median(x["latency_ms"] for x in measurement.samples),
+                  "scope": scope, "program": self.program}
         save(self.output / "report.json", report)
         return report
 
@@ -144,6 +160,7 @@ def main():
     parser.add_argument("--name", default=f"smoke-{time.time_ns()}")
     parser.add_argument("--context", choices=("single", "transpose", "row_reduce"), default="single")
     parser.add_argument("--size", type=int, default=32)
+    parser.add_argument("--program", choices=("rc4", "pc1", "md5", "llu", "sim", "trie"), help="whole-program frontend adapter; prepares matching tools automatically")
     parser.add_argument("--audit", action="store_true", help="N1 integration rejection/rollback/replay; scripted actions, not a model")
     parser.add_argument("--model", choices=("default", "A", "B"), default="default")
     parser.add_argument("--multi-function", action="store_true", help="call-graph integration smoke, not a real-program import")
@@ -161,7 +178,7 @@ def main():
         parser.error("state audit requires B")
     if args.audit and args.model != "default":
         parser.error("scripted audit and neural selection are separate modes")
-    session = Session(args.name, args.context, args.size, args.multi_function)
+    session = Session(args.name, args.context, args.size, args.multi_function, args.program)
     model, metadata = None, {}
     if args.model != "default":
         start = time.perf_counter()
@@ -181,6 +198,11 @@ def main():
             config["incremental"] = args.incremental
         model = (Interleaved if args.model == "A" else Recurrent)(**config)
         if checkpoint:
+            # Earlier N2/N3 weights predate the frontend-only inline action.
+            # Existing rows are preserved; the new row uses the logged seed.
+            key = "heads.actions.weight"
+            if checkpoint["state_dict"][key].shape[0] == 3:
+                checkpoint["state_dict"][key] = torch.cat([checkpoint["state_dict"][key], model.heads.actions.weight[3:].detach()])
             model.load_state_dict(checkpoint["state_dict"])
         metadata = {"architecture": args.model, "config": config, "seed": args.seed,
                     "parameters": sum(p.numel() for p in model.parameters()), "load_s": time.perf_counter() - start}
@@ -197,7 +219,7 @@ def main():
             model.incremental = args.incremental
             model.costs.clear()
     audit = {}
-    for stage in MANIFEST["stages"]:
+    for stage in session.manifest["stages"]:
         observation = session.observe(stage["id"])
         if model is not None:
             if len(observation.graph["nodes"]) * model.hidden * 4 * 8 > MANIFEST["budget"]["max_state_bytes"]:

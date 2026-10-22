@@ -1,0 +1,13 @@
+{
+  "suite": "llvm-test-suite llvmorg-18.1.3",
+  "source": "https://github.com/llvm/llvm-test-suite/tree/llvmorg-18.1.3/MultiSource/Benchmarks",
+  "programs": {
+    "rc4": {"path": "Trimaran/enc-rc4/rc4.c", "family": "arc4-complete-program", "split": "excluded", "check_args": [["1"], ["17"]], "measure_args": ["2000"], "license": "GPL-2.0-or-later; source header", "limitation": "Pinned cgeist fails array storage/implicit array initialization; alternate ABI modes also fail"},
+    "pc1": {"path": "Trimaran/enc-pc1/pc1cod.c", "family": "pukall-pc1-complete-program", "split": "validation", "check_args": [["100"], ["1000"]], "measure_args": ["1000000"], "license": "Author unrestricted-use notice with attribution; source header"},
+    "md5": {"path": "Trimaran/enc-md5/md5.c", "family": "md5-complete-program", "split": "excluded", "check_args": [["1"]], "measure_args": ["1"], "license": "GPL-2.0-or-later; source header", "limitation": "Default output differs from independent Clang output; excluded before neural training"},
+    "llu": {"path": "llubenchmark/llubenchmark.c", "family": "linked-list-complete-program", "split": "train", "check_args": [["-i", "8", "-n", "4"], ["-i", "17", "-n", "8"]], "measure_args": ["-i", "3000"], "license": "LLVM test-suite license with source author attribution"},
+    "sim": {"path": "sim/sim.c", "family": "sequence-alignment-complete-program", "split": "excluded", "defines": ["UNIX"], "check_args": [["1", "{source_dir}/tob.38-44", "{source_dir}/liv.42-48"]], "measure_args": ["8", "{source_dir}/tob.38-44", "{source_dir}/liv.42-48"], "license": "sim/LICENSE.TXT", "limitation": "Pinned cgeist rejects nested legacy declaration statements"},
+    "trie": {"path": "McCat/15-trie/trie.c", "family": "trie-complete-program", "split": "test", "check_args": [["{source_dir}/trie.in1"]], "measure_args": ["{source_dir}/trie.in1"], "license": "McGill University unrestricted use/modification/distribution with notice retention; source header"}
+  },
+  "scope": "Initial import targets, not assumed supported. Entire original source with headers; no extracted kernels. Split fixed before neural measurements. No family crosses splits. Three programs are only a small pilot, not general C/C++ coverage."
+}

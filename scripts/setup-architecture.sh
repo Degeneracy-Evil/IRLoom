@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
+if [[ ! -e benchmark-data && ! -L benchmark-data ]]; then
+  mkdir -p /mnt/data/chp/irloom-benchmarks
+  ln -s /mnt/data/chp/irloom-benchmarks benchmark-data
+fi
+if [[ ! -L benchmark-data ]]; then
+  echo 'benchmark-data must link to the external project cache' >&2; exit 2
+fi
 mkdir -p logs/architecture tmp benchmark-data/architecture/packages benchmark-data/architecture/sdk
 arch_root="$PWD/benchmark-data/architecture"
 for package in libmlir-18 libmlir-18-dev mlir-18-tools; do
