@@ -4,6 +4,10 @@
 #include "mlir/Parser/Parser.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Interfaces/SideEffectInterfaces.h"
+#include "mlir/Dialect/Linalg/Transforms/Transforms.h"
+#include "mlir/Dialect/Affine/LoopUtils.h"
+#include "mlir/IR/PatternMatch.h"
+#include "llvm/Support/MemoryBuffer.h"
 #include "llvm/Support/JSON.h"
 #include "llvm/Support/FileSystem.h"
 #include <map>
@@ -79,7 +83,7 @@ struct Graph {
       }
     }
   }
-  void finish(ModuleOp module) {
+  void finish(ModuleOp module, StringRef stage) {
     module.walk([&](Operation *op) {
       auto id = ops.lookup(op);
       for (Value v : op->getOperands()) edge(value(v), id, "uses");
@@ -95,12 +99,68 @@ struct Graph {
     });
     candidates.push_back(json::Object{{"kind", "advance"}, {"target", int64_t(0)},
                                       {"parameters", json::Object{}}, {"precondition", "verified module"}});
+    module.walk([&](Operation *op) {
+      if (stage == "S0") {
+        if (auto generic = dyn_cast<linalg::GenericOp>(op))
+          for (OpOperand &operand : generic->getOpOperands())
+            if (isa_and_nonnull<linalg::GenericOp>(operand.get().getDefiningOp()) &&
+                linalg::areElementwiseOpsFusable(&operand))
+              candidates.push_back(json::Object{{"kind", "fuse"}, {"target", ops.lookup(op)},
+                  {"parameters", json::Object{{"operand", int64_t(operand.getOperandNumber())}}},
+                  {"precondition", "areElementwiseOpsFusable"}});
+      }
+      if (stage == "S1") {
+        if (auto loop = dyn_cast<affine::AffineForOp>(op))
+          if (loop.hasConstantBounds() && loop.getConstantUpperBound() - loop.getConstantLowerBound() >= 2 * loop.getStepAsInt())
+            candidates.push_back(json::Object{{"kind", "unroll2"}, {"target", ops.lookup(op)},
+                {"parameters", json::Object{}}, {"precondition", "constant affine bounds; trip count >= 2"}});
+      }
+    });
   }
 };
 
+static LogicalResult apply(ModuleOp module, Graph &graph, json::Object &action) {
+  auto kind = action.getString("kind");
+  auto target = action.getInteger("target");
+  auto *params = action.getObject("parameters");
+  if (!kind || !target || !params) return failure();
+  Operation *op = nullptr;
+  for (auto item : graph.ops) if (item.second == *target) op = item.first;
+  if (!op) return failure();
+  // Recheck the entire registered candidate, including its parameters.
+  bool legal = false;
+  for (auto &candidate : graph.candidates) {
+    auto *c = candidate.getAsObject();
+    if (c->getString("kind") == kind && c->getInteger("target") == target &&
+        json::Value(json::Object(*c->getObject("parameters"))) == json::Value(json::Object(*params))) legal = true;
+  }
+  if (!legal) return failure();
+  if (*kind == "advance") return success();
+  IRRewriter rewriter(module.getContext());
+  if (*kind == "fuse") {
+    auto generic = cast<linalg::GenericOp>(op);
+    auto &operand = generic->getOpOperand(*params->getInteger("operand"));
+    Operation *producer = operand.get().getDefiningOp();
+    auto producerId = graph.ops.lookup(producer);
+    rewriter.setInsertionPoint(generic);
+    auto fused = linalg::fuseElementwiseOps(rewriter, &operand);
+    if (failed(fused)) return failure();
+    fused->fusedOp->setAttr("irloom.origins", rewriter.getI64ArrayAttr({producerId, *target}));
+    for (auto [oldValue, replacement] : fused->replacements)
+      rewriter.replaceUsesWithIf(oldValue, replacement, [&](OpOperand &use) {
+        return use.get().getDefiningOp() != producer;
+      });
+    rewriter.eraseOp(generic);
+    if (producer->use_empty() && isMemoryEffectFree(producer)) rewriter.eraseOp(producer);
+    return success();
+  }
+  if (*kind == "unroll2") return affine::loopUnrollByFactor(cast<affine::AffineForOp>(op), 2);
+  return failure();
+}
+
 int main(int argc, char **argv) {
-  if (argc != 6) {
-    errs() << "usage: irloom-bridge input.mlir graph.json snapshot branch stage\n";
+  if (argc != 6 && argc != 8) {
+    errs() << "usage: irloom-bridge input.mlir graph.json snapshot branch stage [action.json output.mlir]\n";
     return 2;
   }
   DialectRegistry registry;
@@ -109,13 +169,46 @@ int main(int argc, char **argv) {
   context.disableMultithreading();
   auto module = parseSourceFile<ModuleOp>(argv[1], &context);
   if (!module || failed(verify(*module))) return 3;
-  Graph graph; graph.visit(module->getOperation()); graph.finish(*module);
+  Graph graph; graph.visit(module->getOperation()); graph.finish(*module, argv[5]);
+  json::Array lineage;
+  if (argc == 8) {
+    auto buffer = llvm::MemoryBuffer::getFile(argv[6]);
+    if (!buffer) return 2;
+    auto request = json::parse((*buffer)->getBuffer());
+    if (!request || !request->getAsObject()) return 2;
+    auto &action = *request->getAsObject();
+    if (action.getString("snapshot") != StringRef(argv[3])) { errs() << "stale snapshot\n"; return 4; }
+    Builder builder(&context);
+    // Temporary provenance exists only during this controlled rewrite. It is
+    // removed before saving IR; arbitrary lowering never gets this guarantee.
+    for (auto item : graph.ops)
+      item.first->setAttr("irloom.origins", builder.getI64ArrayAttr({item.second}));
+    if (failed(apply(*module, graph, action))) { errs() << "illegal action\n"; return 4; }
+    if (action.getBoolean("inject_failure").value_or(false)) { errs() << "injected failure after mutation\n"; return 5; }
+    if (failed(verify(*module))) return 3;
+    Graph after; after.visit(module->getOperation()); after.finish(*module, argv[5]);
+    for (auto item : after.ops) {
+      if (auto origins = item.first->getAttrOfType<ArrayAttr>("irloom.origins")) {
+        json::Array old;
+        for (auto a : origins) old.push_back(cast<IntegerAttr>(a).getInt());
+        lineage.push_back(json::Object{{"old", std::move(old)}, {"new", json::Array{item.second}},
+                                      {"status", "known"}, {"scope", "operation"}});
+      }
+      item.first->removeAttr("irloom.origins");
+    }
+    std::error_code ec;
+    raw_fd_ostream ir(argv[7], ec);
+    if (ec) return 2;
+    module->print(ir);
+    graph = std::move(after);
+  }
   std::error_code error;
   raw_fd_ostream out(argv[2], error);
   if (error) { errs() << error.message(); return 2; }
   out << formatv("{0:2}", json::Value(json::Object{
       {"schema", 1}, {"snapshot", argv[3]}, {"branch", argv[4]}, {"stage", argv[5]},
       {"nodes", std::move(graph.nodes)}, {"edges", std::move(graph.edges)},
-      {"candidates", std::move(graph.candidates)}}));
+      {"candidates", std::move(graph.candidates)}, {"lineage", std::move(lineage)},
+      {"unmapped", "unknown; refresh values/blocks/new regions"}}));
   return 0;
 }

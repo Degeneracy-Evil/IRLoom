@@ -1,5 +1,6 @@
 """Serial module-boundary orchestration; compiler processes never own model state."""
 import argparse
+import copy
 from dataclasses import asdict
 import json
 import os
@@ -8,8 +9,9 @@ import statistics
 import time
 
 from benchmarks.context_graph import generate
-from irloom.compiler import ROOT, command, probe
-from .schema import Observation, TerminalMeasurement
+from irloom.compiler import ROOT, CommandError, command, probe
+from .schema import Observation, TerminalMeasurement, Transition
+from .lineage import Checkpoint, align, clone_state
 
 CACHE = ROOT / "benchmark-data/architecture"
 SDK = CACHE / "sdk/usr/lib/llvm-18"
@@ -27,6 +29,9 @@ class Session:
         self.output.mkdir(parents=True, exist_ok=False)
         self.logs.mkdir(parents=True, exist_ok=True)
         self.events, self.observations = [], []
+        self.history, self.transitions, self.decisions = [], [], []
+        self.state, self.current = None, None
+        self.remaining = MANIFEST["budget"]["attempts"]
         self.branch, self.serial = "root", 0
         self.hardware = probe()
         self.cpu = min(os.sched_getaffinity(0))
@@ -46,12 +51,61 @@ class Session:
         graph_path = self.output / f"{snapshot}.json"
         self.run([CACHE / "build/irloom-bridge", self.ir, graph_path, snapshot, self.branch, stage], "observe")
         graph = json.loads(graph_path.read_text())
+        for candidate in graph["candidates"]:
+            candidate["snapshot"] = snapshot
         if len(graph["nodes"]) > MANIFEST["budget"]["max_graph_nodes"]:
             raise RuntimeError("graph budget exceeded; refusing to truncate")
+        previous = self.current.graph if self.current else None
         obs = Observation(1, MANIFEST["id"], stage, snapshot, self.branch, graph, self.hardware,
-                          {"status": "initial" if not self.observations else "unknown", "refresh": "all internal nodes"}, [])
+                          align(previous, graph), copy.deepcopy(self.history))
+        self.current = obs
         self.observations.append(asdict(obs))
         return obs
+
+    def checkpoint(self):
+        import torch
+        return Checkpoint(self.ir, copy.deepcopy(self.current), clone_state(self.state),
+                          copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining)
+
+    def restore(self, checkpoint, branch=None):
+        import torch
+        # Rollback cannot refund failed attempts. Explicit forks get their own
+        # budget only through the searcher's common accounting (not implemented).
+        self.ir, self.current = checkpoint.ir, copy.deepcopy(checkpoint.observation)
+        self.state, self.history = clone_state(checkpoint.state), copy.deepcopy(checkpoint.history)
+        self.remaining = min(self.remaining, checkpoint.remaining)
+        torch.set_rng_state(checkpoint.rng)
+        if branch is not None:
+            self.branch = branch
+
+    def apply(self, action, inject_failure=False):
+        if self.remaining <= 0:
+            raise RuntimeError("attempt budget exhausted")
+        self.remaining -= 1
+        start = time.perf_counter()
+        source = self.current.snapshot
+        suffix = f"trial-{len(self.transitions)}"
+        output = self.output / f"{suffix}.mlir"
+        graph_path = self.output / f"{suffix}.json"
+        request = self.output / f"{suffix}-action.json"
+        save(request, {**action, "inject_failure": inject_failure})
+        success, diagnostic, lineage = False, "", {}
+        try:
+            # The subprocess parses a private module. The checkpoint file is
+            # never its output, even when mutation or verification fails.
+            self.run([CACHE / "build/irloom-bridge", self.ir, graph_path, source,
+                      self.branch, self.current.stage, request, output], "apply")
+            self.ir = output
+            lineage = json.loads(graph_path.read_text())
+            success = True
+        except CommandError as exc:
+            diagnostic = str(exc)
+        transition = Transition(source, suffix if success else source, success, action,
+                                {"relations": lineage.get("lineage", []),
+                                 "unmapped": "unknown; refresh"}, time.perf_counter() - start, diagnostic)
+        self.transitions.append(asdict(transition))
+        self.history.append({"stage": self.current.stage, "kind": action["kind"], "success": success})
+        return transition
 
     def advance(self, stage):
         path = self.output / f"after-{stage['id']}.mlir"
@@ -69,6 +123,7 @@ class Session:
         measurement = TerminalMeasurement(checks, samples, obj.stat().st_size,
                                            {"commands_s": sum(e["seconds"] for e in self.events)})
         report = {"observations": self.observations, "events": self.events, "measurement": asdict(measurement),
+                  "transitions": self.transitions, "decisions": self.decisions, "remaining_attempts": self.remaining,
                   "median_latency_ms": statistics.median(x["latency_ms"] for x in samples),
                   "scope": "native integration smoke; no general-program performance claim"}
         save(self.output / "report.json", report)
@@ -80,12 +135,38 @@ def main():
     parser.add_argument("--name", default=f"smoke-{time.time_ns()}")
     parser.add_argument("--context", choices=("single", "transpose", "row_reduce"), default="single")
     parser.add_argument("--size", type=int, default=32)
+    parser.add_argument("--audit", action="store_true", help="N1 integration rejection/rollback/replay; scripted actions, not a model")
     args = parser.parse_args()
     session = Session(args.name, args.context, args.size)
+    audit = {}
     for stage in MANIFEST["stages"]:
-        session.observe(stage["id"])
+        observation = session.observe(stage["id"])
+        if args.audit:
+            candidates = observation.graph["candidates"]
+            selected = candidates[1] if len(candidates) > 1 else candidates[0]
+            checkpoint = session.checkpoint()
+            before = session.ir.read_bytes()
+            if stage["id"] == "S0":
+                illegal = {**selected, "target": -1}
+                assert not session.apply(illegal).success
+                assert session.ir.read_bytes() == before
+                assert not session.apply(selected, inject_failure=True).success
+                assert session.ir.read_bytes() == before
+                audit["illegal_rejected_and_mutation_rolled_back"] = True
+            assert session.apply(selected).success
+            changed = session.ir.read_bytes()
+            if stage["id"] == "S0":
+                session.restore(checkpoint)
+                assert session.apply(selected).success
+                assert session.ir.read_bytes() == changed
+                audit["replay_identical"] = True
+            if selected["kind"] != "advance":
+                assert changed != before
+                audit[stage["id"]] = selected["kind"]
         session.advance(stage)
     report = session.finalize()
+    if args.audit:
+        save(session.output / "audit.json", audit)
     print(json.dumps({"report": str(session.output / "report.json"), "correct": True,
                       "median_latency_ms": report["median_latency_ms"]}))
 

@@ -14,6 +14,7 @@ PyTorch 使用官方 CPU wheel 源 `https://download.pytorch.org/whl/cpu`，BSD-
 bash scripts/architecture.sh
 bash scripts/architecture.sh --context transpose --size 32
 bash scripts/architecture.sh --context row_reduce --size 32
+bash scripts/architecture.sh --audit
 ```
 
 入口幂等准备依赖与增量构建；每次运行自动创建独立目录。可用 `--name NAME` 指定新运行名，已有目录会拒绝覆盖。阶段 manifest 是 `compiler/pipelines/architecture-v1.json`。S0 在 tensor/linalg 语义尚存时决策，S1 是 bufferization 后的 affine 循环，S2 是 scf/memref 观察点。S1 首版拟支持定点展开，不宣称已经支持 tiling/vectorization。
@@ -23,7 +24,8 @@ bash scripts/architecture.sh --context row_reduce --size 32
 ## 阶段进展
 
 - N0：实现三个暂停/继续边界、数据记录契约、C++ 结构图及固定默认路径。`n0-default-2` 通过 3 个种子的独立数值检查和 5 轮测量（中位数 0.000978 ms/调用；仅作 smoke）。初次运行发现 LLVM JSON 对短生命周期 StringRef 的借用，改为持有字符串副本后通过。
-- N1–N5：尚未完成，不将 bridge 可运行视为神经架构已实现。
+- N1：`n1-audit` 在 S0 执行目标融合、S1 执行目标循环展开，均实际改变 IR；输出通过 3 个种子的独立检查和测量。非法目标被拒绝；在真实变换之后注入失败，父 IR 不变；恢复检查点重放得到逐字节相同的 IR（不计算 hash）。失败也扣预算。动作内用临时来源属性记录受控 clone/merge 的操作级对应；属性在落盘前移除，值/块及一般 lowering 细节保持 unknown。下一阶段重新枚举候选，旧目标不能直接复用。
+- N2–N5：尚未完成，不将 bridge 可运行视为神经架构已实现。
 
 ## 真实程序导入
 
