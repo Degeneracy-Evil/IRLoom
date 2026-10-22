@@ -29,12 +29,14 @@ def clone_state(value):
 @dataclass
 class Checkpoint:
     ir: Path
+    observed_ir: Path
     observation: object
     state: object
     history: list
     rng: object
     remaining: int
+    lineage: list
 
     def fork(self):
-        return Checkpoint(self.ir, copy.deepcopy(self.observation), clone_state(self.state),
-                          copy.deepcopy(self.history), clone_state(self.rng), self.remaining)
+        return Checkpoint(self.ir, self.observed_ir, copy.deepcopy(self.observation), clone_state(self.state),
+                          copy.deepcopy(self.history), clone_state(self.rng), self.remaining, copy.deepcopy(self.lineage))

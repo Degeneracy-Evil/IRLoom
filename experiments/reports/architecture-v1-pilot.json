@@ -1,0 +1,1912 @@
+{
+  "date": "2026-10-23",
+  "scope": "N0-N5 initial implementation and small single-machine pilot; no established cross-stage-memory advantage",
+  "source_pins": {
+    "test_suite": "72a946a42cbce06afef68b2326ff6c3869d09799",
+    "polygeist": "77c04bb2a7a2406ca9480bcc9e729b07d2c8d077",
+    "frontend_llvm": "26eb4285b56edd8c897642078d91f16ff0fd3472",
+    "native_sdk": "Ubuntu LLVM/MLIR 18.1.3-1ubuntu1"
+  },
+  "config": {
+    "schema": 1,
+    "measurement": "v2: independent lean C++ process timer, native child wall time and RSS; Python launch/log overhead counted separately",
+    "seed": 23,
+    "programs": [
+      "llu",
+      "pc1",
+      "trie"
+    ],
+    "compatibility_revision": "RC4 excluded for import assertion; MD5 excluded for incorrect default output; sim rejected legacy declaration statements. LLU/trie selected before any neural training; no performance-based replacement.",
+    "collection": {
+      "train_and_validation_paths": [
+        "default",
+        "balanced",
+        "random0",
+        "random1"
+      ],
+      "test_paths_before_fit": [
+        "default"
+      ]
+    },
+    "training": {
+      "epochs": 20,
+      "learning_rate": 0.0003,
+      "objective": "pairwise measured trajectory log latency + relative log latency regression + resource supervision",
+      "resource_weight": 0.01
+    },
+    "models": {
+      "A": {
+        "hidden": 128,
+        "heads": 4
+      },
+      "B": {
+        "hidden": 128,
+        "heads": 4
+      },
+      "B_capacity": {
+        "hidden": 160,
+        "heads": 4
+      },
+      "current_only": {
+        "hidden": 128,
+        "heads": 4,
+        "history": false
+      }
+    },
+    "evaluation": {
+      "repetitions": 5,
+      "warmups": 1,
+      "variants": [
+        "default",
+        "current_only",
+        "A",
+        "A_no_history",
+        "B",
+        "B_reset",
+        "B_capacity"
+      ],
+      "beam_width": 2,
+      "max_terminal_candidates": 8,
+      "max_action_attempts": 24,
+      "optimization_timeout_s": 180
+    },
+    "limits": "Small single-machine pilot, process-wall timing, fixed Clang O3 backend without LTO/PGO; independent source-output oracle. Do not tune splits, epochs or capacity on test outcomes. Exclude unsupported imports before collecting neural labels and report exclusions; do not silently substitute kernels."
+  },
+  "coverage": {
+    "llu": [
+      {
+        "stage": "S0",
+        "nodes": 614,
+        "operations": 253,
+        "functions_including_declarations": 6,
+        "regions": 47,
+        "call_edges": 23,
+        "candidates_including_advance": 1
+      },
+      {
+        "stage": "S1",
+        "nodes": 604,
+        "operations": 248,
+        "functions_including_declarations": 6,
+        "regions": 47,
+        "call_edges": 23,
+        "candidates_including_advance": 7
+      },
+      {
+        "stage": "S2",
+        "nodes": 662,
+        "operations": 277,
+        "functions_including_declarations": 6,
+        "regions": 47,
+        "call_edges": 23,
+        "candidates_including_advance": 1
+      }
+    ],
+    "pc1": [
+      {
+        "stage": "S0",
+        "nodes": 1281,
+        "operations": 678,
+        "functions_including_declarations": 7,
+        "regions": 29,
+        "call_edges": 24,
+        "candidates_including_advance": 17
+      },
+      {
+        "stage": "S1",
+        "nodes": 1057,
+        "operations": 566,
+        "functions_including_declarations": 7,
+        "regions": 29,
+        "call_edges": 24,
+        "candidates_including_advance": 2
+      },
+      {
+        "stage": "S2",
+        "nodes": 1463,
+        "operations": 769,
+        "functions_including_declarations": 7,
+        "regions": 29,
+        "call_edges": 24,
+        "candidates_including_advance": 1
+      }
+    ],
+    "trie": [
+      {
+        "stage": "S0",
+        "nodes": 850,
+        "operations": 425,
+        "functions_including_declarations": 23,
+        "regions": 89,
+        "call_edges": 37,
+        "candidates_including_advance": 1
+      },
+      {
+        "stage": "S1",
+        "nodes": 836,
+        "operations": 418,
+        "functions_including_declarations": 23,
+        "regions": 89,
+        "call_edges": 37,
+        "candidates_including_advance": 2
+      },
+      {
+        "stage": "S2",
+        "nodes": 862,
+        "operations": 431,
+        "functions_including_declarations": 23,
+        "regions": 89,
+        "call_edges": 37,
+        "candidates_including_advance": 1
+      }
+    ]
+  },
+  "profiles": {
+    "A": {
+      "parameters": 484868,
+      "cold_process_load_s": 0.8286647126078606,
+      "steady_same_S0_ms": 14.828445389866829,
+      "profile_report": "benchmark-data/architecture/runs/final-replay-A/model.json"
+    },
+    "B": {
+      "parameters": 319236,
+      "cold_process_load_s": 0.8167994068935513,
+      "steady_same_S0_ms": 18.765879794955254,
+      "profile_report": "benchmark-data/architecture/runs/final-replay-B/model.json"
+    },
+    "B_capacity": {
+      "parameters": 486084,
+      "cold_process_load_s": 0.8176089553162456,
+      "steady_same_S0_ms": 21.30624558776617,
+      "profile_report": "benchmark-data/architecture/runs/final-profile-B-capacity/model.json"
+    },
+    "current_only": {
+      "parameters": 484868,
+      "cold_process_load_s": 0.8186369817703962,
+      "steady_same_S0_ms": 16.49282593280077,
+      "profile_report": "benchmark-data/architecture/runs/final-profile-current/model.json"
+    }
+  },
+  "training": {
+    "A": {
+      "objective": "pairwise measured trajectory log latency + relative log latency regression + resource supervision",
+      "curves": [
+        {
+          "epoch": 0,
+          "train": 4.897122383117676,
+          "validation": 1.130919098854065
+        },
+        {
+          "epoch": 1,
+          "train": 1.3036725521087646,
+          "validation": 1.06305730342865
+        },
+        {
+          "epoch": 2,
+          "train": 0.6822411417961121,
+          "validation": 2.434701442718506
+        },
+        {
+          "epoch": 3,
+          "train": 1.574378490447998,
+          "validation": 3.1366024017333984
+        },
+        {
+          "epoch": 4,
+          "train": 1.9591342210769653,
+          "validation": 2.9216556549072266
+        },
+        {
+          "epoch": 5,
+          "train": 1.5489972829818726,
+          "validation": 2.3991150856018066
+        },
+        {
+          "epoch": 6,
+          "train": 0.8955011367797852,
+          "validation": 2.0618669986724854
+        },
+        {
+          "epoch": 7,
+          "train": 0.45197218656539917,
+          "validation": 2.0983848571777344
+        },
+        {
+          "epoch": 8,
+          "train": 0.38215839862823486,
+          "validation": 2.4214956760406494
+        },
+        {
+          "epoch": 9,
+          "train": 0.5856849551200867,
+          "validation": 2.8028106689453125
+        },
+        {
+          "epoch": 10,
+          "train": 0.8303307890892029,
+          "validation": 3.0542995929718018
+        },
+        {
+          "epoch": 11,
+          "train": 0.9304263591766357,
+          "validation": 3.1289541721343994
+        },
+        {
+          "epoch": 12,
+          "train": 0.8437166213989258,
+          "validation": 3.0969042778015137
+        },
+        {
+          "epoch": 13,
+          "train": 0.6452546715736389,
+          "validation": 3.0683352947235107
+        },
+        {
+          "epoch": 14,
+          "train": 0.4501018226146698,
+          "validation": 3.1261348724365234
+        },
+        {
+          "epoch": 15,
+          "train": 0.34656423330307007,
+          "validation": 3.289041042327881
+        },
+        {
+          "epoch": 16,
+          "train": 0.3596847951412201,
+          "validation": 3.5104074478149414
+        },
+        {
+          "epoch": 17,
+          "train": 0.4494676887989044,
+          "validation": 3.711118221282959
+        },
+        {
+          "epoch": 18,
+          "train": 0.5421769618988037,
+          "validation": 3.828439950942993
+        },
+        {
+          "epoch": 19,
+          "train": 0.5773736834526062,
+          "validation": 3.848189115524292
+        }
+      ],
+      "selected_validation_loss": 1.06305730342865,
+      "selection": "minimum validation loss across the prelocked epochs; test family never loaded",
+      "seconds": 14.420133260078728,
+      "parameters": 484868
+    },
+    "B": {
+      "objective": "pairwise measured trajectory log latency + relative log latency regression + resource supervision",
+      "curves": [
+        {
+          "epoch": 0,
+          "train": 1.6980209350585938,
+          "validation": 0.9669219851493835
+        },
+        {
+          "epoch": 1,
+          "train": 0.904853105545044,
+          "validation": 0.8270973563194275
+        },
+        {
+          "epoch": 2,
+          "train": 0.5531638264656067,
+          "validation": 1.0479549169540405
+        },
+        {
+          "epoch": 3,
+          "train": 0.5562639832496643,
+          "validation": 1.3703325986862183
+        },
+        {
+          "epoch": 4,
+          "train": 0.6775619387626648,
+          "validation": 1.5777623653411865
+        },
+        {
+          "epoch": 5,
+          "train": 0.712408185005188,
+          "validation": 1.6618887186050415
+        },
+        {
+          "epoch": 6,
+          "train": 0.6464755535125732,
+          "validation": 1.6893868446350098
+        },
+        {
+          "epoch": 7,
+          "train": 0.5383326411247253,
+          "validation": 1.7185184955596924
+        },
+        {
+          "epoch": 8,
+          "train": 0.4405551850795746,
+          "validation": 1.7810883522033691
+        },
+        {
+          "epoch": 9,
+          "train": 0.38141894340515137,
+          "validation": 1.8838918209075928
+        },
+        {
+          "epoch": 10,
+          "train": 0.36560481786727905,
+          "validation": 2.01598858833313
+        },
+        {
+          "epoch": 11,
+          "train": 0.38096463680267334,
+          "validation": 2.1583969593048096
+        },
+        {
+          "epoch": 12,
+          "train": 0.40795037150382996,
+          "validation": 2.293605089187622
+        },
+        {
+          "epoch": 13,
+          "train": 0.42897289991378784,
+          "validation": 2.4116623401641846
+        },
+        {
+          "epoch": 14,
+          "train": 0.43436458706855774,
+          "validation": 2.5112547874450684
+        },
+        {
+          "epoch": 15,
+          "train": 0.42333000898361206,
+          "validation": 2.5971896648406982
+        },
+        {
+          "epoch": 16,
+          "train": 0.40134280920028687,
+          "validation": 2.676724433898926
+        },
+        {
+          "epoch": 17,
+          "train": 0.37643226981163025,
+          "validation": 2.7563412189483643
+        },
+        {
+          "epoch": 18,
+          "train": 0.3559431731700897,
+          "validation": 2.8396198749542236
+        },
+        {
+          "epoch": 19,
+          "train": 0.34439995884895325,
+          "validation": 2.9264180660247803
+        }
+      ],
+      "selected_validation_loss": 0.8270973563194275,
+      "selection": "minimum validation loss across the prelocked epochs; test family never loaded",
+      "seconds": 14.060852523893118,
+      "parameters": 319236
+    },
+    "B_capacity": {
+      "objective": "pairwise measured trajectory log latency + relative log latency regression + resource supervision",
+      "curves": [
+        {
+          "epoch": 0,
+          "train": 0.908983051776886,
+          "validation": 0.8386130332946777
+        },
+        {
+          "epoch": 1,
+          "train": 0.5678139925003052,
+          "validation": 1.1093292236328125
+        },
+        {
+          "epoch": 2,
+          "train": 0.6247385144233704,
+          "validation": 1.275665521621704
+        },
+        {
+          "epoch": 3,
+          "train": 0.5699425339698792,
+          "validation": 1.3774521350860596
+        },
+        {
+          "epoch": 4,
+          "train": 0.4538305997848511,
+          "validation": 1.5294997692108154
+        },
+        {
+          "epoch": 5,
+          "train": 0.3909939229488373,
+          "validation": 1.7471309900283813
+        },
+        {
+          "epoch": 6,
+          "train": 0.39877626299858093,
+          "validation": 1.9733285903930664
+        },
+        {
+          "epoch": 7,
+          "train": 0.4238604009151459,
+          "validation": 2.1600842475891113
+        },
+        {
+          "epoch": 8,
+          "train": 0.4205031096935272,
+          "validation": 2.3096299171447754
+        },
+        {
+          "epoch": 9,
+          "train": 0.390902042388916,
+          "validation": 2.448927879333496
+        },
+        {
+          "epoch": 10,
+          "train": 0.361138254404068,
+          "validation": 2.598055601119995
+        },
+        {
+          "epoch": 11,
+          "train": 0.35072800517082214,
+          "validation": 2.7567126750946045
+        },
+        {
+          "epoch": 12,
+          "train": 0.3595585525035858,
+          "validation": 2.9091131687164307
+        },
+        {
+          "epoch": 13,
+          "train": 0.3725435435771942,
+          "validation": 3.040395736694336
+        },
+        {
+          "epoch": 14,
+          "train": 0.37532830238342285,
+          "validation": 3.1484618186950684
+        },
+        {
+          "epoch": 15,
+          "train": 0.36562734842300415,
+          "validation": 3.242157220840454
+        },
+        {
+          "epoch": 16,
+          "train": 0.3515095114707947,
+          "validation": 3.3320579528808594
+        },
+        {
+          "epoch": 17,
+          "train": 0.34258851408958435,
+          "validation": 3.4227988719940186
+        },
+        {
+          "epoch": 18,
+          "train": 0.3426826298236847,
+          "validation": 3.5113461017608643
+        },
+        {
+          "epoch": 19,
+          "train": 0.3481912314891815,
+          "validation": 3.591200351715088
+        }
+      ],
+      "selected_validation_loss": 0.8386130332946777,
+      "selection": "minimum validation loss across the prelocked epochs; test family never loaded",
+      "seconds": 15.70060319174081,
+      "parameters": 486084
+    },
+    "current_only": {
+      "objective": "pairwise measured trajectory log latency + relative log latency regression + resource supervision",
+      "curves": [
+        {
+          "epoch": 0,
+          "train": 1.3243159055709839,
+          "validation": 0.8140400052070618
+        },
+        {
+          "epoch": 1,
+          "train": 0.7595239281654358,
+          "validation": 0.8673712611198425
+        },
+        {
+          "epoch": 2,
+          "train": 0.553244948387146,
+          "validation": 1.1522865295410156
+        },
+        {
+          "epoch": 3,
+          "train": 0.5859689116477966,
+          "validation": 1.4237271547317505
+        },
+        {
+          "epoch": 4,
+          "train": 0.6271023154258728,
+          "validation": 1.5848463773727417
+        },
+        {
+          "epoch": 5,
+          "train": 0.5806945562362671,
+          "validation": 1.6813113689422607
+        },
+        {
+          "epoch": 6,
+          "train": 0.48727789521217346,
+          "validation": 1.773737907409668
+        },
+        {
+          "epoch": 7,
+          "train": 0.4027256369590759,
+          "validation": 1.8973056077957153
+        },
+        {
+          "epoch": 8,
+          "train": 0.35848763585090637,
+          "validation": 2.057044506072998
+        },
+        {
+          "epoch": 9,
+          "train": 0.3568839728832245,
+          "validation": 2.2350380420684814
+        },
+        {
+          "epoch": 10,
+          "train": 0.37837278842926025,
+          "validation": 2.4060099124908447
+        },
+        {
+          "epoch": 11,
+          "train": 0.3971269130706787,
+          "validation": 2.553703546524048
+        },
+        {
+          "epoch": 12,
+          "train": 0.39707693457603455,
+          "validation": 2.676697015762329
+        },
+        {
+          "epoch": 13,
+          "train": 0.37728771567344666,
+          "validation": 2.7837793827056885
+        },
+        {
+          "epoch": 14,
+          "train": 0.34709909558296204,
+          "validation": 2.8863632678985596
+        },
+        {
+          "epoch": 15,
+          "train": 0.318497896194458,
+          "validation": 2.992462158203125
+        },
+        {
+          "epoch": 16,
+          "train": 0.3001444339752197,
+          "validation": 3.103522539138794
+        },
+        {
+          "epoch": 17,
+          "train": 0.294227659702301,
+          "validation": 3.2144644260406494
+        },
+        {
+          "epoch": 18,
+          "train": 0.29643452167510986,
+          "validation": 3.3168704509735107
+        },
+        {
+          "epoch": 19,
+          "train": 0.29893746972084045,
+          "validation": 3.403830051422119
+        }
+      ],
+      "selected_validation_loss": 0.8140400052070618,
+      "selection": "minimum validation loss across the prelocked epochs; test family never loaded",
+      "seconds": 12.93516805022955,
+      "parameters": 484868
+    }
+  },
+  "label_acquisition_s": 126.66906369756907,
+  "single": {
+    "default": {
+      "geomean_speedup": 1.0,
+      "worst_speedup": 1.0,
+      "programs": {
+        "llu": {
+          "speedup": 1.0,
+          "latency_ms": 4214.453378,
+          "raw_samples_ms": [
+            4214.453378,
+            4226.254301,
+            4209.819944,
+            4222.912859,
+            4213.757301
+          ],
+          "code_bytes": 6624,
+          "command_s": 29.88319114781916,
+          "execution": {
+            "policy": "default",
+            "wall_s": 30.04196384549141,
+            "model_costs": [],
+            "parent_peak_rss_kib": 228568,
+            "children_peak_rss_kib": 222808
+          }
+        },
+        "pc1": {
+          "speedup": 1.0,
+          "latency_ms": 73.610699,
+          "raw_samples_ms": [
+            73.583105,
+            73.7906,
+            73.651673,
+            73.524402,
+            73.610699
+          ],
+          "code_bytes": 5216,
+          "command_s": 0.9353389404714108,
+          "execution": {
+            "policy": "default",
+            "wall_s": 1.1234258245676756,
+            "model_costs": [],
+            "parent_peak_rss_kib": 234760,
+            "children_peak_rss_kib": 233464
+          }
+        },
+        "trie": {
+          "speedup": 1.0,
+          "latency_ms": 0.894874,
+          "raw_samples_ms": [
+            0.893561,
+            0.894874,
+            0.927104,
+            0.892756,
+            0.895194
+          ],
+          "code_bytes": 5752,
+          "command_s": 0.3791618412360549,
+          "execution": {
+            "policy": "default",
+            "wall_s": 0.5297104492783546,
+            "model_costs": [],
+            "parent_peak_rss_kib": 241256,
+            "children_peak_rss_kib": 241256
+          }
+        }
+      }
+    },
+    "current_only": {
+      "geomean_speedup": 1.0143477784965336,
+      "worst_speedup": 0.9891105152278148,
+      "programs": {
+        "llu": {
+          "speedup": 0.9979900315248447,
+          "latency_ms": 4222.941357,
+          "raw_samples_ms": [
+            4240.162071,
+            4199.767899,
+            4222.941357,
+            4216.961309,
+            4226.372918
+          ],
+          "code_bytes": 8096,
+          "command_s": 30.188682439737022,
+          "execution": {
+            "policy": "current_only",
+            "wall_s": 30.442412544973195,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.005069741979241371,
+                "network_s": 0.009886743500828743
+              },
+              {
+                "full_encoding_s": 0.004907107912003994,
+                "network_s": 0.009824777953326702
+              },
+              {
+                "full_encoding_s": 0.008190715685486794,
+                "network_s": 0.016163088381290436
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "pc1": {
+          "speedup": 1.057279045751309,
+          "latency_ms": 69.622773,
+          "raw_samples_ms": [
+            69.622773,
+            69.881384,
+            69.591981,
+            69.563486,
+            69.784068
+          ],
+          "code_bytes": 5456,
+          "command_s": 1.2177793867886066,
+          "execution": {
+            "policy": "current_only",
+            "wall_s": 1.5542593514546752,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.009760928340256214,
+                "network_s": 0.017595192417502403
+              },
+              {
+                "full_encoding_s": 0.008780965581536293,
+                "network_s": 0.01648740191012621
+              },
+              {
+                "full_encoding_s": 0.011016037315130234,
+                "network_s": 0.023028354160487652
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "trie": {
+          "speedup": 0.9891105152278148,
+          "latency_ms": 0.904726,
+          "raw_samples_ms": [
+            0.929939,
+            0.902818,
+            0.902975,
+            0.915595,
+            0.904726
+          ],
+          "code_bytes": 5768,
+          "command_s": 1.0021656258031726,
+          "execution": {
+            "policy": "current_only",
+            "wall_s": 1.392339264973998,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.007274940609931946,
+                "network_s": 0.01314636878669262
+              },
+              {
+                "full_encoding_s": 0.0069718314334750175,
+                "network_s": 0.01533578336238861
+              },
+              {
+                "full_encoding_s": 0.007191935554146767,
+                "network_s": 0.01333361491560936
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        }
+      }
+    },
+    "A": {
+      "geomean_speedup": 1.0248636505086093,
+      "worst_speedup": 0.9820937455415445,
+      "programs": {
+        "llu": {
+          "speedup": 1.0018698457148631,
+          "latency_ms": 4206.587708,
+          "raw_samples_ms": [
+            4206.587708,
+            4208.56312,
+            4203.671957,
+            4230.541158,
+            4205.630093
+          ],
+          "code_bytes": 8096,
+          "command_s": 30.119504360482097,
+          "execution": {
+            "policy": "A",
+            "wall_s": 30.353405158035457,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.005034123547375202,
+                "network_s": 0.010306657291948795
+              },
+              {
+                "full_encoding_s": 0.004898864775896072,
+                "network_s": 0.009727796539664268
+              },
+              {
+                "full_encoding_s": 0.008092631585896015,
+                "network_s": 0.01680645253509283
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "pc1": {
+          "speedup": 1.0940420619433866,
+          "latency_ms": 67.283244,
+          "raw_samples_ms": [
+            67.371636,
+            67.304384,
+            67.253819,
+            67.219334,
+            67.283244
+          ],
+          "code_bytes": 5456,
+          "command_s": 1.1742931231856346,
+          "execution": {
+            "policy": "A",
+            "wall_s": 1.5195600856095552,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.0098241763189435,
+                "network_s": 0.019529256038367748
+              },
+              {
+                "full_encoding_s": 0.009253784082829952,
+                "network_s": 0.01893932931125164
+              },
+              {
+                "full_encoding_s": 0.011768880300223827,
+                "network_s": 0.02610655315220356
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "trie": {
+          "speedup": 0.9820937455415445,
+          "latency_ms": 0.91119,
+          "raw_samples_ms": [
+            0.906852,
+            0.906153,
+            0.91119,
+            0.928445,
+            0.934265
+          ],
+          "code_bytes": 5768,
+          "command_s": 0.6232591606676579,
+          "execution": {
+            "policy": "A",
+            "wall_s": 0.9819892244413495,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.0071987975388765335,
+                "network_s": 0.012911980971693993
+              },
+              {
+                "full_encoding_s": 0.006984172388911247,
+                "network_s": 0.013537058606743813
+              },
+              {
+                "full_encoding_s": 0.007936441339552402,
+                "network_s": 0.012539644725620747
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        }
+      }
+    },
+    "A_no_history": {
+      "geomean_speedup": 1.022212781982692,
+      "worst_speedup": 0.9788462863687126,
+      "programs": {
+        "llu": {
+          "speedup": 0.998260744781733,
+          "latency_ms": 4221.796159,
+          "raw_samples_ms": [
+            4205.29001,
+            4221.796159,
+            4222.221698,
+            4228.322669,
+            4220.53367
+          ],
+          "code_bytes": 8096,
+          "command_s": 30.16677835583687,
+          "execution": {
+            "policy": "A_no_history",
+            "wall_s": 30.405777503736317,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.00520741194486618,
+                "network_s": 0.009817826561629772
+              },
+              {
+                "full_encoding_s": 0.004799090325832367,
+                "network_s": 0.010072669014334679
+              },
+              {
+                "full_encoding_s": 0.00943237915635109,
+                "network_s": 0.015630749985575676
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "pc1": {
+          "speedup": 1.0931139346839367,
+          "latency_ms": 67.340372,
+          "raw_samples_ms": [
+            67.385463,
+            67.265039,
+            67.340372,
+            67.334193,
+            67.34973
+          ],
+          "code_bytes": 5456,
+          "command_s": 1.1830803155899048,
+          "execution": {
+            "policy": "A_no_history",
+            "wall_s": 1.6455074427649379,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.009764207527041435,
+                "network_s": 0.01956353150308132
+              },
+              {
+                "full_encoding_s": 0.009319372475147247,
+                "network_s": 0.01894878875464201
+              },
+              {
+                "full_encoding_s": 0.011806429363787174,
+                "network_s": 0.025910349562764168
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "trie": {
+          "speedup": 0.9788462863687126,
+          "latency_ms": 0.914213,
+          "raw_samples_ms": [
+            0.912623,
+            0.914213,
+            0.995502,
+            0.92878,
+            0.88673
+          ],
+          "code_bytes": 5768,
+          "command_s": 0.6107391314581037,
+          "execution": {
+            "policy": "A_no_history",
+            "wall_s": 0.8581148246303201,
+            "model_costs": [
+              {
+                "full_encoding_s": 0.007984012365341187,
+                "network_s": 0.012614176608622074
+              },
+              {
+                "full_encoding_s": 0.007509813643991947,
+                "network_s": 0.012271178886294365
+              },
+              {
+                "full_encoding_s": 0.006933007389307022,
+                "network_s": 0.012071937322616577
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        }
+      }
+    },
+    "B": {
+      "geomean_speedup": 0.989771685384986,
+      "worst_speedup": 0.9689229689814374,
+      "programs": {
+        "llu": {
+          "speedup": 1.001027926796495,
+          "latency_ms": 4210.125677,
+          "raw_samples_ms": [
+            4222.57215,
+            4210.125677,
+            4202.741095,
+            4196.860241,
+            4212.477861
+          ],
+          "code_bytes": 8096,
+          "command_s": 30.074628222733736,
+          "execution": {
+            "policy": "B",
+            "wall_s": 30.31904080696404,
+            "model_costs": [
+              {
+                "encoding_s": 0.004750522784888744,
+                "network_s": 0.011326060630381107,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 614,
+                "records": 54,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.00506320595741272,
+                "network_s": 0.011310364119708538,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 604,
+                "records": 54,
+                "invalidated_records": 40
+              },
+              {
+                "encoding_s": 0.007748506031930447,
+                "network_s": 0.018072708509862423,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1059,
+                "records": 81,
+                "invalidated_records": 40
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "pc1": {
+          "speedup": 0.9996998620139375,
+          "latency_ms": 73.632799,
+          "raw_samples_ms": [
+            73.98348,
+            73.718375,
+            73.614633,
+            73.602696,
+            73.632799
+          ],
+          "code_bytes": 5232,
+          "command_s": 1.2045137705281377,
+          "execution": {
+            "policy": "B",
+            "wall_s": 1.6370778223499656,
+            "model_costs": [
+              {
+                "encoding_s": 0.009736426174640656,
+                "network_s": 0.022630437277257442,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1281,
+                "records": 37,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.008821720257401466,
+                "network_s": 0.10821105260401964,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1245,
+                "records": 41,
+                "invalidated_records": 21
+              },
+              {
+                "encoding_s": 0.011436227709054947,
+                "network_s": 0.029283021576702595,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1774,
+                "records": 41,
+                "invalidated_records": 25
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "trie": {
+          "speedup": 0.9689229689814374,
+          "latency_ms": 0.923576,
+          "raw_samples_ms": [
+            0.923576,
+            0.938265,
+            0.924927,
+            0.922616,
+            0.919502
+          ],
+          "code_bytes": 5768,
+          "command_s": 0.5976202515885234,
+          "execution": {
+            "policy": "B",
+            "wall_s": 0.8496312657371163,
+            "model_costs": [
+              {
+                "encoding_s": 0.007647739723324776,
+                "network_s": 0.014473537914454937,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 850,
+                "records": 113,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.007065250538289547,
+                "network_s": 0.014190607704222202,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 836,
+                "records": 113,
+                "invalidated_records": 65
+              },
+              {
+                "encoding_s": 0.006562376394867897,
+                "network_s": 0.014170931652188301,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 856,
+                "records": 112,
+                "invalidated_records": 65
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        }
+      }
+    },
+    "B_reset": {
+      "geomean_speedup": 0.9948730792011599,
+      "worst_speedup": 0.9873774431378087,
+      "programs": {
+        "llu": {
+          "speedup": 0.996484307724706,
+          "latency_ms": 4229.322374,
+          "raw_samples_ms": [
+            4191.169866,
+            4229.322374,
+            4243.705227,
+            4216.361856,
+            4229.879185
+          ],
+          "code_bytes": 8096,
+          "command_s": 30.140382706187665,
+          "execution": {
+            "policy": "B_reset",
+            "wall_s": 30.38140387274325,
+            "model_costs": [
+              {
+                "encoding_s": 0.0048861075192689896,
+                "network_s": 0.010797998867928982,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 614,
+                "records": 54,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.00458704587072134,
+                "network_s": 0.0108855115249753,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 604,
+                "records": 54,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.007480880245566368,
+                "network_s": 0.017750874161720276,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1059,
+                "records": 81,
+                "invalidated_records": 0
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "pc1": {
+          "speedup": 1.000804782977523,
+          "latency_ms": 73.551506,
+          "raw_samples_ms": [
+            73.509226,
+            73.717359,
+            73.7375,
+            73.529863,
+            73.551506
+          ],
+          "code_bytes": 5232,
+          "command_s": 1.1975424867123365,
+          "execution": {
+            "policy": "B_reset",
+            "wall_s": 1.6359530175104737,
+            "model_costs": [
+              {
+                "encoding_s": 0.010722734965384007,
+                "network_s": 0.11281249206513166,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1281,
+                "records": 37,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.008855369873344898,
+                "network_s": 0.019713299348950386,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1245,
+                "records": 41,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.011939171701669693,
+                "network_s": 0.026876931078732014,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1774,
+                "records": 41,
+                "invalidated_records": 0
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "trie": {
+          "speedup": 0.9873774431378087,
+          "latency_ms": 0.906314,
+          "raw_samples_ms": [
+            0.933627,
+            0.906314,
+            0.903138,
+            0.924982,
+            0.901137
+          ],
+          "code_bytes": 5768,
+          "command_s": 0.6067673675715923,
+          "execution": {
+            "policy": "B_reset",
+            "wall_s": 0.8571602432057261,
+            "model_costs": [
+              {
+                "encoding_s": 0.007586549036204815,
+                "network_s": 0.013994056731462479,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 850,
+                "records": 113,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.006541811861097813,
+                "network_s": 0.013618821278214455,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 836,
+                "records": 113,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.006500972434878349,
+                "network_s": 0.013128896243870258,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 856,
+                "records": 112,
+                "invalidated_records": 0
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        }
+      }
+    },
+    "B_capacity": {
+      "geomean_speedup": 0.9978664038214347,
+      "worst_speedup": 0.9919227277614527,
+      "programs": {
+        "llu": {
+          "speedup": 1.0021348221233555,
+          "latency_ms": 4205.475436,
+          "raw_samples_ms": [
+            4193.382958,
+            4228.148958,
+            4205.475436,
+            4220.732709,
+            4199.866811
+          ],
+          "code_bytes": 6920,
+          "command_s": 30.060929760336876,
+          "execution": {
+            "policy": "B_capacity",
+            "wall_s": 30.295305205509067,
+            "model_costs": [
+              {
+                "encoding_s": 0.005020463839173317,
+                "network_s": 0.012988007627427578,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 614,
+                "records": 54,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.004656895063817501,
+                "network_s": 0.012298796325922012,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 604,
+                "records": 54,
+                "invalidated_records": 40
+              },
+              {
+                "encoding_s": 0.0061507876962423325,
+                "network_s": 0.01574206631630659,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 817,
+                "records": 63,
+                "invalidated_records": 40
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "pc1": {
+          "speedup": 0.9995699893726935,
+          "latency_ms": 73.642366,
+          "raw_samples_ms": [
+            73.590062,
+            73.847839,
+            73.72226,
+            73.527811,
+            73.642366
+          ],
+          "code_bytes": 5232,
+          "command_s": 1.210510054603219,
+          "execution": {
+            "policy": "B_capacity",
+            "wall_s": 1.645031607709825,
+            "model_costs": [
+              {
+                "encoding_s": 0.009855909273028374,
+                "network_s": 0.10468193609267473,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1281,
+                "records": 37,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.008960616774857044,
+                "network_s": 0.022404281422495842,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1245,
+                "records": 41,
+                "invalidated_records": 21
+              },
+              {
+                "encoding_s": 0.011313116177916527,
+                "network_s": 0.0320366695523262,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 1774,
+                "records": 41,
+                "invalidated_records": 25
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        },
+        "trie": {
+          "speedup": 0.9919227277614527,
+          "latency_ms": 0.902161,
+          "raw_samples_ms": [
+            0.916128,
+            0.91614,
+            0.890438,
+            0.902161,
+            0.892979
+          ],
+          "code_bytes": 5768,
+          "command_s": 0.5978683717548847,
+          "execution": {
+            "policy": "B_capacity",
+            "wall_s": 0.8578612599521875,
+            "model_costs": [
+              {
+                "encoding_s": 0.007139252498745918,
+                "network_s": 0.01707644760608673,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 850,
+                "records": 113,
+                "invalidated_records": 0
+              },
+              {
+                "encoding_s": 0.006638908758759499,
+                "network_s": 0.016644575633108616,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 836,
+                "records": 113,
+                "invalidated_records": 65
+              },
+              {
+                "encoding_s": 0.007334484718739986,
+                "network_s": 0.01607751101255417,
+                "mode": "full",
+                "reused_nodes": 0,
+                "fresh_nodes": 856,
+                "records": 112,
+                "invalidated_records": 65
+              }
+            ],
+            "parent_peak_rss_kib": 623556,
+            "children_peak_rss_kib": 623556
+          }
+        }
+      }
+    }
+  },
+  "beam": {
+    "current_only": {
+      "geomean_speedup": 1.024125232763657,
+      "worst_speedup": 0.9823395487407817
+    },
+    "A": {
+      "geomean_speedup": 1.019502302834512,
+      "worst_speedup": 0.9672671773547624
+    },
+    "A_no_history": {
+      "geomean_speedup": 1.023985381999746,
+      "worst_speedup": 0.990299234208313
+    },
+    "B": {
+      "geomean_speedup": 0.993083864267551,
+      "worst_speedup": 0.9792158167262668
+    },
+    "B_reset": {
+      "geomean_speedup": 1.002070248881483,
+      "worst_speedup": 0.9979500163164798
+    },
+    "B_capacity": {
+      "geomean_speedup": 0.9964003933808113,
+      "worst_speedup": 0.9901863693550047
+    }
+  },
+  "searches": {
+    "current_only": {
+      "llu": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 89.73786747734994,
+        "command_s": 89.28852181974798,
+        "feature_s": 0.06747703719884157,
+        "inference_s": 0.07153019495308399,
+        "confirmation_latency_ms": 4207.507346,
+        "raw_confirmation_ms": [
+          4221.364162,
+          4207.96706,
+          4203.300098,
+          4207.507346,
+          4198.353723
+        ],
+        "native_peak_rss_kib": 7680,
+        "parent_process_lifetime_peak_rss_kib": 276780,
+        "child_process_lifetime_peak_rss_kib": 230576,
+        "object_bytes": 8096,
+        "deadline_overrun_s": 0
+      },
+      "pc1": {
+        "attempts": 8,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 3.576406894251704,
+        "command_s": 2.5997108332812786,
+        "feature_s": 0.10487491637468338,
+        "inference_s": 0.14097770303487778,
+        "confirmation_latency_ms": 67.431022,
+        "raw_confirmation_ms": [
+          67.145182,
+          67.437084,
+          67.431022,
+          67.178837,
+          67.471028
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 322532,
+        "child_process_lifetime_peak_rss_kib": 276780,
+        "object_bytes": 5456,
+        "deadline_overrun_s": 0
+      },
+      "trie": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 1.3852589223533869,
+        "command_s": 0.8580006128177047,
+        "feature_s": 0.06851756665855646,
+        "inference_s": 0.06888802628964186,
+        "confirmation_latency_ms": 0.910962,
+        "raw_confirmation_ms": [
+          0.938225,
+          0.902414,
+          0.910053,
+          0.910962,
+          0.931612
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 322532,
+        "child_process_lifetime_peak_rss_kib": 322532,
+        "object_bytes": 5768,
+        "deadline_overrun_s": 0
+      }
+    },
+    "A": {
+      "llu": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 89.69755246862769,
+        "command_s": 89.26760858297348,
+        "feature_s": 0.06834597233682871,
+        "inference_s": 0.06268223095685244,
+        "confirmation_latency_ms": 4217.344587,
+        "raw_confirmation_ms": [
+          4217.344587,
+          4220.017303,
+          4224.107748,
+          4207.572433,
+          4205.878339
+        ],
+        "native_peak_rss_kib": 7680,
+        "parent_process_lifetime_peak_rss_kib": 322532,
+        "child_process_lifetime_peak_rss_kib": 322532,
+        "object_bytes": 7024,
+        "deadline_overrun_s": 0
+      },
+      "pc1": {
+        "attempts": 8,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 3.578334498219192,
+        "command_s": 2.6030439529567957,
+        "feature_s": 0.1066895117983222,
+        "inference_s": 0.13327111396938562,
+        "confirmation_latency_ms": 67.146739,
+        "raw_confirmation_ms": [
+          67.146739,
+          67.258142,
+          67.234548,
+          67.05944,
+          67.131246
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 324076,
+        "child_process_lifetime_peak_rss_kib": 322532,
+        "object_bytes": 5456,
+        "deadline_overrun_s": 0
+      },
+      "trie": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 1.3321762466803193,
+        "command_s": 0.857941810041666,
+        "feature_s": 0.06826663203537464,
+        "inference_s": 0.07071599550545216,
+        "confirmation_latency_ms": 0.925157,
+        "raw_confirmation_ms": [
+          0.901336,
+          0.901211,
+          0.933638,
+          0.925157,
+          0.939514
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 324076,
+        "child_process_lifetime_peak_rss_kib": 324076,
+        "object_bytes": 5768,
+        "deadline_overrun_s": 0
+      }
+    },
+    "A_no_history": {
+      "llu": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 89.80821708682925,
+        "command_s": 89.37812790367752,
+        "feature_s": 0.06823109462857246,
+        "inference_s": 0.11912442091852427,
+        "confirmation_latency_ms": 4225.937276,
+        "raw_confirmation_ms": [
+          4200.414991,
+          4227.684257,
+          4207.398496,
+          4230.677508,
+          4225.937276
+        ],
+        "native_peak_rss_kib": 7680,
+        "parent_process_lifetime_peak_rss_kib": 324076,
+        "child_process_lifetime_peak_rss_kib": 324076,
+        "object_bytes": 8096,
+        "deadline_overrun_s": 0
+      },
+      "pc1": {
+        "attempts": 8,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 3.581224995665252,
+        "command_s": 2.609799511730671,
+        "feature_s": 0.10576402954757214,
+        "inference_s": 0.13363427203148603,
+        "confirmation_latency_ms": 67.708676,
+        "raw_confirmation_ms": [
+          67.708676,
+          67.282474,
+          68.767818,
+          71.18191,
+          67.305056
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 324076,
+        "child_process_lifetime_peak_rss_kib": 324076,
+        "object_bytes": 5456,
+        "deadline_overrun_s": 0
+      },
+      "trie": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 1.3323586713522673,
+        "command_s": 0.8588145226240158,
+        "feature_s": 0.06884134188294411,
+        "inference_s": 0.06951986160129309,
+        "confirmation_latency_ms": 0.90364,
+        "raw_confirmation_ms": [
+          0.90267,
+          0.912376,
+          0.90364,
+          0.88844,
+          0.921775
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 324076,
+        "child_process_lifetime_peak_rss_kib": 324076,
+        "object_bytes": 5752,
+        "deadline_overrun_s": 0
+      }
+    },
+    "B": {
+      "llu": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 89.9527413584292,
+        "command_s": 89.42830062843859,
+        "feature_s": 0.06799557991325855,
+        "inference_s": 0.06729752570390701,
+        "confirmation_latency_ms": 4215.885955,
+        "raw_confirmation_ms": [
+          4218.698622,
+          4216.659348,
+          4211.175329,
+          4215.885955,
+          4209.655625
+        ],
+        "native_peak_rss_kib": 7680,
+        "parent_process_lifetime_peak_rss_kib": 324076,
+        "child_process_lifetime_peak_rss_kib": 324076,
+        "object_bytes": 7024,
+        "deadline_overrun_s": 0
+      },
+      "pc1": {
+        "attempts": 8,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 3.859305815771222,
+        "command_s": 2.685762297362089,
+        "feature_s": 0.10663881339132786,
+        "inference_s": 0.27499169018119574,
+        "confirmation_latency_ms": 73.572241,
+        "raw_confirmation_ms": [
+          73.627092,
+          73.602983,
+          73.572241,
+          73.520226,
+          73.563233
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 335044,
+        "child_process_lifetime_peak_rss_kib": 324076,
+        "object_bytes": 5232,
+        "deadline_overrun_s": 0
+      },
+      "trie": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 1.3929791552945971,
+        "command_s": 0.869295721873641,
+        "feature_s": 0.06926795653998852,
+        "inference_s": 0.07591029070317745,
+        "confirmation_latency_ms": 0.913868,
+        "raw_confirmation_ms": [
+          0.909172,
+          0.913868,
+          0.917601,
+          0.900725,
+          0.932983
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 335044,
+        "child_process_lifetime_peak_rss_kib": 335044,
+        "object_bytes": 5768,
+        "deadline_overrun_s": 0
+      }
+    },
+    "B_reset": {
+      "llu": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 90.24101720191538,
+        "command_s": 89.71318173129112,
+        "feature_s": 0.06933753099292517,
+        "inference_s": 0.12095125205814838,
+        "confirmation_latency_ms": 4223.110686,
+        "raw_confirmation_ms": [
+          4225.793989,
+          4206.842796,
+          4215.73753,
+          4229.517549,
+          4223.110686
+        ],
+        "native_peak_rss_kib": 7680,
+        "parent_process_lifetime_peak_rss_kib": 335044,
+        "child_process_lifetime_peak_rss_kib": 335044,
+        "object_bytes": 8096,
+        "deadline_overrun_s": 0
+      },
+      "pc1": {
+        "attempts": 8,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 3.867894032970071,
+        "command_s": 2.690750311128795,
+        "feature_s": 0.10678298212587833,
+        "inference_s": 0.21478255186229944,
+        "confirmation_latency_ms": 73.56635,
+        "raw_confirmation_ms": [
+          73.56635,
+          73.581887,
+          73.547547,
+          73.529104,
+          73.620743
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 335044,
+        "child_process_lifetime_peak_rss_kib": 335044,
+        "object_bytes": 5232,
+        "deadline_overrun_s": 0
+      },
+      "trie": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 1.391070932149887,
+        "command_s": 0.8670214479789138,
+        "feature_s": 0.0695015899837017,
+        "inference_s": 0.07589283492416143,
+        "confirmation_latency_ms": 0.888051,
+        "raw_confirmation_ms": [
+          0.88621,
+          0.927109,
+          0.888051,
+          0.922424,
+          0.887652
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 335044,
+        "child_process_lifetime_peak_rss_kib": 335044,
+        "object_bytes": 5752,
+        "deadline_overrun_s": 0
+      }
+    },
+    "B_capacity": {
+      "llu": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 89.81193074584007,
+        "command_s": 89.35713138710707,
+        "feature_s": 0.06606433913111687,
+        "inference_s": 0.06856739800423384,
+        "confirmation_latency_ms": 4218.482475,
+        "raw_confirmation_ms": [
+          4230.413327,
+          4215.820531,
+          4224.007298,
+          4218.482475,
+          4206.16354
+        ],
+        "native_peak_rss_kib": 7680,
+        "parent_process_lifetime_peak_rss_kib": 335044,
+        "child_process_lifetime_peak_rss_kib": 335044,
+        "object_bytes": 6920,
+        "deadline_overrun_s": 0
+      },
+      "pc1": {
+        "attempts": 8,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 3.888762444257736,
+        "command_s": 2.6992407692596316,
+        "feature_s": 0.107170301489532,
+        "inference_s": 0.23796958848834038,
+        "confirmation_latency_ms": 73.610746,
+        "raw_confirmation_ms": [
+          73.566172,
+          73.609151,
+          73.622863,
+          73.673168,
+          73.610746
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 361256,
+        "child_process_lifetime_peak_rss_kib": 335044,
+        "object_bytes": 5232,
+        "deadline_overrun_s": 0
+      },
+      "trie": {
+        "attempts": 5,
+        "terminal_candidates": 2,
+        "timed_native_invocations": 15,
+        "wall_s_including_confirmation": 1.4654419627040625,
+        "command_s": 0.8778827236965299,
+        "feature_s": 0.07063868176192045,
+        "inference_s": 0.08736570179462433,
+        "confirmation_latency_ms": 0.903743,
+        "raw_confirmation_ms": [
+          0.903743,
+          1.031303,
+          0.910985,
+          0.900014,
+          0.894105
+        ],
+        "native_peak_rss_kib": 1920,
+        "parent_process_lifetime_peak_rss_kib": 361256,
+        "child_process_lifetime_peak_rss_kib": 361256,
+        "object_bytes": 5752,
+        "deadline_overrun_s": 0
+      }
+    }
+  },
+  "raw_reports": [
+    "benchmark-data/architecture/pilots/pilot-v2/report.json",
+    "benchmark-data/architecture/comparisons/comparison-v2/report-confirmed.json"
+  ],
+  "limitations": [
+    "one train family, one validation family, one held-out family; no hardware generalization",
+    "five repeats; serial method order; uncontrolled frequency and host load; no confidence interval",
+    "trie is a short native process including startup and I/O; ratios are descriptive",
+    "current_only and reset ablations retain the shared discrete action-event metadata; continuous neural history is disabled",
+    "initial name/type/attribute encoding uses a byte mean and loses order; alignment is mostly function/module anchors after lowering",
+    "code_bytes is total object-file size, not text-section bytes; driver/child RSS is process-lifetime peak, not isolated per-model physical memory",
+    "pilot-v1 outer-driver timings are retained only for diagnostics and excluded here",
+    "post-selection confirmations were collected after the frozen search batch; cumulative active wall and all timed runs are charged; new unified runs confirm immediately"
+  ]
+}

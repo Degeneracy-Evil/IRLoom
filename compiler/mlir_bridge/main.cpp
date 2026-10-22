@@ -250,6 +250,7 @@ int main(int argc, char **argv) {
   auto module = parseSourceFile<ModuleOp>(argv[1], &context);
   if (!module || failed(verify(*module))) return 3;
   Graph graph; graph.visit(module->getOperation()); graph.finish(*module, argv[5]);
+  std::string outputSnapshot = argv[3];
   json::Array lineage;
   if (argc == 8) {
     auto buffer = llvm::MemoryBuffer::getFile(argv[6]);
@@ -257,6 +258,7 @@ int main(int argc, char **argv) {
     auto request = json::parse((*buffer)->getBuffer());
     if (!request || !request->getAsObject()) return 2;
     auto &action = *request->getAsObject();
+    outputSnapshot = action.getString("destination_snapshot").value_or(StringRef(argv[7])).str();
     if (action.getString("snapshot") != StringRef(argv[3])) { errs() << "stale snapshot\n"; return 4; }
     Builder builder(&context);
     // Temporary provenance exists only during this controlled rewrite. It is
@@ -286,7 +288,7 @@ int main(int argc, char **argv) {
   raw_fd_ostream out(argv[2], error);
   if (error) { errs() << error.message(); return 2; }
   out << formatv("{0:2}", json::Value(json::Object{
-      {"schema", 1}, {"snapshot", argv[3]}, {"branch", argv[4]}, {"stage", argv[5]},
+      {"schema", 1}, {"snapshot", outputSnapshot}, {"source_snapshot", argv[3]}, {"branch", argv[4]}, {"stage", argv[5]},
       {"nodes", std::move(graph.nodes)}, {"edges", std::move(graph.edges)},
       {"candidates", std::move(graph.candidates)}, {"lineage", std::move(lineage)},
       {"unmapped", "unknown; refresh values/blocks/new regions"}}));

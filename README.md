@@ -12,12 +12,13 @@ IRLoom 研究神经网络与多级编译过程的内部耦合，目标是在正�
 
 **B / Recurrent** 使用跨阶段共享的门控更新器，维护模块、函数和区域的持续状态，在相同阶段与动作空间中作决策。
 
-两者共用结构化 IR 图、来源账本、硬件输入、动作执行器、正确性检查和有限预算搜索器。网络必须在编译中起作用，不能只是编译后打分或为整条固定 Pipeline 选择名称。现阶段是设计与开发计划，**尚未实现或验证 A/B 神经编译原型的性能**。
+两者共用结构化 IR 图、来源账本、硬件输入、动作执行器、正确性检查和有限预算搜索器。网络在编译过程中选择并执行合法变换。**N0–N5 首轮原型和完整程序 pilot 已完成，尚未建立跨阶段记忆带来增量性能收益的证据。** LLU/PC1/trie 的训练、验证、留出评估及同预算 beam、断连/重置、容量匹配对照见 [首轮结果](experiments/reports/architecture-v1-pilot.md)。这三个规模有限的完整程序不代表大型项目覆盖。
 
 ## 当前阅读入口
 
 - [架构设计 V1](docs/architecture/V1_DESIGN.md) 定义阶段、双流、图表示、A/B、状态对齐与训练边界。
 - [开发规划 N0–N5](docs/architecture/V1_DEVELOPMENT.md) 定义实现顺序、并行的大程序接入和验收标准。
+- [架构运行指南](docs/architecture/RUNNING.md) 提供依赖、统一入口、复现命令和已知限制。
 - [AGENTS.md](AGENTS.md) 是本地 Agent 的当前任务入口。
 
 | 里程碑 | 交付目标 |
@@ -31,7 +32,15 @@ IRLoom 研究神经网络与多级编译过程的内部耦合，目标是在正�
 
 真实程序进入 MLIR 的工作与 N1–N3 并行。优先选择前端实际支持的完整多函数/多区域程序；小样例只用于 smoke。未通过 MLIR 的 native 程序不能被宣传为 MLIR 架构主结果。前端、SDK、工具链与依赖按 revision 独立锁定，保留原实验工具链和缓存。
 
-新 `scripts/architecture.sh` 是规划中的统一入口，待实现后才提供真实命令。当前可用的旧入口如下。
+统一入口自动准备项目内依赖并增量构建。源代码、SDK、IR 和权重使用 `benchmark-data` 指向的外部缓存；首次完整程序运行需要构建固定版本 Polygeist。
+
+```bash
+bash scripts/architecture.sh --audit
+bash scripts/architecture.sh --model B --state-audit --multi-function
+bash scripts/architecture.sh --program pc1
+```
+
+下一步优先扩展完整程序族、输入与多阶段动作覆盖，增加独立重复，再检验连续记忆的增量作用。完整训练和对照命令见运行指南。
 
 ## 已有可复用基础
 
@@ -59,4 +68,4 @@ bash scripts/benchmarks.sh all --suite formal  # 既有强编译基线
 | 局部内联与 PGO 覆盖 | [Zstd A/B](experiments/reports/real-zstd-inline-ab.md)、[SQLite A/B](experiments/reports/real-sqlite-pgo-ab.md)。 |
 | 混合 PGO 收束 | [Pmix 报告](experiments/reports/real-sqlite-pmix.md)。 |
 
-旧结果未构成 A/B 神经架构的有效性证明，也不否定尚未实现架构的潜力。当前顺序是：**完成设计中的架构 -> 训练与真实程序实验 -> 按消融证据改进架构**。
+旧结果未构成 A/B 神经架构的有效性证明；新架构的首轮结果也需要扩大程序覆盖后再判断。研究顺序是：**实现架构 -> 训练与真实程序实验 -> 按消融证据改进架构**。

@@ -40,18 +40,23 @@ def measure(session):
         if actual != expected:
             raise RuntimeError("whole-program output mismatch; candidate excluded")
         checks.append({"args": args, "status": "pass", "oracle": "independent Clang O3 original source", "bytes": len(actual)})
+    samples = sample_existing(session, exe, reference)
+    return TerminalMeasurement(checks, samples, obj.stat().st_size,
+                               {"commands_s": sum(e["seconds"] for e in session.events),
+                                "timing_scope": "lean C++ parent times native fork/exec/wait/output; neural driver launch and logging excluded from latency, included in optimization costs"})
+
+
+def sample_existing(session, exe, reference, prefix=""):
     args = [x.replace("{source_dir}", str(session.original_source.parent)) for x in session.recipe["measure_args"]]
-    expected = session.run([reference, *args], "reference-measure-input")
-    if session.run([exe, *args], "warmup") != expected:
+    expected = session.run([reference, *args], prefix + "reference-measure-input")
+    if session.run([exe, *args], prefix + "warmup") != expected:
         raise RuntimeError("warmup output mismatch")
     samples = []
     for _ in range(5):
         metric = session.logs / f"native-{len(session.events):03}.json"
-        actual = session.run([ROOT / "benchmark-data/architecture/build/irloom-time", metric, exe, *args], "measure")
+        actual = session.run([ROOT / "benchmark-data/architecture/build/irloom-time", metric, exe, *args], prefix + "measure")
         if actual != expected:
             raise RuntimeError("measured output mismatch")
         native = json.loads(metric.read_text())
         samples.append({**native, "iterations": 1, "driver_wall_ms": session.events[-1]["seconds"] * 1000})
-    return TerminalMeasurement(checks, samples, obj.stat().st_size,
-                               {"commands_s": sum(e["seconds"] for e in session.events),
-                                "timing_scope": "lean C++ parent times native fork/exec/wait/output; neural driver launch and logging excluded from latency, included in optimization costs"})
+    return samples

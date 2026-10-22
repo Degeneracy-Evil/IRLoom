@@ -2,6 +2,8 @@
 
 本阶段以 [V1_DESIGN.md](V1_DESIGN.md) 为设计基线。历史 M0–M7、RealBench、PGO/Pmix 只提供基础设施和证据；它们的旧“下一步”和神经开发前置门槛不再是当前任务。
 
+2026-10-23：N0–N5 首轮实现、集成验收与 LLU/PC1/trie pilot 已完成，详见 [运行记录](RUNNING.md) 和 [结果报告](../../experiments/reports/architecture-v1-pilot.md)。程序族与多阶段动作覆盖仍有限，未证明连续记忆收益；以下保留开发契约，后续按报告中的缺口扩展覆盖与重复实验。
+
 ## 1. 范围冻结
 
 必须交付一个真实工作于 MLIR 多阶段编译中的神经原型，并实现两种可替换计算核心：A 为阶段专用 Transformer，B 为共享门控循环状态。不是写出空接口，也不是再跑一个固定规则实验后停止。
@@ -24,9 +26,9 @@ irloom/neural/interleaved.py  # A：阶段专用神经 Block
 irloom/neural/recurrent.py    # B：共享更新器及分层状态
 irloom/neural/heads.py        # 共同的动作/性能/资源预测头
 irloom/neural/lineage.py      # 外部 ID、N:M 来源记录、状态对齐
-irloom/neural/training/      # 轨迹数据、损失、训练与冻结模型
+irloom/neural/training.py    # 轨迹数据、损失、训练与冻结模型
 experiments/architecture/    # pipeline/model/data/budget 的锁定配置
-scripts/architecture.sh      # 新统一入口；在实现前只是计划名称
+scripts/architecture.sh      # 已实现的统一准备、构建与运行入口
 ```
 
 不提前建空的插件生态、通用服务框架或新 dialect。不把所有新逻辑继续塞进 real_bench.py。大依赖、模型权重、原始 IR 与构建产物留在忽略/外部目录。

@@ -3,6 +3,7 @@ from dataclasses import asdict
 import json
 import math
 import resource
+import statistics
 import time
 
 import torch
@@ -13,6 +14,7 @@ from .pilot import CONFIG
 from .interleaved import Interleaved
 from .recurrent import Recurrent
 from irloom.compiler import CommandError
+from .programs import sample_existing
 
 
 def beam(name, program, model, budget):
@@ -71,14 +73,17 @@ def beam(name, program, model, budget):
                           "latency_ms": report["median_latency_ms"]})
     if not terminals:
         raise RuntimeError("no terminal candidate completed within the admission budget")
+    selected = min(terminals, key=lambda x: x["latency_ms"])
+    chosen = next(s for s in sessions if str(s.output / "report.json") == selected["report"])
+    confirmation = sample_existing(chosen, chosen.output / "program", chosen.output / "reference", "confirm-")
     events = {e["log"]: e for session in sessions for e in session.events}
     elapsed = time.perf_counter() - start
     result = {"program": program, "budget": budget, "attempts": attempts, "terminals": terminals,
-              "selected": min(terminals, key=lambda x: x["latency_ms"]), "wall_s": elapsed,
+              "selected": selected, "confirmation": {"samples": confirmation, "median_latency_ms": statistics.median(s["latency_ms"] for s in confirmation)}, "wall_s": elapsed,
               "command_s": sum(e["seconds"] for e in events.values()), "events": list(events.values()),
               "feature_s": sum(e["seconds"] for e in events.values() if e["stage"] == "observe"),
               "model_costs": list(model.costs), "deadline_overrun_s": max(0, elapsed - budget["optimization_timeout_s"]),
-              "measurement_invocations": sum(e["stage"] == "measure" for e in events.values()),
+              "measurement_invocations": sum(e["stage"] in ("measure", "confirm-measure") for e in events.values()),
               "parent_process_peak_rss_kib": resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
               "children_process_peak_rss_kib": resource.getrusage(resource.RUSAGE_CHILDREN).ru_maxrss}
     save(root.output / "search.json", result)
@@ -106,7 +111,8 @@ def summarize(single, searches):
         ratios = []
         for program, search in programs.items():
             base = json.loads(open(single["default"][program]).read())["median_latency_ms"]
-            ratios.append(base / search["selected"]["latency_ms"])
+            latency = search.get("confirmation", {}).get("median_latency_ms", search["selected"]["latency_ms"])
+            ratios.append(base / latency)
         beam_rows[variant] = {"geomean_speedup": math.exp(sum(math.log(r) for r in ratios) / len(ratios)),
                               "worst_speedup": min(ratios)}
     return {"single": rows, "beam": beam_rows,
@@ -116,6 +122,8 @@ def summarize(single, searches):
 def compare(name, pilot_dir):
     torch.set_num_threads(1)
     pilot = json.loads((pilot_dir / "report.json").read_text())
+    if pilot["config"] != CONFIG:
+        raise ValueError("pilot config differs; refusing to mix measurement protocols or budgets")
     output = CACHE / "comparisons" / name
     output.mkdir(parents=True, exist_ok=False)
     result = {"source_pilot": str(pilot_dir), "config": CONFIG, "models": {}, "searches": {}}

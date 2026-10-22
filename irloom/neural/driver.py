@@ -30,6 +30,7 @@ class Session:
         self.logs.mkdir(parents=True, exist_ok=True)
         self.events, self.observations = [], []
         self.history, self.transitions, self.decisions = [], [], []
+        self.path_lineage = []
         self.state, self.current = None, None
         self.remaining = MANIFEST["budget"]["attempts"]
         self.branch, self.serial = "root", 0
@@ -82,13 +83,14 @@ class Session:
         obs = Observation(1, self.manifest["id"], stage, snapshot, self.branch, graph, self.hardware,
                           align(previous, graph), copy.deepcopy(self.history))
         self.current = obs
+        self.observed_ir = self.ir
         self.observations.append(asdict(obs))
         return obs
 
     def checkpoint(self):
         import torch
-        return Checkpoint(self.ir, copy.deepcopy(self.current), clone_state(self.state),
-                          copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining)
+        return Checkpoint(self.ir, self.observed_ir, copy.deepcopy(self.current), clone_state(self.state),
+                          copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining, copy.deepcopy(self.path_lineage))
 
     def fork(self, name):
         child = object.__new__(Session)
@@ -106,8 +108,9 @@ class Session:
     def restore(self, checkpoint, branch=None):
         import torch
         # Rollback cannot refund failed attempts. Explicit forks get their own
-        # budget only through the searcher's common accounting (not implemented).
+        # budget only through the searcher's common accounting.
         self.ir, self.current = checkpoint.ir, copy.deepcopy(checkpoint.observation)
+        self.observed_ir, self.path_lineage = checkpoint.observed_ir, copy.deepcopy(checkpoint.lineage)
         self.state, self.history = clone_state(checkpoint.state), copy.deepcopy(checkpoint.history)
         self.remaining = min(self.remaining, checkpoint.remaining)
         torch.set_rng_state(checkpoint.rng)
@@ -121,12 +124,15 @@ class Session:
         start = time.perf_counter()
         source = self.current.snapshot
         suffix = f"trial-{len(self.transitions)}"
+        destination = f"{self.branch}-{suffix}"
         output = self.output / f"{suffix}.mlir"
         graph_path = self.output / f"{suffix}.json"
         request = self.output / f"{suffix}-action.json"
-        save(request, {**action, "inject_failure": inject_failure})
+        save(request, {**action, "inject_failure": inject_failure, "destination_snapshot": destination})
         success, diagnostic, lineage = False, "", {}
         try:
+            if self.ir != self.observed_ir:
+                raise CommandError("observation invalidated by successful action; observe or restore before reusing targets")
             # The subprocess parses a private module. The checkpoint file is
             # never its output, even when mutation or verification fails.
             self.run([self.bridge, self.ir, graph_path, source,
@@ -136,16 +142,20 @@ class Session:
             success = True
         except CommandError as exc:
             diagnostic = str(exc)
-        transition = Transition(source, suffix if success else source, success, action,
+        transition = Transition(source, destination if success else source, success, action,
                                 {"relations": lineage.get("lineage", []),
                                  "unmapped": "unknown; refresh"}, time.perf_counter() - start, diagnostic)
         self.transitions.append(asdict(transition))
+        if success:
+            self.path_lineage.append(asdict(transition))
         self.history.append({"stage": self.current.stage, "kind": action["kind"], "success": success})
         return transition
 
     def advance(self, stage):
         path = self.output / f"after-{stage['id']}.mlir"
         self.run([self.opt, self.ir, *stage["lowering"], "-o", path], f"lower-{stage['id']}")
+        self.path_lineage.append({"event": "lowering", "source_ir": str(self.ir), "destination_ir": str(path),
+                                  "status": "unknown internally; next observation re-establishes only supported anchors"})
         self.ir = path
 
     def finalize(self):
@@ -193,6 +203,7 @@ def main():
     parser.add_argument("--steps", type=int, default=25)
     parser.add_argument("--pilot", action="store_true", help="run the checked-in whole-program collection/training/evaluation budget")
     parser.add_argument("--compare-pilot", type=Path, help="N5 common bounded search using frozen pilot weights")
+    parser.add_argument("--profile-inference", action="store_true", help="record cold load and five identical-input steady inference samples")
     args = parser.parse_args()
     if args.pilot:
         from .pilot import run
@@ -206,6 +217,7 @@ def main():
         parser.error("state audit requires B")
     if args.audit and args.model != "default":
         parser.error("scripted audit and neural selection are separate modes")
+    run_started = time.perf_counter()
     session = Session(args.name, args.context, args.size, args.multi_function, args.program)
     model, metadata = None, {}
     if args.model != "default":
@@ -253,7 +265,19 @@ def main():
             if len(observation.graph["nodes"]) * model.hidden * 4 * 8 > MANIFEST["budget"]["max_state_bytes"]:
                 raise RuntimeError("neural state memory budget exceeded")
             with torch.no_grad():
-                (scores, value, resources), session.state = model(observation, session.state)
+                previous = session.state
+                (scores, value, resources), session.state = model(observation, previous)
+                if args.profile_inference and stage["id"] == "S0":
+                    samples = []
+                    for _ in range(5):
+                        start = time.perf_counter()
+                        replay, _ = model(observation, previous)
+                        elapsed = time.perf_counter() - start
+                        for actual, expected in zip(replay, (scores, value, resources)):
+                            assert torch.equal(actual, expected)
+                        samples.append({"wall_s": elapsed, **model.costs.pop()})
+                    metadata["steady_inference"] = {"scope": "five identical S0 inputs after first call; output equality checked",
+                                                      "samples": samples, "median_s": statistics.median(x["wall_s"] for x in samples)}
             if not torch.isfinite(scores).all():
                 raise RuntimeError("non-finite neural ranking")
             ranking = scores.argsort(descending=True, stable=True).tolist()
@@ -287,6 +311,7 @@ def main():
     report = session.finalize()
     if model is not None:
         metadata["costs"] = model.costs
+        metadata["driver_wall_s"] = time.perf_counter() - run_started
         save(session.output / "model.json", metadata)
     if args.audit:
         save(session.output / "audit.json", audit)

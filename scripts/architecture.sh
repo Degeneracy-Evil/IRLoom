@@ -15,7 +15,12 @@ cmake --build benchmark-data/architecture/build -j 2 > logs/architecture/build.l
 for argument in "$@"; do
   if [[ "$argument" == --program || "$argument" == --program=* || "$argument" == --pilot || "$argument" == --compare-pilot ]]; then
     frontend=benchmark-data/architecture/frontends/build/bin/irloom-polygeist-bridge
-    if [[ ! -f "$frontend" || compiler/mlir_bridge/main.cpp -nt "$frontend" || compiler/mlir_bridge/CMakeLists.txt -nt "$frontend" || scripts/prepare-polygeist.sh -nt "$frontend" ]]; then
+    ready=benchmark-data/architecture/frontends/.ready
+    missing_frontend=false
+    for tool in cgeist polygeist-opt mlir-opt mlir-translate irloom-polygeist-bridge; do
+      [[ -f "benchmark-data/architecture/frontends/build/bin/$tool" ]] || missing_frontend=true
+    done
+    if [[ "$missing_frontend" == true || ! -f "$ready" || compiler/mlir_bridge/main.cpp -nt "$ready" || compiler/mlir_bridge/CMakeLists.txt -nt "$ready" || scripts/prepare-polygeist.sh -nt "$ready" ]]; then
       bash scripts/prepare-polygeist.sh --build > logs/architecture/prepare-frontend.log 2>&1
     fi
     break

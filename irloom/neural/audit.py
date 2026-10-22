@@ -24,6 +24,7 @@ def state_audit(model, name, context, size):
     candidates = obs.graph["candidates"]
     assert len(candidates) > 1
     assert branches[0].apply(candidates[1]).success
+    assert not branches[0].apply(candidates[1]).success
     assert branches[1].apply(candidates[0]).success
     assert branches[0].ir.read_bytes() != branches[1].ir.read_bytes()
     cache_costs = []

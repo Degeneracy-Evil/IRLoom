@@ -1,6 +1,6 @@
 # IRLoom V1：MLIR 优先的双流神经编译架构
 
-状态：架构设计基线，待实现与验证。本文不是实验结果。开发顺序见 [V1_DEVELOPMENT.md](V1_DEVELOPMENT.md)。
+状态：架构设计基线。2026-10-23 已完成 N0–N5 首轮原型与有限程序 pilot，尚未建立记忆机制的增量收益证据；实现范围和限制见 [实验报告](../../experiments/reports/architecture-v1-pilot.md)。本文保留设计要求，不代表全部研究目标已达成。开发顺序见 [V1_DEVELOPMENT.md](V1_DEVELOPMENT.md)。
 
 ## 1. 目标与本阶段决定
 

@@ -10,6 +10,7 @@ mkdir -p "$base" logs/architecture tmp
 if [[ ! -d "$base/Polygeist/.git" ]]; then
   git clone --filter=blob:none --no-checkout https://github.com/llvm/Polygeist.git "$base/Polygeist" \
     > logs/architecture/polygeist-clone.log 2>&1
+  git -C "$base/Polygeist" checkout --detach "$polygeist_revision" > logs/architecture/polygeist-checkout.log 2>&1
 fi
 if [[ "$(git -C "$base/Polygeist" rev-parse HEAD)" != "$polygeist_revision" ]]; then
   if [[ -n "$(git -C "$base/Polygeist" status --porcelain)" ]]; then
@@ -47,5 +48,6 @@ if [[ "${1:-}" == --build ]]; then
     > logs/architecture/polygeist-configure.log 2>&1
   cmake --build "$base/build" --target cgeist polygeist-opt mlir-opt mlir-translate irloom-polygeist-bridge -j "${IRLOOM_FRONTEND_JOBS:-8}" \
     > logs/architecture/polygeist-build.log 2>&1
+  touch "$base/.ready"
 fi
 echo "Polygeist $polygeist_revision; LLVM $llvm_revision; cache $base"
