@@ -84,3 +84,27 @@ trie 的 empty-index LLVM GEP 暴露了固定开发版 MLIR 的自定义打印/�
 保留的失败记录：RC4 的部分二维数组初始化触发 `ValueCategory::store` 断言，两种其他 ABI 选项也失败；bmm 同类数组断言；anagram 在第 347 行出现 `arith.shli` 类型不一致；sim 拒绝旧式局部声明；dijkstra 触发 IntegerType cast 断言；MD5 默认输出 `ca42…` 与独立 Clang 的 `acb2…` 不一致，排除。均未关闭 verifier 或更改源程序来冒充支持。许可证、来源、输入和程序族分配记录于 `experiments/architecture/programs.json`；正式 pilot 配置在采集神经轨迹前锁定于 `pilot.json`，不支持的导入会明确排除。
 
 工程问题：第一次构建期间编辑正在执行的 shell 脚本，导致其末尾解析失败并覆盖当时的进度日志；工具构建产物保留，随后固定脚本并完整重跑增量构建成功。以后不在脚本运行期间修改它。CMake 的 Python 工具通过项目 uv 包装器调用。
+
+## V1.1：组内训练与冻结交错对照
+
+正式配方为 `pilot-v1-1-canonical.json`；先前未规范 DLTI 输入的版本保留作诊断，不能混入正式结果。规范化版本排除无序重复的 `dlti.dl_spec` 打印，保留规范 `llvm.data_layout`。
+
+精确复现历史 V1 训练配方需使用原报告对应的 Git 提交；当前训练代码包含 V1.1 的分组、重复产物和 near-tie 修正。旧表示开关及冻结权重仍可用于当前输入上的推理和同新数据对照。
+
+首轮 V1.1 使用独立配置和新输出名，保留旧结果。复现三步均通过同一包装入口自动准备依赖和增量构建：
+
+```sh
+bash scripts/architecture.sh --pilot --pilot-config "$PWD/experiments/architecture/pilot-v1-1-canonical.json" --name my-v11
+bash scripts/architecture.sh --compare-pilot "$PWD/benchmark-data/architecture/pilots/my-v11" --pilot-config "$PWD/experiments/architecture/pilot-v1-1-canonical.json" --name my-v11-beam
+bash scripts/architecture.sh --interleave-pilot "$PWD/benchmark-data/architecture/pilots/my-v11" --search-report "$PWD/benchmark-data/architecture/comparisons/my-v11-beam/report.json" --name my-v11-interleaved
+```
+
+三个阶段分别是采集/训练/冻结单路径、相同预算 beam/选优后确认、冻结产物交错比较。可省略 `--search-report` 只比较单路径。已有名字拒绝覆盖；成功后再次启动用新名字，失败细节保留在对应日志中。`--pilot-config` 使用绝对路径，因为 uv 运行目录为 `experiments/architecture`。
+
+新训练按程序/输入/机器/编译语义分组，只在同组比较相对性能；组内先平均、程序间等权。强排序跳过相同 IR/目标文件和预定义 near-tie。`legacy_A/B` 在同一新数据上独立训练旧表示，`current_only`/`B_current_only` 也是独立训练；`A_no_history`/`B_reset` 是冻结权重测试时干预，不能混称为相同消融。所有方法仍看当前 IR 与离散动作事件。
+
+最后一步使用已冻结的独立目录产物，加入原始源码 native Clang `-O3` 的可执行文件。每程序 10 轮，同一组随机顺序与反向顺序配对；每轮重新计量默认产物。记录原始样本、完整输出检查、顺序、每轮比值、直接字节比较的产物等价组，以及 IR/目标文件/可执行文件相对默认的差异标记，不计算 hash。分 train/validation/test 汇总，不使用早期标签采集时的 default 时间作为最终性能基准。
+
+当前正式配方含六个完整原始程序、一个留出 backtracking 族（Queens/Puzzle），均为规模有限的测试程序。不同程序存在 Stanford suite 的共同历史来源；这不构成大型应用或大型 C++ 泛化验证。实际覆盖、near-tie/重复数量和尚无记忆增量收益的边界见 [V1.1 报告](../../experiments/reports/architecture-v1-1-pilot.md)。
+
+统一入口另外写入 `logs/architecture/entry-*.json`：`started_ns` 到 `ready_ns` 是依赖准备与增量构建，`wall_ns` 是完整入口的总时间，`exit_code` 保留失败状态。原始批次只记录了 driver 内部工作，这个限制已写入报告；之后复现可把包装启动成本一并纳入。

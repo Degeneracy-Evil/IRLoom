@@ -6,6 +6,14 @@ export PYTHONPATH="$PWD${PYTHONPATH:+:$PYTHONPATH}"
 export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1
 ulimit -c 0
 mkdir -p logs/architecture tmp
+entry_started_ns=$(date +%s%N)
+entry_log="$PWD/logs/architecture/entry-$entry_started_ns-$$.json"
+trap '
+  entry_status=$?
+  entry_finished_ns=$(date +%s%N)
+  printf "{\"started_ns\":%s,\"ready_ns\":%s,\"wall_ns\":%s,\"exit_code\":%s}\n" \
+    "$entry_started_ns" "${entry_ready_ns:-0}" "$((entry_finished_ns - entry_started_ns))" "$entry_status" > "$entry_log"
+' EXIT
 bash scripts/setup-architecture.sh > logs/architecture/setup.log 2>&1
 cmake -S compiler/mlir_bridge -B benchmark-data/architecture/build \
   -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER=clang++-18 \
@@ -13,7 +21,7 @@ cmake -S compiler/mlir_bridge -B benchmark-data/architecture/build \
   > logs/architecture/configure.log 2>&1
 cmake --build benchmark-data/architecture/build -j 2 > logs/architecture/build.log 2>&1
 for argument in "$@"; do
-  if [[ "$argument" == --program || "$argument" == --program=* || "$argument" == --pilot || "$argument" == --compare-pilot ]]; then
+  if [[ "$argument" == --program || "$argument" == --program=* || "$argument" == --pilot || "$argument" == --compare-pilot || "$argument" == --interleave-pilot ]]; then
     frontend=benchmark-data/architecture/frontends/build/bin/irloom-polygeist-bridge
     ready=benchmark-data/architecture/frontends/.ready
     missing_frontend=false
@@ -27,4 +35,5 @@ for argument in "$@"; do
   fi
 done
 cd experiments/architecture
-exec uv run --frozen python -m irloom.neural.driver "$@"
+entry_ready_ns=$(date +%s%N)
+uv run --frozen python -m irloom.neural.driver "$@"

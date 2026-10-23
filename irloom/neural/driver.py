@@ -218,10 +218,16 @@ def main():
     parser.add_argument("--profile-inference", action="store_true", help="record cold load and five identical-input steady inference samples")
     parser.add_argument("--encoder-version", choices=("legacy-v1", "structured-v2"), default="structured-v2")
     parser.add_argument("--structure-audit", action="store_true", help="extract and compare semantic MLIR structure fixtures")
+    parser.add_argument("--interleave-pilot", type=Path, help="freeze single/beam binaries and measure in balanced random order")
+    parser.add_argument("--search-report", type=Path, help="optional common beam report for frozen interleaved comparison")
     args = parser.parse_args()
     if args.structure_audit:
         from .audit import structure_audit
         structure_audit(args.name)
+        return
+    if args.interleave_pilot:
+        from .measurement import interleave
+        interleave(args.name, args.interleave_pilot.resolve(), args.search_report.resolve() if args.search_report else None)
         return
     if args.pilot:
         from .pilot import run
@@ -229,7 +235,7 @@ def main():
         return
     if args.compare_pilot:
         from .search import compare
-        compare(args.name, args.compare_pilot.resolve())
+        compare(args.name, args.compare_pilot.resolve(), json.loads(args.pilot_config.resolve().read_text()) if args.pilot_config else None)
         return
     if args.state_audit and args.model != "B":
         parser.error("state audit requires B")

@@ -1,46 +1,117 @@
-# Architecture V1.1：结构表达与训练修订
+# Architecture V1.1：结构修正、多程序训练与冻结产物对照
 
-基线为 `96aac67` 的 V1 首轮审查；旧 pilot 和报告原样保留。本报告区分实现、集成验收和性能证据。
+基于 `96aac67` 的审查推进 R1–R3。正式结果使用 `pilot-v1-1-canonical.json`，旧 V1 及本轮未规范 DLTI 的试跑原样保留。机器可读数据见 [汇总 JSON](architecture-v1-1-pilot.json)，命令见 [运行指南](../../docs/architecture/RUNNING.md)。
 
-## R1：有序、有类型的结构输入
+R1 结构与来源审计、R2 训练和 R3 交错测量均已完成。本轮仍未建立连续跨阶段记忆带来增量性能收益的证据；程序规模和可靠排序标签覆盖仍有限。下面按 train/validation/test 分开报告，不用混合均值声称泛化。
 
-C++ bridge 通过 MLIR API 导出 operand/result/block argument/CFG successor 及嵌套位置。边格式追加端口；原方向、reverse、self、摘要交换使用不同关系，多重边不合并。`structured-v2` 稀疏 Block 的 attention key 和 value 实际消费关系和位置。节点保留规范类型及有序属性字节，以带位置权重的字节序列池化取代无序平均；不截断长属性，不使用源码行号或符号名字训练。未知属性仍可编码，但这不是所有 dialect 的完整语义解析，也不保证有限向量无碰撞。旧 `legacy-v1` 模式和旧属性子集保留，可加载旧权重，并在新数据上独立训练表示对照。
+## R1：信息保留与实际记忆读取
 
-`v11-r1-structure-2` 实际解析/提取减法、除法、比较和 affine map 夹具：SSA 重命名保持结构；交换 operand 或 affine 结果顺序可区分。未建立单元测试工程。第一版夹具缺少 module 属性 dialect 前缀，被 verifier 正确拒绝，修正夹具后通过。
+C++ bridge 通过 MLIR API 提取类型、形状、比较谓词和 affine/其它非载荷属性；operand/result/block argument/CFG successor、区域/块/操作的嵌套位置进入边。structured-v2 保留有向关系、独立 reverse relation、多重边及端口，SparseBlock 的 key/value 实际消费这些信息，仍按边计算。未知属性使用带位置权重的完整字节序列池化，不再按字节频数平均；这不是完整语义解析，也不保证有限向量无碰撞。legacy-v1 使用旧属性子集和无类型邻接，可加载旧 checkpoint，也在同一新数据上独立训练。新表示增加关系参数，因此旧/新表示对照也有参数量差异。
 
-受控变换后若在同阶段重新观察，可靠的 operation 来源关系组合进入 Observation；一旦经过一般 lowering，仍仅使用 module/function/body 锚点，不把内部对应冒充已知。Observation 单独报告按粒度 known/unknown、账本关系数和 lowering 数；A/B 另报实际读取的节点/记录数，B 报刷新/失效数。检查点同步保存来源游标，避免跨分支误用账本。当前阶段决策后通常立即 lowering，因此细粒度受控映射虽可在同阶段接通，常规跨阶段仍主要是粗锚点；这是已知覆盖限制。
+`v11-r1-structure-2` 在真实 MLIR 夹具中验证 SSA 重命名不改变提取结构，交换 sub/div/compare 操作数或 affine 映射结果顺序可区分。`v11-r1-state` 通过 B 的真实分叉、张量隔离、RNG、恢复重放、完整/增量一致与数值检查；`v11-r1-a-fit` 验证 A 的跨阶段反传和完整编译。旧冻结 A 在 R1 bridge 上的 PC1 分数和动作精确一致。没有新建单元测试工程或计算产物 hash。
 
-`v11-r1-state` 通过 B 的真实编译分支、张量隔离、RNG、恢复重放、完整/增量输出比较及独立数值检查；`v11-r1-a-fit` 通过 A 的跨阶段梯度和集成拟合。所有 SDK/前端构建复用固定版本缓存，新增代码没有安装系统依赖。
+受控变换后同阶段重新观察时，将可靠 operation 来源组合接入 Observation；一旦经过一般 lowering，仍只按 module/function/body 锚点保守连接，内部 operation/value/block unknown 并刷新。每阶段保存按粒度 known/unknown、账本关系和 lowering 数，A/B 另保存实际读取的节点/记录、失效和重编码数。来源游标随检查点分叉。常规管线立即 lowering，所以跨阶段仍主要读粗锚点，不能将细粒度账本数量冒充实际连续连接覆盖。
 
-复现：
+可复现性修正：最终重放发现 Polygeist 按指针表顺序打印 set-like `dlti.dl_spec`，位置编码会误读这个无序排列。正式版使用同模块规范的 `llvm.data_layout`，不重复编码该无序 spec；其它有意义的序列仍保留顺序。`v11-canonical-probe-1/2` 两次独立导入的所有阶段图、排名、分数完全相等，正式 A/B 冻结权重又在新进程重放通过。初次夹具曾因缺少 module 属性 dialect 前缀被 verifier 拒绝，修正夹具后通过。
 
-```sh
-bash scripts/architecture.sh --structure-audit
-bash scripts/architecture.sh --model B --state-audit --multi-function
-bash scripts/architecture.sh --model A --fit-report "$PWD/benchmark-data/architecture/runs/n1-audit/report.json"
-```
+## R2：固定来源、划分和组内训练
 
-日志在 `logs/architecture/`，原始图、状态统计和权重在外部 `benchmark-data/architecture/runs/`。R2/R3 的新配置、覆盖与结果在完成后追加；本阶段不声称结构修正带来性能提升。
+所有完整原始程序来自官方 test-suite 提交 `72a946a42cbce06afef68b2326ff6c3869d09799`，来源/许可证见 `programs-v1-1.json` 及旧 `programs.json`。使用固定 Polygeist `77c04bb2a7a2406ca9480bcc9e729b07d2c8d077` 与其 LLVM `26eb4285b56edd8c897642078d91f16ff0fd3472`；native 后端 Clang 18.1.3，`-O3 -march=native -ffp-contract=off`，无 LTO/PGO。独立 Clang 编译完整源文件提供完整 stdout oracle，每次计时也检查输出。
 
-## R2：冻结的数据与训练配方
+训练为 LLU（原始 `-i 300` 输入）、PC1、Bubblesort；验证为 Towers；Queens/Puzzle 共同构成唯一留出的 backtracking 族。PC1 从旧验证转为本轮训练，绝不称为留出。Stanford 程序有共同历史来源，以下不是六个互不相关的大型应用；选择依据导入、正确性和动作可达性，不按实测加速筛程序。
 
-`experiments/architecture/pilot-v1-1.json` 在新标签采集前提交为 `2b38f09`。训练使用 LLU（原始 `-i 300` 输入）、PC1、完整 Stanford Bubblesort；验证使用 Towers；Queens 与 Puzzle 同属留出的 backtracking 族，仅计为一个测试族。PC1 是旧实验的验证程序，本轮明确转为训练，绝不称其为留出。完整源文件来自相同固定官方 test-suite，不复制 kernel；Stanford 程序共用历史声明形式，不能将它们视为互不相关的大型项目。
+| 程序 | split / family | S0 节点 / MLIR 操作 | 已定义 / 全部函数 | 区域 / 调用边 | S0 / S1 非 advance 候选 |
+| --- | --- | ---: | ---: | ---: | ---: |
+| llu_v11 | train / linked-list | 614 / 253 | 3 / 6 | 47 / 23 | 0 / 6 |
+| pc1 | train / pukall-pc1-complete-program | 1281 / 678 | 4 / 7 | 29 / 24 | 16 / 1 |
+| bubblesort | train / sorting | 236 / 121 | 5 / 6 | 24 / 6 | 3 / 2 |
+| towers | validation / hanoi-recursion | 395 / 202 | 12 / 13 | 37 / 20 | 5 / 3 |
+| queens | test / backtracking | 278 / 135 | 6 / 7 | 37 / 6 | 1 / 3 |
+| puzzle | test / backtracking | 867 / 416 | 8 / 9 | 80 / 13 | 2 / 36 |
 
-首轮兼容性探测的 Bubblesort/Queens/Towers/Puzzle 均有 S0 inline 与 S1 unroll2 候选，并通过完整原始输出 oracle。ReedSolomon 导入图更大（S0 1627 节点），但默认 stdout 缺乏有用独立结果，未纳入性能结论；fbench S0 无非 advance 候选，暂不选作多阶段主用例。Fhourstones 3.1 完整 SearchGame.c 的导入在 VisitBinaryOperator 触发 `rhs.val` 断言，保留日志 `v11-probe-6`。兼容性筛选依据是导入/动作可达性，不是加速比。
+操作数包含 module/function 操作，节点还包含 SSA value、block、region。程序源码完整不等于规模大型。
 
-训练去掉单一 `next(...)` 训练族限制，按程序、输入、机器/亲和性、宏与完整编译语义配置分组。每组自己的 default 为相对延迟参照，只在组内排序，各组等权，不按路径数增加权重。失败路径不生成成功标签、缺默认组明确拒绝。排序跳过直接逐字节相同 IR 或目标文件的路径；其余差异须超过预先固定的 max(2% 延迟、0.05 ms、2×MAD) 才生成强胜负标签。未计算产物 hash。重复/near-tie 路径仍提供组内 value/resource 监督，不能冒充新增独立程序或可靠动作偏好。
+训练按程序/输入/机器/亲和性/宏/编译语义分组，各组 default 是相对延迟参照；同组排序和归一化，先输入组内平均再按程序等权。缺默认组或无正确性证据明确拒绝，失败轨迹不生成成功标签。强排序跳过逐字节相同 IR 或目标文件，差异须超过预先固定的 max(2% 延迟、0.05 ms、2×MAD)。near-tie/重复仍有 value/resource 监督，不冒充可靠动作偏好。本轮每程序一个输入组。
 
-所有模型使用相同数据、种子和 20 epoch；A/B、旧表示 A/B、独立训练的 current-only/B-current-only、容量匹配 B 同时训练。测试不参与 epoch 选择。损失仍是完整 continuation 的 policy log 概率排序和末端 value/resource 监督，beam 中间分支按 policy 排名，不宣传为已训练的前缀未来价值搜索器。后续覆盖表报告真实合法候选、执行、有效性能成对标签与 action/block 梯度；fusion 仅原生 smoke 覆盖，不属本轮 Polygeist 正式训练动作。
+| 程序 / split | 路径 | S0 / S1 有选择观察 | 有效成对标签 | 重复 / near-tie 跳过 |
+| --- | ---: | ---: | ---: | ---: |
+| llu_v11 / train | 5 | 0 / 5 | 0 | 1 / 9 |
+| pc1 / train | 5 | 5 / 5 | 7 | 1 / 2 |
+| bubblesort / train | 5 | 5 / 5 | 0 | 0 / 10 |
+| towers / validation | 5 | 5 / 5 | 0 | 1 / 9 |
 
-R2 实际完成：22 条采集轨迹、七套模型训练、60 组冻结单路径运行均通过独立输出比较，没有采集失败。标签采集 17.981 秒，训练合计 196.014 秒。训练 3 组、验证 1 组；全部七套冻结 checkpoint 在新进程中复现选中 epoch 的验证损失（误差 <1e-6），inline/unroll2 头梯度均非零，fuse 梯度为零且明确不纳入已训练动作。A 的三个阶段 Block、B 的共享 Block 都有梯度。
+阶段/动作合法候选、实际成功执行、不同阶段选择的有效标签对及实际 action/block 梯度完整存于 JSON。inline/unroll2 有训练动作梯度，fuse 为零且只属原生 smoke/action-OOD。强排序仍仅来自 PC1；其它训练/验证程序主要贡献 value/resource 监督。该缺口没有因程序数增加而消失。
 
-| 组 | split | 路径 | S0/S1 有选择观察 | 有效成对标签 | 相同产物跳过 | near-tie 跳过 |
-| --- | --- | ---: | --- | ---: | ---: | ---: |
-| llu_v11 | train | 5 | 0 / 5 | 0 | 1 | 9 |
-| pc1 | train | 5 | 5 / 5 | 7 | 1 | 2 |
-| bubblesort | train | 5 | 5 / 5 | 0 | 0 | 10 |
-| towers | validation | 5 | 5 / 5 | 0 | 1 | 9 |
+七套模型共享数据、种子 23、20 epoch、学习率 0.0003；按验证 loss 选 epoch，测试不参与选择。current_only 与 B_current_only 独立训练；A_no_history/B_reset 是冻结权重干预。它们都保留当前 IR 和离散动作事件，只移除连续记忆。value/resource 只在末端监督，beam 中间分支按累计 policy log 概率，而非未来 value 排名。
 
-虽然已实现多程序、两阶段学习，强成对排序目前仅来自 PC1；LLU/Bubblesort/Towers 的可分辨差异不足，其贡献主要为 value/resource 监督。这没有解决广泛动作偏好训练不足的问题，不能把 20 epoch 宣称为足够训练。程序有多个输入组时，先组内平均再按程序等权；本轮每程序只有一个输入组。
+| 模型 | 参数 | 训练秒 | 初始 → 最后 train loss | 所选 validation loss |
+| --- | ---: | ---: | ---: | ---: |
+| A | 500612 | 30.958 | 0.5668 → 0.2495 | 0.00627 |
+| B | 324484 | 31.479 | 0.7563 → 0.1910 | 0.00115 |
+| legacy_A | 484868 | 23.184 | 4.0201 → 0.3968 | 0.00453 |
+| legacy_B | 319236 | 25.145 | 1.1992 → 0.1621 | 0.00076 |
+| current_only | 500612 | 26.074 | 0.7951 → 0.1696 | 0.00701 |
+| B_current_only | 324484 | 28.017 | 0.8731 → 0.1615 | 0.00074 |
+| B_capacity | 492644 | 37.262 | 1.0125 → 0.1974 | 0.00330 |
 
-更大来源记录：SQLite 3.50.4 完整生成库翻译单元（复用已有官方源码及生成缓存，`SQLITE_THREADSAFE=0`）在 `getMLIRType` 触发 `types.size()` 断言，日志为 `v11-large-sqlite-import`；这只是大型导入诊断，不是完整可执行 Benchmark。没有修改源文件或关闭 verifier。
+B_capacity hidden=160，与结构版 A 参数量相差 1.592%；不将较小 B 的参数量直接当作机制优势。所有冻结权重独立重算验证损失通过，测试 A/B 重放动作、分数、value/resource 精确一致。
+
+## R3：冻结后交错测量
+
+每种方法先冻结独立目录产物。共同 beam=2，最多 8 终端、24 尝试、180 秒；54 组搜索各产生 2 个正确终端，每组 15 次带计时调用，包含选优后的 5 次确认，全部未超时。失败不退预算且不能入排名。然后将全部单路径、beam、default 和真正测量的 native Clang -O3 放在同一组：每程序 20 个方法，10 轮，seed=41 的随机顺序与其反向顺序成对；共 1200 次原生计时。每轮重新测 default，以下为同轮 baseline/方法比值的中位数，再按 split 作描述统计。原始顺序、样本、输出检查、RSS、IR/目标文件/可执行文件的直接字节比较均保留。
+
+| 单路径方法 | train 几何平均比 | validation 比 | test 几何平均比 | test 最差比 |
+| --- | ---: | ---: | ---: | ---: |
+| single/default | 1.0000 | 1.0000 | 1.0000 | 1.0000 |
+| single/legacy_A | 0.9983 | 1.0142 | 0.9335 | 0.8733 |
+| single/legacy_B | 0.9962 | 1.0176 | 0.9972 | 0.9961 |
+| single/current_only | 1.0286 | 1.0059 | 0.9462 | 0.8963 |
+| single/B_current_only | 1.0273 | 1.0041 | 0.9427 | 0.8994 |
+| single/A | 1.0272 | 1.0133 | 0.9485 | 0.8988 |
+| single/A_no_history | 1.0276 | 1.0096 | 0.9431 | 0.8983 |
+| single/B | 1.0291 | 1.0208 | 0.9459 | 0.8990 |
+| single/B_reset | 1.0266 | 1.0197 | 0.9436 | 0.8978 |
+| single/B_capacity | 1.0245 | 1.0204 | 0.9471 | 0.9000 |
+| native-clang-O3 | 1.1236 | 0.8686 | 1.1243 | 1.0098 |
+
+| beam 方法 | train 几何平均比 | validation 比 | test 几何平均比 | test 最差比 |
+| --- | ---: | ---: | ---: | ---: |
+| beam/legacy_A | 1.0000 | 0.9985 | 0.9329 | 0.8720 |
+| beam/legacy_B | 0.9998 | 1.0023 | 0.9417 | 0.8973 |
+| beam/current_only | 1.0338 | 0.9985 | 0.9475 | 0.8985 |
+| beam/B_current_only | 1.0326 | 0.9948 | 0.9451 | 0.8994 |
+| beam/A | 1.0305 | 1.0182 | 0.9479 | 0.8983 |
+| beam/A_no_history | 1.0301 | 1.0108 | 0.9444 | 0.8968 |
+| beam/B | 1.0311 | 1.0138 | 0.9444 | 0.8981 |
+| beam/B_reset | 1.0283 | 0.9994 | 0.9418 | 0.8978 |
+| beam/B_capacity | 1.0310 | 1.0017 | 0.9467 | 0.8995 |
+
+| 程序 | default ms | A 配对比 | B 配对比 | native Clang -O3 配对比 |
+| --- | ---: | ---: | ---: | ---: |
+| llu_v11 | 11.9174 | 0.9990 | 0.9995 | 0.9693 |
+| pc1 | 73.5725 | 1.0887 | 1.0909 | 1.0356 |
+| bubblesort | 21.3749 | 0.9966 | 0.9995 | 1.4133 |
+| towers | 6.6220 | 1.0133 | 1.0208 | 0.8686 |
+| queens | 5.8044 | 1.0010 | 0.9952 | 1.0098 |
+| puzzle | 55.6986 | 0.8988 | 0.8990 | 1.2518 |
+
+比值 >1 为加速，<1 为回退。两个测试任务仍只有一个 backtracking 族，不是两族独立泛化证据。相同可执行文件的方法之间差异只用于描述计时波动；动作和差异标记见 JSON，不能归因于隐藏状态。单机、单种子、频率和外部负载未受控；未将上述比值当作统计显著性。
+
+正式留出单路径 A/B 的几何平均速度比分别为 **0.9485× / 0.9459×**，未显示增量收益。Puzzle 上约 0.899×，即运行时间增加约 11%；其中 A/断连 A、B/重置 B 分别生成相同可执行文件。Queens 的 A 与断连 A 产物不同，但小幅比值不能据单机单种子解释为记忆优势；B 与重置 B 在两个留出任务的产物均相同。原始 native Clang -O3 在留出族的描述性比值为 1.1243×。旧表示 B 接近默认，不据这些测试结果修改阈值或重新挑选权重。
+
+## 成本、排除项和下一步
+
+正式采集 18.506 秒，七套训练合计 202.120 秒；共同搜索最大单组 4.059 秒、总计 123.919 秒（含 correctness/选优后确认）；最终交错测量 42.880 秒。原生 C++ timer 排除常驻 Python 驱动启动/捕获成本，但保留原生进程启动、执行和输出；驱动成本单列并计入优化总工作。旧试跑另耗采集 17.981 秒、训练 196.014 秒以及其搜索/测量，不能混入正式性能表或假装没有这笔修正成本。首次工具链构建和开发人工耗时未精确计量，复用固定缓存，不宣称这些数字涵盖全部研究耗时。
+
+| 核心 | 新进程加载秒（温文件缓存） | 同一 S0 输入稳态推理中位 ms |
+| --- | ---: | ---: |
+| A | 0.8766 | 6.9994 |
+| B | 0.8396 | 8.3628 |
+
+推理为 1 个 Torch 线程；每个 profile 重复相同 S0 输入 5 次并检查精确输出。若部署同一模型 K 次，至少计入 `(标签采集 + 该模型训练)/K`、模型加载、特征提取/推理、编译/搜索/确认；没有留出收益时不报告回本次数。JSON 保留各方法逐程序成本，driver/children RSS 是生命周期峰值，不能据此宣称 B 独立物理内存更低。code_bytes 为整个目标文件大小，不是纯 .text。
+
+兼容性记录：ReedSolomon S0 可导入 1627 节点，但 stdout 缺少有用独立结果，本轮不用于性能结论；fbench 没有 S0 优化动作；Fhourstones 3.1 完整 SearchGame.c 的 VisitBinaryOperator 触发 rhs.val 断言；SQLite 3.50.4 完整生成库翻译单元在 getMLIRType 触发 types.size() 断言。这是大型导入诊断，不是已支持的完整 SQLite Benchmark。没有改写原始程序或关闭 verifier。旧 RC4/MD5 等排除项仍保留。
+
+来源接通和图输入分别标记版本；新旧表示均使用同一来源规则，因此本轮没有独立训练的来源机制消融。一般 lowering 的细粒度映射仍 unknown。后续优先补充有独立正确性证据的完整程序族、输入和可靠多阶段排序标签，增加独立种子/交错重复，再检验记忆增量作用；不根据测试负例临时换划分、改阈值、调网络或转入新架构/RL。
+
+成本边界：上述批次数字为 Python driver 内部实际工作时间，未逐次计量当时包装器的依赖准备、CMake 增量检查和 uv 启动，不能称为完整 shell 命令时间。统一入口现另存 `logs/architecture/entry-*.json` 的起始/准备完成/总时间及退出码，之后复现可直接计入全部命令成本；新增 standalone Queens/A 示例的完整命令 1.978 秒，其中准备 0.141 秒。初次未规范试跑的搜索总工作 122.179 秒、交错 43.000 秒另计，完整诊断成本见 JSON。

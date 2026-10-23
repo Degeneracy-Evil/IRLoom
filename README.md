@@ -14,6 +14,8 @@ IRLoom 研究神经网络与多级编译过程的内部耦合，目标是在正�
 
 两者共用结构化 IR 图、来源账本、硬件输入、动作执行器、正确性检查和有限预算搜索器。网络在编译过程中选择并执行合法变换。**N0–N5 首轮原型和完整程序 pilot 已完成，尚未建立跨阶段记忆带来增量性能收益的证据。** LLU/PC1/trie 的训练、验证、留出评估及同预算 beam、断连/重置、容量匹配对照见 [首轮结果](experiments/reports/architecture-v1-pilot.md)。这三个规模有限的完整程序不代表大型项目覆盖。
 
+最新 V1.1 修正了结构顺序、边关系/方向/端口和来源使用统计，新增按程序组内归一化的多程序训练、独立训练的 A/B 无持续记忆对照，以及冻结产物的平衡交错测量。正式配置为 `experiments/architecture/pilot-v1-1-canonical.json`，结果与限制见 [V1.1 报告](experiments/reports/architecture-v1-1-pilot.md)。两次新进程导入检查用于排除无序 DLTI 打印带来的输入变化；旧试跑和 V1 产物均保留。
+
 ## 当前阅读入口
 
 - [架构设计 V1](docs/architecture/V1_DESIGN.md) 定义阶段、双流、图表示、A/B、状态对齐与训练边界。
@@ -36,6 +38,7 @@ IRLoom 研究神经网络与多级编译过程的内部耦合，目标是在正�
 
 ```bash
 bash scripts/architecture.sh --audit
+bash scripts/architecture.sh --structure-audit
 bash scripts/architecture.sh --model B --state-audit --multi-function
 bash scripts/architecture.sh --program pc1
 ```

@@ -22,7 +22,8 @@ def prepare(session, program):
     session.ir = session.output / "imported.mlir"
     session.run([BASE / "build/bin/cgeist", source, "-S", "-O0", "-raise-scf-to-affine", *["-D" + x for x in recipe.get("defines", [])],
                  "-std=gnu89", "-resource-dir=/usr/lib/llvm-18/lib/clang/18", "-o", session.ir], "import")
-    (session.output / "program-source.json").write_text(json.dumps({"suite": RECIPES["suite"], "source": RECIPES["source"],
+    origin = "https://github.com/llvm/llvm-test-suite/blob/72a946a42cbce06afef68b2326ff6c3869d09799/" + str(source.relative_to(suite))
+    (session.output / "program-source.json").write_text(json.dumps({"suite": RECIPES["suite"], "source": origin,
                                                                   **recipe, "coverage": "entire source file and included headers"}, indent=2))
     session.original_source, session.recipe = source, recipe
 

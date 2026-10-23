@@ -119,32 +119,41 @@ def summarize(single, searches):
             "interpretation": "Exploratory single-machine native process-wall ratios from independent C++ timer; five repeats, no frequency control, serial method order, no confidence interval. Small changes are not evidence of speedup. Beam uses sampled online measurements, not an offline all-pool oracle."}
 
 
-def compare(name, pilot_dir):
+def compare(name, pilot_dir, config=None):
+    config = config or CONFIG
     torch.set_num_threads(1)
     pilot = json.loads((pilot_dir / "report.json").read_text())
-    if pilot["config"] != CONFIG:
+    if pilot["config"] != config:
         raise ValueError("pilot config differs; refusing to mix measurement protocols or budgets")
     output = CACHE / "comparisons" / name
     output.mkdir(parents=True, exist_ok=False)
-    result = {"source_pilot": str(pilot_dir), "config": CONFIG, "models": {}, "searches": {}}
-    for variant in CONFIG["evaluation"]["variants"]:
+    result = {"source_pilot": str(pilot_dir), "config": config, "models": {}, "searches": {}}
+    for variant in config["evaluation"]["variants"]:
         if variant == "default":
             continue
         key = "A" if variant == "A_no_history" else "B" if variant == "B_reset" else variant
         start = time.perf_counter()
         checkpoint = torch.load(pilot_dir / f"{key}.pt", weights_only=True)
-        config = {**checkpoint["config"], "history": variant not in ("current_only", "A_no_history", "B_reset")}
-        model = (Interleaved if checkpoint["model"] == "A" else Recurrent)(**config)
+        model_config = {**checkpoint["config"], "history": variant not in ("current_only", "B_current_only", "A_no_history", "B_reset")}
+        model = (Interleaved if checkpoint["model"] == "A" else Recurrent)(**model_config)
         model.load_state_dict(checkpoint["state_dict"])
-        result["models"][variant] = {"config": config, "parameters": sum(p.numel() for p in model.parameters()),
+        result["models"][variant] = {"config": model_config, "parameters": sum(p.numel() for p in model.parameters()),
                                        "load_after_torch_import_s": time.perf_counter() - start}
         result["searches"][variant] = {}
-        for program in CONFIG["programs"]:
-            search = beam(f"{name}-{variant}-{program}", program, model, CONFIG["evaluation"])
+        for program in config["programs"]:
+            search = beam(f"{name}-{variant}-{program}", program, model, config["evaluation"])
             result["searches"][variant][program] = search
             save(output / "progress.json", result)
             print(json.dumps({"phase": "beam", "variant": variant, "program": program, "terminals": len(search["terminals"])}), flush=True)
     result["summary"] = summarize(pilot["single_path"], result["searches"])
+    if "splits" in config:
+        result["summary"]["scope"] = "mixed splits diagnostic only; use frozen interleaved split results for performance conclusions"
+        result["online_summary_by_split"] = {}
+        for split in ("train", "validation", "test"):
+            programs = {p for p in config["programs"] if config["splits"][p] == split}
+            result["online_summary_by_split"][split] = summarize(
+                {v: {p: path for p, path in rows.items() if p in programs} for v, rows in pilot["single_path"].items()},
+                {v: {p: r for p, r in rows.items() if p in programs} for v, rows in result["searches"].items()})
     result["training"] = pilot["training"]
     result["label_acquisition_s"] = pilot["label_acquisition_s"]
     save(output / "report.json", result)
