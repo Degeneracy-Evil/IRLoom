@@ -117,7 +117,7 @@ def coverage(paths, config):
 
 
 def measured_loss(model, groups, resource_weight):
-    losses = []
+    losses = {}
     for group in groups:
         policy, values, resources = [], [], []
         for row in group["rows"]:
@@ -139,9 +139,9 @@ def measured_loss(model, groups, resource_weight):
                                                     math.log1p(compile_s)/10])).square().mean())
         pairs=[torch.nn.functional.softplus(direction*(policy[i]-policy[j])) for i,j,direction in group["pairs"]]
         ranking=torch.stack(pairs).mean() if pairs else torch.tensor(0.0)
-        losses.append(ranking+torch.stack(values).mean()+resource_weight*torch.stack(resources).mean())
-    # Every comparison group/program has equal weight, independent of paths.
-    return torch.stack(losses).mean()
+        losses.setdefault(group["key"]["program"], []).append(ranking+torch.stack(values).mean()+resource_weight*torch.stack(resources).mean())
+    # Inputs/groups average inside each program, then programs get equal weight.
+    return torch.stack([torch.stack(rows).mean() for rows in losses.values()]).mean()
 
 
 def fit_measured(model, train_paths, validation_paths, config):

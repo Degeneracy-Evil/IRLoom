@@ -21,3 +21,26 @@ bash scripts/architecture.sh --model A --fit-report "$PWD/benchmark-data/archite
 ```
 
 日志在 `logs/architecture/`，原始图、状态统计和权重在外部 `benchmark-data/architecture/runs/`。R2/R3 的新配置、覆盖与结果在完成后追加；本阶段不声称结构修正带来性能提升。
+
+## R2：冻结的数据与训练配方
+
+`experiments/architecture/pilot-v1-1.json` 在新标签采集前提交为 `2b38f09`。训练使用 LLU（原始 `-i 300` 输入）、PC1、完整 Stanford Bubblesort；验证使用 Towers；Queens 与 Puzzle 同属留出的 backtracking 族，仅计为一个测试族。PC1 是旧实验的验证程序，本轮明确转为训练，绝不称其为留出。完整源文件来自相同固定官方 test-suite，不复制 kernel；Stanford 程序共用历史声明形式，不能将它们视为互不相关的大型项目。
+
+首轮兼容性探测的 Bubblesort/Queens/Towers/Puzzle 均有 S0 inline 与 S1 unroll2 候选，并通过完整原始输出 oracle。ReedSolomon 导入图更大（S0 1627 节点），但默认 stdout 缺乏有用独立结果，未纳入性能结论；fbench S0 无非 advance 候选，暂不选作多阶段主用例。Fhourstones 3.1 完整 SearchGame.c 的导入在 VisitBinaryOperator 触发 `rhs.val` 断言，保留日志 `v11-probe-6`。兼容性筛选依据是导入/动作可达性，不是加速比。
+
+训练去掉单一 `next(...)` 训练族限制，按程序、输入、机器/亲和性、宏与完整编译语义配置分组。每组自己的 default 为相对延迟参照，只在组内排序，各组等权，不按路径数增加权重。失败路径不生成成功标签、缺默认组明确拒绝。排序跳过直接逐字节相同 IR 或目标文件的路径；其余差异须超过预先固定的 max(2% 延迟、0.05 ms、2×MAD) 才生成强胜负标签。未计算产物 hash。重复/near-tie 路径仍提供组内 value/resource 监督，不能冒充新增独立程序或可靠动作偏好。
+
+所有模型使用相同数据、种子和 20 epoch；A/B、旧表示 A/B、独立训练的 current-only/B-current-only、容量匹配 B 同时训练。测试不参与 epoch 选择。损失仍是完整 continuation 的 policy log 概率排序和末端 value/resource 监督，beam 中间分支按 policy 排名，不宣传为已训练的前缀未来价值搜索器。后续覆盖表报告真实合法候选、执行、有效性能成对标签与 action/block 梯度；fusion 仅原生 smoke 覆盖，不属本轮 Polygeist 正式训练动作。
+
+R2 实际完成：22 条采集轨迹、七套模型训练、60 组冻结单路径运行均通过独立输出比较，没有采集失败。标签采集 17.981 秒，训练合计 196.014 秒。训练 3 组、验证 1 组；全部七套冻结 checkpoint 在新进程中复现选中 epoch 的验证损失（误差 <1e-6），inline/unroll2 头梯度均非零，fuse 梯度为零且明确不纳入已训练动作。A 的三个阶段 Block、B 的共享 Block 都有梯度。
+
+| 组 | split | 路径 | S0/S1 有选择观察 | 有效成对标签 | 相同产物跳过 | near-tie 跳过 |
+| --- | --- | ---: | --- | ---: | ---: | ---: |
+| llu_v11 | train | 5 | 0 / 5 | 0 | 1 | 9 |
+| pc1 | train | 5 | 5 / 5 | 7 | 1 | 2 |
+| bubblesort | train | 5 | 5 / 5 | 0 | 0 | 10 |
+| towers | validation | 5 | 5 / 5 | 0 | 1 | 9 |
+
+虽然已实现多程序、两阶段学习，强成对排序目前仅来自 PC1；LLU/Bubblesort/Towers 的可分辨差异不足，其贡献主要为 value/resource 监督。这没有解决广泛动作偏好训练不足的问题，不能把 20 epoch 宣称为足够训练。程序有多个输入组时，先组内平均再按程序等权；本轮每程序只有一个输入组。
+
+更大来源记录：SQLite 3.50.4 完整生成库翻译单元（复用已有官方源码及生成缓存，`SQLITE_THREADSAFE=0`）在 `getMLIRType` 触发 `types.size()` 断言，日志为 `v11-large-sqlite-import`；这只是大型导入诊断，不是完整可执行 Benchmark。没有修改源文件或关闭 verifier。
