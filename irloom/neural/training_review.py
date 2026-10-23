@@ -7,7 +7,7 @@ import time
 import torch
 
 from .driver import ROOT,CACHE,save
-from .cost_objective import cost_loss,cost_parts
+from .cost_objective import cost_loss,cost_parts,shared_root_fixture
 from .stage_learning import prepare_groups,forward_prefix,quality
 from .interleaved import Interleaved
 from .recurrent import Recurrent
@@ -51,33 +51,8 @@ def data_audit(dataset,config):
                 'old_strong':len(a['pairs']),'old_positive_gaps':sum(d['old_effective_gap']>0 for d in details),
                 'canonical_strong':len(b['pairs']),'canonical_positive_gaps':sum(p[3]>0 for p in b['pairs']),
                 'canonical_pairs':b['pairs'],'old_counts':a['counts'],'canonical_counts':b['counts'],'pairs':details})
-    # 100/97 ms: absolute intervals may overlap, but the confirmed pair must
-    # remain directional after the common root cancels.
-    from .pair_labels import canonicalize
-    rows=[{'candidate_index':0,'target':0.0,'samples':[100.0]*6,'object':b'default'},
-          {'candidate_index':1,'target':math.log(.97),'samples':[97.0]*6,'object':b'candidate'}]
-    pairs,_=canonicalize(rows,100.0,config)
-    y=torch.tensor([0.0,math.log(.97)],dtype=torch.float64)
-    margins=torch.tensor([math.log(102/98)]*2,dtype=torch.float64)
-    tied=torch.zeros(2,dtype=torch.float64,requires_grad=True)
-    old=cost_loss(tied,y,margins,[(1,0,-1)],'calibrated-margin-v1')
-    assert old==0
-    new=cost_loss(tied,y,margins,pairs,'shared-root-margin-v1')
-    gradient=torch.autograd.grad(new,tied)[0]
-    assert new>0 and gradient[1]>0 and gradient[0]<0
-    true=y.clone().requires_grad_();truth=cost_loss(true,y,margins,pairs,'shared-root-margin-v1')
-    assert truth==0 and torch.autograd.grad(truth,true)[0].abs().sum()==0
-    neutral=torch.zeros(2,requires_grad=True)
-    for identical in (False,True):
-        fixture=[dict(rows[0]),{**rows[1],'target':0.0 if identical else math.log(.99),
-            'samples':[97.0 if identical else 99.0]*6,'object':rows[0]['object'] if identical else b'near'}]
-        neutral_pairs,_=canonicalize(fixture,100.0,config)
-        assert not neutral_pairs
-        neutral_loss=cost_loss(neutral,torch.tensor([r['target'] for r in fixture]),torch.ones(2)*.05,neutral_pairs,'shared-root-margin-v1')
-        assert neutral_loss==0 and torch.autograd.grad(neutral_loss,neutral)[0].abs().sum()==0
-    return {'audit_version':2,'groups':records,'identical_and_near_tie_zero_loss_and_gradient':True,'scalar_fixture_not_performance':{'times_ms':[100,97],'threshold_ms':2,
-        'old_tied_loss':float(old.detach()),'new_tied_loss':float(new.detach()),'new_tied_gradient':gradient.tolist(),
-        'gamma':pairs[0][3],'true_q_zero_loss_and_gradient':True},'note':'Canonical artifact targets, pair membership, sign and gamma use the same times; old measurements untouched.'}
+    return {'audit_version':2,'groups':records,**shared_root_fixture(config),
+        'note':'Canonical artifact targets, pair membership, sign and gamma use the same times; old measurements untouched.'}
 
 
 def tensors(group):

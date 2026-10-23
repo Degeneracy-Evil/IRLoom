@@ -26,6 +26,36 @@ def cost_loss(predicted,targets,margins,pairs,version='calibrated-margin-v1'):
     return regression+ranking
 
 
+def shared_root_fixture(config):
+    """Actual Torch contracts, shared by objective audit and frozen-data audit."""
+    import math
+    from .pair_labels import canonicalize
+    rows=[{'candidate_index':0,'target':0.0,'samples':[100.0]*6,'object':b'default'},
+          {'candidate_index':1,'target':math.log(.97),'samples':[97.0]*6,'object':b'candidate'}]
+    pairs,_=canonicalize(rows,100.0,config)
+    y=torch.tensor([0.0,math.log(.97)],dtype=torch.float64)
+    margins=torch.tensor([math.log(102/98)]*2,dtype=torch.float64)
+    tied=torch.zeros(2,dtype=torch.float64,requires_grad=True)
+    old=cost_loss(tied,y,margins,[(1,0,-1)],'calibrated-margin-v1')
+    assert old==0
+    new=cost_loss(tied,y,margins,pairs,'shared-root-margin-v1')
+    gradient=torch.autograd.grad(new,tied)[0]
+    assert new>0 and gradient[1]>0 and gradient[0]<0
+    true=y.clone().requires_grad_();truth=cost_loss(true,y,margins,pairs,'shared-root-margin-v1')
+    assert truth==0 and torch.autograd.grad(truth,true)[0].abs().sum()==0
+    neutral=torch.zeros(2,requires_grad=True)
+    for identical in (False,True):
+        fixture=[dict(rows[0]),{**rows[1],'target':0.0 if identical else math.log(.99),
+            'samples':[97.0 if identical else 99.0]*6,'object':rows[0]['object'] if identical else b'near'}]
+        neutral_pairs,_=canonicalize(fixture,100.0,config)
+        assert not neutral_pairs
+        neutral_loss=cost_loss(neutral,torch.tensor([r['target'] for r in fixture]),torch.ones(2)*.05,neutral_pairs,'shared-root-margin-v1')
+        assert neutral_loss==0 and torch.autograd.grad(neutral_loss,neutral)[0].abs().sum()==0
+    return {'identical_and_near_tie_zero_loss_and_gradient':True,'scalar_fixture_not_performance':{'times_ms':[100,97],'threshold_ms':2,
+        'old_tied_loss':float(old.detach()),'new_tied_loss':float(new.detach()),'new_tied_gradient':gradient.tolist(),
+        'gamma':pairs[0][3],'true_q_zero_loss_and_gradient':True}}
+
+
 def audit(name):
     import json,math
     from .driver import CACHE,save
@@ -57,5 +87,6 @@ def audit(name):
     equal=torch.zeros(2,requires_grad=True)
     loss=cost_loss(equal,torch.zeros(2),torch.tensor([.02,.02]),[])
     assert loss==0 and torch.autograd.grad(loss,equal)[0].abs().sum()==0
-    save(output/'objective-audit.json',{'two_candidate_math_not_performance':result,'real_matched_groups_at_true_q_zero_loss':len(groups),'identical_and_near_tie_feasible':True})
+    save(output/'objective-audit.json',{'two_candidate_math_not_performance':result,'real_matched_groups_at_true_q_zero_loss':len(groups),
+        'identical_and_near_tie_feasible':True,'shared_root':shared_root_fixture(config)})
     print(json.dumps(result),flush=True)

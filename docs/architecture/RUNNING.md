@@ -6,7 +6,7 @@
 bash scripts/architecture.sh --training-review all --name my-v131
 ```
 
-读取既有 `benchmark-data/architecture/pilots/v13-stage/dataset.json` 及其引用产物；不重新采标签。配置是 `experiments/architecture/training-v1-3-1.json`，也可用 `--training-config "$PWD/path.json"` 指定独立配置。`audit/train/all` 分别执行数值审计、六模型训练、训练及少量真实编译重放；`all` 包含主权重/快照验收。与旧入口共用工具链，自动增量准备前端。
+读取既有 `benchmark-data/architecture/pilots/v13-stage/dataset.json` 及其引用产物；不重新采标签。配置是 `experiments/architecture/training-v1-3-1.json`，`--training-config "$PWD/path.json"` 可指定同协议配置副本；旧权重隔离审计固定seed23/20步/V1.3数据，不是任意训练接口。`audit/train/all` 分别执行数值审计、六模型训练、训练及少量真实编译重放；`all` 包含主权重/快照验收。新数值夹具也由原 `--objective-audit` 入口执行。与旧入口共用工具链，自动增量准备前端。
 
 主checkpoint固定20次Adam更新，保存0/1/5/10/20步。A/B先用旧有限margin隔离选模，再替换共享根margin，最后独立训练无连续记忆版本。若A在既有PC1训练组仍未正确排序全部强对，自动执行唯一的200步单组诊断，诊断不读取验证/测试，也不部署。没有新标签、测试选模或历史搜索大矩阵。
 
