@@ -144,7 +144,7 @@
         []
       ],
       "measure_args": [],
-      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+      "license": "Simon Rockliff permission to freely modify/distribute with author attribution retained; original source header",
       "defines": [
         "SMALL_PROBLEM_SIZE"
       ]

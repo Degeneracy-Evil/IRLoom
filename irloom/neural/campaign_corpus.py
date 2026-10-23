@@ -1,6 +1,5 @@
 """Ordered compatibility, matched-prefix labels, and one shared proposal round."""
 from collections import Counter
-from dataclasses import asdict
 import json
 from pathlib import Path
 import shutil
@@ -203,4 +202,45 @@ def collect(output,config,catalog):
         'wall_s':sum(r['wall_s'] for r in program_records),'command_s':sum(r['command_s'] for r in program_records),
         'probe_costs':{'wall_s':catalog['wall_s'],'command_s':catalog['command_s']},
         'note':'No test labels. Same union of training-domain frozen proposals shared by every main model. Alias rows are contexts, not independent artifacts.'}
+    save(path,result);return result
+
+
+def audit(output,dataset,config,catalog):
+    """Data/semantic contracts and coverage, without new executions or hashes."""
+    from .stage_learning import prepare_groups
+    from .cost_objective import cost_loss
+    path=output/'corpus/audit.json'
+    if path.exists():return json.loads(path.read_text())
+    budget=dataset['budget'];limits=config['collection']
+    assert budget['static']<=limits['static_terminal_limit'] and budget['proposal']<=limits['proposal_terminal_limit']
+    assert budget['static']+budget['proposal']<=limits['terminal_limit']
+    assert max(budget['by_program'].values())<=limits['max_per_program']
+    rows=[]
+    for split in ('train','validation'):
+        for group in prepare_groups(dataset,split,config['objective']):
+            assert group['program'] in catalog['selected'][split]
+            if group['stage']=='S1':
+                assert [o.stage for o in group['observations']]==['S0','S1']
+                action=json.loads((CACHE/'runs'/group['prefix']/'trial-0-action.json').read_text())
+                assert group['observations'][-1].history[-1]['kind']==action['kind']
+            y=torch.tensor([r['target'] for r in group['rows']],requires_grad=True)
+            margins=torch.tensor([r['margin'] for r in group['rows']])
+            loss=cost_loss(y,y.detach(),margins,group['pairs'],'shared-root-margin-v1')
+            assert loss==0 and torch.autograd.grad(loss,y)[0].abs().sum()==0
+            unique=[]
+            for row in group['rows']:
+                if not any(row['object']==b for b in unique):unique.append(row['object'])
+                report=json.loads(Path(row['report']).read_text())
+                if report.get('measurement_alias_report'):
+                    alias=Path(report['measurement_alias_report'])
+                    assert row['object']==(alias.parent/'program.o').read_bytes()
+                assert report['measurement']['correctness'] and all(c['status']=='pass' for c in report['measurement']['correctness'])
+            rows.append({'program':group['program'],'split':split,'stage':group['stage'],'prefix':group['prefix'],
+                'candidate_pool':len(group['observations'][-1].graph['candidates']),'labeled':len(group['rows']),
+                'distinct_objects':len(unique),'strong_pairs':len(group['pairs']),'effects':group['counts'],
+                'upstream_action':group['observations'][-1].history[-1]['kind'] if group['stage']=='S1' else None})
+    result={'groups':rows,'budget':budget,'selected':catalog['selected'],
+        'source_families':{split:sorted({r['family'] for r in catalog['pool'] if r['program'] in names}) for split,names in catalog['selected'].items()},
+        'all_true_q_zero_loss_and_gradient':True,'matching_prefixes_and_correctness':True,
+        'new_test_labels':0,'note':'programs, context rows, distinct objects and strong pairs are separate counts; all alias byte comparisons direct'}
     save(path,result);return result

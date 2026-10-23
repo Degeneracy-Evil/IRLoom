@@ -1,6 +1,5 @@
 """Bounded development fits and four matched fixed-final main models."""
 import json
-import math
 import statistics
 import time
 
@@ -54,6 +53,7 @@ def fit(output,key,kind,history,dataset,objective,seed,budget,scope='mixed'):
                 gradients=torch.autograd.grad(loss_group,tuple(model.heads.q.parameters()),retain_graph=True)
                 head_gradients.append(torch.cat([g.flatten() for g in gradients]).detach())
         loss=torch.stack([torch.stack(rows).mean() for rows in per_program.values()]).mean()
+        if not torch.isfinite(loss):raise RuntimeError('nonfinite training objective; main checkpoint not published')
         for row in group_rows:row['objective_weight']=1/(len(per_program)*len(per_program[row['program']]))
         conflict=None
         if len(head_gradients)>1:
@@ -111,6 +111,18 @@ def train(output,dataset,config,diagnosis):
         for key,recipe in config['models'].items():
             name=f'{key}-s{seed}'
             records[name]=fit(target,name,recipe['kind'],recipe['history'],dataset,objective,seed,config['training'])
+        if seed==config['training']['seeds'][0]:
+            stability=target/'first-seed-stability.json'
+            if not stability.exists():
+                from .campaign_evaluation import matched
+                replay_target=output/'evaluation';replay_target.mkdir(exist_ok=True)
+                groups=[g for g in prepare_groups(dataset,'train',objective) if g['program']=='pc1']
+                checks=[]
+                for key in config['models']:
+                    name=f'{key}-s{seed}'
+                    for ordinal in (0,2):
+                        if ordinal<len(groups):checks.append(matched(replay_target,name,target/(name+'.pt'),groups[ordinal]))
+                save(stability,{'seed':seed,'matched_preflight':checks,'scope':'train-only compiler/finite-output preflight before second seed; no performance-based recipe changes'})
     result={'models':records,'objective':objective,'seconds':sum(v['seconds'] for v in records.values()),
         'selection':'fixed final common200 steps; G2 selects one common LR; second seed prelisted; test not used'}
     save(path,result);return result

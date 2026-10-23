@@ -8,8 +8,36 @@
 
 源码、模型、IR、原始报告仍在现有外部缓存，日志在 `logs/architecture`。本次不改骨干、动作、损失、阈值或默认O3后端。准备接入更大SQLite库翻译单元，仅作为导入/结构可行性记录，未完成完整应用链接之前不作架构主结果。
 
-完整入口开发中：`bash scripts/architecture.sh --campaign all --name my-campaign`；阶段模式为 `probe/diagnose/collect/train/evaluate`。`collect`独立于训练诊断，可在固定CPU1诊断时采集CPU0的完整标签；记录该并行负载，不宣称已控制全部系统噪声。
+统一入口：`bash scripts/architecture.sh --campaign all --name my-campaign`；阶段模式为 `probe/diagnose/collect/train/evaluate`。`collect`独立于训练诊断，可在固定CPU1诊断时采集CPU0的完整标签；记录该并行负载，不宣称已控制全部系统噪声。阶段记录和完整缓存按名字复用，不用缓存命中时间覆盖原成本。
 
 首轮固定池兼容性得到10训练/3验证/3新留出，未达12/4/4目标，保留缺口而不按性能临时补池。hash/richards/mandel导入崩溃，huffbench/fannkuch被前端拒绝；部分其余程序正确运行但没有两个非平凡动作阶段，另列为single-stage-only。SQLite原始库翻译单元84545行、2862216字节，匹配cgeist导入退出-11，未进入神经MLIR主结果。具体诊断与规模在外部compatibility记录，不通过改源算法或关闭verifier绕过。
 
-PC1/lists/bubblesort已完成匹配前缀采集及完整输出验证；后续在本报告补充最终覆盖、错误、成本与复现验收，不预报正收益。部署评价协议独立冻结在 `campaign-evaluation-v1.json`，闭集选择、完整提议匹配后缀、raw路径和guarded系统分开；新留出只在全部权重冻结后执行一次正式活动。
+## G1首批实际覆盖
+
+采集及数据audit已完成，原始结果在 `benchmark-data/architecture/campaigns/campaign-v1`，提交摘要为 [机器记录](architecture-training-corpus.json)。旧数据、模型、工具链和报告保持原样。
+
+| 域 | 完整程序 / 算法家族 | S0组 / 终端记录 / 强对 | S1前缀组 / 终端记录 / 强对 |
+| --- | --- | --- | --- |
+| train | 10 / 7 | 10 / 44 / 24 | 28 / 142 / 113 |
+| validation | 3 / 3 | 3 / 18 / 0 | 9 / 69 / 33 |
+| new test | 3 / 3 | 仅默认接入，无动作标签 | 仅默认接入，无动作标签 |
+
+训练为PC1、lists、Bubblesort、Towers、Queens、Puzzle、heapsort、Quicksort、Perm、ReedSolomon；验证为matrix、Perlin、DES，均按已见开发域标注。新留出为spectral-norm、Ooura FFT、Monte-Carlo PI。Stanford源组全部位于训练，排序与回溯程序分别合并家族；两个同族程序不算两个独立族。官方来源固定test-suite `72a946a42cbce06afef68b2326ff6c3869d09799`，原始文件/输入不改，官方SMALL_PROBLEM_SIZE宏按预注册使用。
+
+S0训练有益/中性/有害记录为5/39/0；S1为3/127/12。S1强对来自Queens的一个前缀、Puzzle三个前缀及Perm三个前缀；这些是7个上下文，不是113个独立优化任务。验证S1有益/中性/有害为0/63/6，强对来自matrix和Perlin，仍缺验证有益动作。
+
+总计273个匹配完整终端（训练186、验证87），对应110份不同目标文件，各别名保留原检查点/动作来源。另6个未收录候选的默认执行也计费，故总标签终端尝试为279/768：静态277/576、训练域提议2/192，最大单程序38/64。已收录标签失败0，不代表兼容性池无失败。
+
+小动作池在额度内全标注，较大池按函数/callee/loop深度分层；三个S0候选包含advance，实际执行后重枚举S1。Queens和heapsort的S0池只有两个动作，因此各得到两个S1前缀，不复制第三条轨迹。旧B对PC1的完整proposal10已由新静态采样实际编译验证，不再用候选16代替。预列四套冻结模型在训练域的提议并集额外补标仅发生于ReedSolomon的两个候选；并集给所有主模型，不回灌验证或测试。
+
+新数据audit逐组核对独立完整输出、S1实际前缀动作、目标文件别名字节相等、预算和真q零loss/零梯度。原始计时不作为不同程序间绝对排序；绝对q区间与共享根margin规则保持不变。二进制相同只算一份产物，各上下文仍可有不同候选读取和历史。
+
+## 实际规模与成本
+
+收录源文件71–607行，S0图185–7836节点；例如PC1为1281节点、4个定义函数、29区域，DES为7836节点、11个定义函数、76区域。定义函数由结构图的函数→区域→块关系计数，不把外部声明充数。它们是完整多函数程序，仍不代表工业级大应用。84545行SQLite库接入失败单列，不用其源码体积夸大已支持图规模。
+
+兼容性累计wall30.757秒、标签累计wall480.221秒，命令累计24.971/369.809秒；与固定CPU1的G2训练有重叠，不将两者相加冒充串行经过时间。全部初始原生计时1410次（含默认/未收录/留出默认），去重后110个目标产物做6轮随机/反向成对交错，共660次。2070次计时不等于2070个训练样本。全部完整输出由独立Clang -O3原源码oracle检查，verifier只作结构检查。
+
+原生程序/编译子进程固定CPU0，Torch诊断固定CPU1；二者可能共享cache和功耗域，频率与其他主机负载未控制。硬件、版本、原始命令、计时顺序和失败日志保存在各run，来源许可证保留原头部（ReedSolomon要求保留Simon Rockliff署名）。没有新增依赖下载、系统设置修改、hash或单元测试工程。
+
+部署评价协议独立冻结在 `campaign-evaluation-v1.json`，闭集选择、完整提议匹配后缀、raw路径和guarded系统分开；新留出只在全部权重冻结后执行一次正式活动。G2/G3的训练和部署结果另见后续训练活动报告；G1覆盖本身不是神经收益。

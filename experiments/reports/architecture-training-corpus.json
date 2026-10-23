@@ -1,0 +1,4563 @@
+{
+  "source_base": "3980d44",
+  "frozen_manifest_commit": "094594a",
+  "corpus_implementation_commit": "9a178fc",
+  "protocol": {
+    "protocol": "architecture-training-campaign-v1",
+    "targets": {
+      "train": 12,
+      "validation": 4,
+      "test": 4
+    },
+    "pool": [
+      {
+        "program": "pc1",
+        "split": "train",
+        "family": "pc1",
+        "previously_observed": true,
+        "priority": 0,
+        "source_group": "pc1"
+      },
+      {
+        "program": "lists",
+        "split": "train",
+        "family": "linked-list",
+        "previously_observed": true,
+        "priority": 1,
+        "source_group": "lists"
+      },
+      {
+        "program": "llu_v11",
+        "split": "train",
+        "family": "linked-list",
+        "previously_observed": true,
+        "priority": 2,
+        "source_group": "llu_v11"
+      },
+      {
+        "program": "bubblesort",
+        "split": "train",
+        "family": "sorting",
+        "previously_observed": true,
+        "priority": 3,
+        "source_group": "stanford"
+      },
+      {
+        "program": "towers",
+        "split": "train",
+        "family": "towers",
+        "previously_observed": true,
+        "priority": 4,
+        "source_group": "stanford"
+      },
+      {
+        "program": "queens",
+        "split": "train",
+        "family": "backtracking",
+        "previously_observed": true,
+        "priority": 5,
+        "source_group": "stanford"
+      },
+      {
+        "program": "puzzle",
+        "split": "train",
+        "family": "backtracking",
+        "previously_observed": true,
+        "priority": 6,
+        "source_group": "stanford"
+      },
+      {
+        "program": "heapsort",
+        "split": "train",
+        "family": "sorting",
+        "previously_observed": true,
+        "priority": 7,
+        "source_group": "heapsort"
+      },
+      {
+        "program": "ackermann",
+        "split": "train",
+        "family": "ackermann",
+        "previously_observed": false,
+        "priority": 8,
+        "source_group": "ackermann"
+      },
+      {
+        "program": "fib2",
+        "split": "train",
+        "family": "fib2",
+        "previously_observed": false,
+        "priority": 9,
+        "source_group": "fib2"
+      },
+      {
+        "program": "hash",
+        "split": "train",
+        "family": "hash",
+        "previously_observed": false,
+        "priority": 10,
+        "source_group": "hash"
+      },
+      {
+        "program": "strcat",
+        "split": "train",
+        "family": "strcat",
+        "previously_observed": false,
+        "priority": 11,
+        "source_group": "strcat"
+      },
+      {
+        "program": "quicksort",
+        "split": "train",
+        "family": "sorting",
+        "previously_observed": false,
+        "priority": 12,
+        "source_group": "stanford"
+      },
+      {
+        "program": "perm",
+        "split": "train",
+        "family": "perm",
+        "previously_observed": false,
+        "priority": 13,
+        "source_group": "stanford"
+      },
+      {
+        "program": "huffbench",
+        "split": "train",
+        "family": "huffbench",
+        "previously_observed": false,
+        "priority": 14,
+        "source_group": "huffbench"
+      },
+      {
+        "program": "reed_solomon",
+        "split": "train",
+        "family": "reed_solomon",
+        "previously_observed": false,
+        "priority": 15,
+        "source_group": "reed_solomon"
+      },
+      {
+        "program": "matrix",
+        "split": "validation",
+        "family": "matrix",
+        "previously_observed": true,
+        "priority": 0,
+        "source_group": "matrix"
+      },
+      {
+        "program": "perlin",
+        "split": "validation",
+        "family": "perlin",
+        "previously_observed": true,
+        "priority": 1,
+        "source_group": "perlin"
+      },
+      {
+        "program": "des",
+        "split": "validation",
+        "family": "des",
+        "previously_observed": true,
+        "priority": 2,
+        "source_group": "des"
+      },
+      {
+        "program": "sieve",
+        "split": "validation",
+        "family": "sieve",
+        "previously_observed": false,
+        "priority": 3,
+        "source_group": "sieve"
+      },
+      {
+        "program": "random",
+        "split": "validation",
+        "family": "random",
+        "previously_observed": false,
+        "priority": 4,
+        "source_group": "random"
+      },
+      {
+        "program": "fannkuch",
+        "split": "test",
+        "family": "fannkuch",
+        "previously_observed": false,
+        "priority": 0,
+        "source_group": "fannkuch"
+      },
+      {
+        "program": "spectral_norm",
+        "split": "test",
+        "family": "spectral_norm",
+        "previously_observed": false,
+        "priority": 1,
+        "source_group": "spectral_norm"
+      },
+      {
+        "program": "richards",
+        "split": "test",
+        "family": "richards",
+        "previously_observed": false,
+        "priority": 2,
+        "source_group": "richards"
+      },
+      {
+        "program": "oourafft",
+        "split": "test",
+        "family": "oourafft",
+        "previously_observed": false,
+        "priority": 3,
+        "source_group": "oourafft"
+      },
+      {
+        "program": "pi",
+        "split": "test",
+        "family": "pi",
+        "previously_observed": false,
+        "priority": 4,
+        "source_group": "pi"
+      },
+      {
+        "program": "mandel",
+        "split": "test",
+        "family": "mandel",
+        "previously_observed": false,
+        "priority": 5,
+        "source_group": "mandel"
+      }
+    ],
+    "selection": "Fixed ordered pool. Accept by full source import, exact independent output, graph budget and real S0/S1 non-advance reachability only. No timing or model-score filter. Replacements stay in preassigned split; shortages reported.",
+    "collection": {
+      "seed": 71,
+      "prefixes": 3,
+      "small_pool": 16,
+      "static_per_program": 36,
+      "max_per_program": 64,
+      "static_terminal_limit": 576,
+      "proposal_terminal_limit": 192,
+      "terminal_limit": 768,
+      "timing_rounds": 6
+    },
+    "proposal": {
+      "rounds": 1,
+      "domain": "train only",
+      "weights": {
+        "A": "training-reviews/v131-review/A.pt",
+        "B": "training-reviews/v131-review/B.pt",
+        "current_only": "training-reviews/v131-review/current_only.pt",
+        "B_current_only": "training-reviews/v131-review/B_current_only.pt"
+      },
+      "selection": "union of frozen full legal argmax proposals at each real prefix; same extra labels for all methods, no validation/test supplement"
+    },
+    "objective": {
+      "learning_rate": 0.0003,
+      "near_tie_relative": 0.02,
+      "near_tie_absolute_ms": 0.05,
+      "uncertainty_mad_multiplier": 2,
+      "interval_version": "log-ratio-v2",
+      "pair_version": "shared-root-v1",
+      "loss_version": "shared-root-margin-v1"
+    },
+    "development": {
+      "dataset": "pilots/v13-stage/dataset.json",
+      "seed": 23,
+      "updates": 200,
+      "learning_rates": [
+        0.0003,
+        0.0001
+      ],
+      "snapshots": [
+        0,
+        20,
+        50,
+        100,
+        200
+      ],
+      "reuse_A_single": "training-reviews/v131-review/overfit-A.json",
+      "selection": "Joint A/B final validation regret then q MAE across prelisted mixed recipes; no test access. Main always fixed final200, no earliest-tie deployment."
+    },
+    "training": {
+      "seeds": [
+        23,
+        47
+      ],
+      "updates": 200,
+      "groups_per_update": 4,
+      "snapshots": [
+        0,
+        20,
+        50,
+        100,
+        200
+      ],
+      "validation_interval": 20,
+      "selection": "fixed-final-200; common LR selected only by G2 train/validation diagnosis; same minibatch order for all four methods"
+    },
+    "models": {
+      "A": {
+        "kind": "A",
+        "history": true
+      },
+      "B": {
+        "kind": "B",
+        "history": true
+      },
+      "current_only": {
+        "kind": "A",
+        "history": false
+      },
+      "B_current_only": {
+        "kind": "B",
+        "history": false
+      }
+    },
+    "budget": {
+      "optimization_timeout_s": 180,
+      "max_action_attempts": 18,
+      "max_terminal_candidates": 3,
+      "beam_width": 2,
+      "near_tie_relative": 0.02,
+      "near_tie_absolute_ms": 0.05,
+      "uncertainty_mad_multiplier": 2
+    },
+    "large_application": {
+      "source": "MultiSource/Applications/sqlite3/sqlite3.c",
+      "license": "SQLite public domain; original amalgamation header",
+      "scope": "Full SQLite3 library TU import/structure feasibility only; shell not yet linked. Never claim whole executable MLIR success from library import.",
+      "defines": [
+        "SQLITE_OMIT_LOAD_EXTENSION=1",
+        "SQLITE_THREADSAFE=0"
+      ],
+      "timeout_s": 120,
+      "max_ir_bytes": 67108864
+    },
+    "test_policy": "Only default legality/correctness during corpus construction. Freeze training recipes and weights before one formal raw/guarded activity. Seen families never relabeled blind.",
+    "limits": "No new backbone/action/loss/threshold changes. Whole original programs, no synthesized copies. Actual terminal attempts including failures and defaults charged separately from distinct objects and measurement repetitions."
+  },
+  "audit": {
+    "groups": [
+      {
+        "program": "pc1",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 17,
+        "labeled": 9,
+        "distinct_objects": 5,
+        "strong_pairs": 22,
+        "effects": {
+          "beneficial": 4,
+          "neutral": 5,
+          "harmful": 0,
+          "identical_pairs": 10,
+          "near_tie_pairs": 4
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "pc1",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-pc1-prefix0",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "pc1",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-pc1-prefix9",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "pc1",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-pc1-prefix11",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "lists",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 7,
+        "labeled": 7,
+        "distinct_objects": 1,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 7,
+          "harmful": 0,
+          "identical_pairs": 21,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "lists",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-lists-prefix0",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "lists",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-lists-prefix1",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "lists",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-lists-prefix2",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "bubblesort",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "bubblesort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-bubblesort-prefix0",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "bubblesort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-bubblesort-prefix1",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "bubblesort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-bubblesort-prefix3",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 4,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 6
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "towers",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 6,
+        "labeled": 6,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 6,
+          "harmful": 0,
+          "identical_pairs": 6,
+          "near_tie_pairs": 9
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "towers",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-towers-prefix0",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "towers",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-towers-prefix2",
+        "candidate_pool": 5,
+        "labeled": 5,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 5,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 7
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "towers",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-towers-prefix5",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "queens",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "queens",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-queens-prefix0",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 4,
+        "strong_pairs": 1,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 5
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "queens",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-queens-prefix1",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 1,
+          "near_tie_pairs": 5
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "puzzle",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 1,
+          "near_tie_pairs": 2
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "puzzle",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-puzzle-prefix0",
+        "candidate_pool": 37,
+        "labeled": 11,
+        "distinct_objects": 5,
+        "strong_pairs": 33,
+        "effects": {
+          "beneficial": 1,
+          "neutral": 7,
+          "harmful": 3,
+          "identical_pairs": 21,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "puzzle",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-puzzle-prefix1",
+        "candidate_pool": 38,
+        "labeled": 11,
+        "distinct_objects": 5,
+        "strong_pairs": 34,
+        "effects": {
+          "beneficial": 1,
+          "neutral": 7,
+          "harmful": 3,
+          "identical_pairs": 21,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "puzzle",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-puzzle-prefix2",
+        "candidate_pool": 38,
+        "labeled": 11,
+        "distinct_objects": 5,
+        "strong_pairs": 33,
+        "effects": {
+          "beneficial": 1,
+          "neutral": 7,
+          "harmful": 3,
+          "identical_pairs": 21,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "heapsort",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 1,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 1,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "heapsort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-heapsort-prefix0",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "heapsort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-heapsort-prefix1",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 1
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "quicksort",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 5,
+        "labeled": 5,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 5,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 7
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "quicksort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-quicksort-prefix0",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "quicksort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-quicksort-prefix2",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "quicksort",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-quicksort-prefix4",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 3,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 3
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "perm",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 1,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 3,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "perm",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-perm-prefix0",
+        "candidate_pool": 5,
+        "labeled": 5,
+        "distinct_objects": 2,
+        "strong_pairs": 4,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 1,
+          "identical_pairs": 6,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "perm",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-perm-prefix1",
+        "candidate_pool": 5,
+        "labeled": 5,
+        "distinct_objects": 2,
+        "strong_pairs": 4,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 1,
+          "identical_pairs": 6,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "perm",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-perm-prefix2",
+        "candidate_pool": 5,
+        "labeled": 5,
+        "distinct_objects": 2,
+        "strong_pairs": 4,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 1,
+          "identical_pairs": 6,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "reed_solomon",
+        "split": "train",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 2,
+        "strong_pairs": 2,
+        "effects": {
+          "beneficial": 1,
+          "neutral": 2,
+          "harmful": 0,
+          "identical_pairs": 1,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "reed_solomon",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-reed_solomon-prefix0",
+        "candidate_pool": 30,
+        "labeled": 12,
+        "distinct_objects": 8,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 12,
+          "harmful": 0,
+          "identical_pairs": 10,
+          "near_tie_pairs": 56
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "reed_solomon",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-reed_solomon-prefix1",
+        "candidate_pool": 39,
+        "labeled": 12,
+        "distinct_objects": 6,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 12,
+          "harmful": 0,
+          "identical_pairs": 21,
+          "near_tie_pairs": 45
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "reed_solomon",
+        "split": "train",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-reed_solomon-prefix2",
+        "candidate_pool": 34,
+        "labeled": 11,
+        "distinct_objects": 7,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 11,
+          "harmful": 0,
+          "identical_pairs": 10,
+          "near_tie_pairs": 45
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "matrix",
+        "split": "validation",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 4,
+        "labeled": 4,
+        "distinct_objects": 1,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 4,
+          "harmful": 0,
+          "identical_pairs": 6,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "matrix",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-matrix-prefix0",
+        "candidate_pool": 10,
+        "labeled": 10,
+        "distinct_objects": 10,
+        "strong_pairs": 9,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 9,
+          "harmful": 1,
+          "identical_pairs": 0,
+          "near_tie_pairs": 36
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "matrix",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-matrix-prefix2",
+        "candidate_pool": 11,
+        "labeled": 11,
+        "distinct_objects": 10,
+        "strong_pairs": 10,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 10,
+          "harmful": 1,
+          "identical_pairs": 1,
+          "near_tie_pairs": 44
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "matrix",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-matrix-prefix3",
+        "candidate_pool": 11,
+        "labeled": 11,
+        "distinct_objects": 10,
+        "strong_pairs": 10,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 10,
+          "harmful": 1,
+          "identical_pairs": 1,
+          "near_tie_pairs": 44
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "perlin",
+        "split": "validation",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 20,
+        "labeled": 9,
+        "distinct_objects": 1,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 9,
+          "harmful": 0,
+          "identical_pairs": 36,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "perlin",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-perlin-prefix0",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 1,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 1,
+          "harmful": 1,
+          "identical_pairs": 0,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "perlin",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-perlin-prefix1",
+        "candidate_pool": 3,
+        "labeled": 3,
+        "distinct_objects": 2,
+        "strong_pairs": 2,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 2,
+          "harmful": 1,
+          "identical_pairs": 1,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "perlin",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-perlin-prefix11",
+        "candidate_pool": 2,
+        "labeled": 2,
+        "distinct_objects": 2,
+        "strong_pairs": 1,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 1,
+          "harmful": 1,
+          "identical_pairs": 0,
+          "near_tie_pairs": 0
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "des",
+        "split": "validation",
+        "stage": "S0",
+        "prefix": "root",
+        "candidate_pool": 5,
+        "labeled": 5,
+        "distinct_objects": 5,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 5,
+          "harmful": 0,
+          "identical_pairs": 0,
+          "near_tie_pairs": 10
+        },
+        "upstream_action": null
+      },
+      {
+        "program": "des",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-des-prefix0",
+        "candidate_pool": 10,
+        "labeled": 10,
+        "distinct_objects": 8,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 10,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 42
+        },
+        "upstream_action": "advance"
+      },
+      {
+        "program": "des",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-des-prefix2",
+        "candidate_pool": 10,
+        "labeled": 10,
+        "distinct_objects": 8,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 10,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 42
+        },
+        "upstream_action": "inline"
+      },
+      {
+        "program": "des",
+        "split": "validation",
+        "stage": "S1",
+        "prefix": "campaign-v1-labels-des-prefix3",
+        "candidate_pool": 10,
+        "labeled": 10,
+        "distinct_objects": 8,
+        "strong_pairs": 0,
+        "effects": {
+          "beneficial": 0,
+          "neutral": 10,
+          "harmful": 0,
+          "identical_pairs": 3,
+          "near_tie_pairs": 42
+        },
+        "upstream_action": "inline"
+      }
+    ],
+    "budget": {
+      "static": 277,
+      "proposal": 2,
+      "by_program": {
+        "pc1": 15,
+        "lists": 16,
+        "llu_v11": 1,
+        "bubblesort": 14,
+        "towers": 19,
+        "queens": 10,
+        "puzzle": 36,
+        "heapsort": 6,
+        "ackermann": 1,
+        "fib2": 1,
+        "hash": 0,
+        "strcat": 1,
+        "quicksort": 14,
+        "perm": 18,
+        "huffbench": 0,
+        "reed_solomon": 38,
+        "matrix": 36,
+        "perlin": 16,
+        "des": 35,
+        "sieve": 1,
+        "random": 1
+      }
+    },
+    "selected": {
+      "train": [
+        "pc1",
+        "lists",
+        "bubblesort",
+        "towers",
+        "queens",
+        "puzzle",
+        "heapsort",
+        "quicksort",
+        "perm",
+        "reed_solomon"
+      ],
+      "validation": [
+        "matrix",
+        "perlin",
+        "des"
+      ],
+      "test": [
+        "spectral_norm",
+        "oourafft",
+        "pi"
+      ]
+    },
+    "source_families": {
+      "train": [
+        "backtracking",
+        "linked-list",
+        "pc1",
+        "perm",
+        "reed_solomon",
+        "sorting",
+        "towers"
+      ],
+      "validation": [
+        "des",
+        "matrix",
+        "perlin"
+      ],
+      "test": [
+        "oourafft",
+        "pi",
+        "spectral_norm"
+      ]
+    },
+    "all_true_q_zero_loss_and_gradient": true,
+    "matching_prefixes_and_correctness": true,
+    "new_test_labels": 0,
+    "note": "programs, context rows, distinct objects and strong pairs are separate counts; all alias byte comparisons direct"
+  },
+  "programs": [
+    {
+      "program": "pc1",
+      "split": "train",
+      "compiled_terminals": 15,
+      "distinct_objects": 8,
+      "new_static_attempts": 14,
+      "new_proposal_attempts": 0,
+      "wall_s": 23.27181576564908,
+      "command_s": 17.797936336137354,
+      "failures": [],
+      "source_lines": 335,
+      "graphs": {
+        "S0": {
+          "nodes": 1281,
+          "edges": 2217,
+          "functions": 7,
+          "regions": 29,
+          "actions": {
+            "advance": 1,
+            "inline": 16
+          },
+          "defined_functions": 4
+        },
+        "S1": {
+          "nodes": 1057,
+          "edges": 1993,
+          "functions": 7,
+          "regions": 29,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          },
+          "defined_functions": 4
+        },
+        "S2": {
+          "nodes": 1463,
+          "edges": 2602,
+          "functions": 7,
+          "regions": 29,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 4
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 10,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 10,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix0",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix9",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix9",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix9",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix9",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix11",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix11",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix11",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-pc1-prefix11",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "lists",
+      "split": "train",
+      "compiled_terminals": 16,
+      "distinct_objects": 3,
+      "new_static_attempts": 15,
+      "new_proposal_attempts": 0,
+      "wall_s": 14.331363623961806,
+      "command_s": 9.508636511862278,
+      "failures": [],
+      "source_lines": 231,
+      "graphs": {
+        "S0": {
+          "nodes": 1147,
+          "edges": 2036,
+          "functions": 20,
+          "regions": 82,
+          "actions": {
+            "advance": 1,
+            "inline": 6
+          },
+          "defined_functions": 16
+        },
+        "S1": {
+          "nodes": 1053,
+          "edges": 1893,
+          "functions": 20,
+          "regions": 82,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          },
+          "defined_functions": 16
+        },
+        "S2": {
+          "nodes": 1067,
+          "edges": 1914,
+          "functions": 20,
+          "regions": 82,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 16
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 4,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 4,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix0",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix1",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix2",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-lists-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "bubblesort",
+      "split": "train",
+      "compiled_terminals": 14,
+      "distinct_objects": 7,
+      "new_static_attempts": 13,
+      "new_proposal_attempts": 0,
+      "wall_s": 9.889150300063193,
+      "command_s": 8.594955557025969,
+      "failures": [],
+      "source_lines": 171,
+      "graphs": {
+        "S0": {
+          "nodes": 236,
+          "edges": 392,
+          "functions": 6,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "inline": 3
+          },
+          "defined_functions": 5
+        },
+        "S1": {
+          "nodes": 230,
+          "edges": 386,
+          "functions": 6,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          },
+          "defined_functions": 5
+        },
+        "S2": {
+          "nodes": 280,
+          "edges": 461,
+          "functions": 6,
+          "regions": 24,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 5
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix0",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix1",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix3",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix3",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix3",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-bubblesort-prefix3",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "towers",
+      "split": "train",
+      "compiled_terminals": 19,
+      "distinct_objects": 7,
+      "new_static_attempts": 18,
+      "new_proposal_attempts": 0,
+      "wall_s": 10.98848133534193,
+      "command_s": 8.869917496107519,
+      "failures": [],
+      "source_lines": 218,
+      "graphs": {
+        "S0": {
+          "nodes": 395,
+          "edges": 666,
+          "functions": 13,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "inline": 5
+          },
+          "defined_functions": 12
+        },
+        "S1": {
+          "nodes": 381,
+          "edges": 651,
+          "functions": 13,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "unroll2": 3
+          },
+          "defined_functions": 12
+        },
+        "S2": {
+          "nodes": 441,
+          "edges": 741,
+          "functions": 13,
+          "regions": 37,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 12
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 5,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 4,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix0",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix2",
+          "index": 4,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix5",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix5",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix5",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-towers-prefix5",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "queens",
+      "split": "train",
+      "compiled_terminals": 10,
+      "distinct_objects": 7,
+      "new_static_attempts": 9,
+      "new_proposal_attempts": 0,
+      "wall_s": 5.72701377235353,
+      "command_s": 4.6080138040706515,
+      "failures": [],
+      "source_lines": 188,
+      "graphs": {
+        "S0": {
+          "nodes": 278,
+          "edges": 483,
+          "functions": 7,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          },
+          "defined_functions": 6
+        },
+        "S1": {
+          "nodes": 276,
+          "edges": 481,
+          "functions": 7,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "unroll2": 3
+          },
+          "defined_functions": 6
+        },
+        "S2": {
+          "nodes": 360,
+          "edges": 609,
+          "functions": 7,
+          "regions": 37,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 6
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix0",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix1",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-queens-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "puzzle",
+      "split": "train",
+      "compiled_terminals": 36,
+      "distinct_objects": 12,
+      "new_static_attempts": 35,
+      "new_proposal_attempts": 0,
+      "wall_s": 47.74463411141187,
+      "command_s": 40.06848403252661,
+      "failures": [],
+      "source_lines": 225,
+      "graphs": {
+        "S0": {
+          "nodes": 867,
+          "edges": 1439,
+          "functions": 9,
+          "regions": 80,
+          "actions": {
+            "advance": 1,
+            "inline": 2
+          },
+          "defined_functions": 8
+        },
+        "S1": {
+          "nodes": 751,
+          "edges": 1309,
+          "functions": 9,
+          "regions": 80,
+          "actions": {
+            "advance": 1,
+            "unroll2": 36
+          },
+          "defined_functions": 8
+        },
+        "S2": {
+          "nodes": 1185,
+          "edges": 1960,
+          "functions": 9,
+          "regions": 80,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 8
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix0",
+          "index": 7,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix1",
+          "index": 7,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix2",
+          "index": 7,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-puzzle-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "heapsort",
+      "split": "train",
+      "compiled_terminals": 6,
+      "distinct_objects": 2,
+      "new_static_attempts": 5,
+      "new_proposal_attempts": 0,
+      "wall_s": 3.678068087436259,
+      "command_s": 2.810731889680028,
+      "failures": [],
+      "source_lines": 81,
+      "graphs": {
+        "S0": {
+          "nodes": 280,
+          "edges": 491,
+          "functions": 5,
+          "regions": 26,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          },
+          "defined_functions": 3
+        },
+        "S1": {
+          "nodes": 276,
+          "edges": 485,
+          "functions": 5,
+          "regions": 26,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          },
+          "defined_functions": 3
+        },
+        "S2": {
+          "nodes": 300,
+          "edges": 521,
+          "functions": 5,
+          "regions": 26,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 3
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix0",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix1",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-heapsort-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "quicksort",
+      "split": "train",
+      "compiled_terminals": 14,
+      "distinct_objects": 7,
+      "new_static_attempts": 13,
+      "new_proposal_attempts": 0,
+      "wall_s": 12.052539348602295,
+      "command_s": 10.562474220059812,
+      "failures": [],
+      "source_lines": 174,
+      "graphs": {
+        "S0": {
+          "nodes": 309,
+          "edges": 525,
+          "functions": 7,
+          "regions": 32,
+          "actions": {
+            "advance": 1,
+            "inline": 4
+          },
+          "defined_functions": 6
+        },
+        "S1": {
+          "nodes": 303,
+          "edges": 517,
+          "functions": 7,
+          "regions": 32,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          },
+          "defined_functions": 6
+        },
+        "S2": {
+          "nodes": 347,
+          "edges": 583,
+          "functions": 7,
+          "regions": 32,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 6
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix0",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix2",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix4",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix4",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix4",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-quicksort-prefix4",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "perm",
+      "split": "train",
+      "compiled_terminals": 18,
+      "distinct_objects": 2,
+      "new_static_attempts": 17,
+      "new_proposal_attempts": 0,
+      "wall_s": 9.398116925731301,
+      "command_s": 8.159408286213875,
+      "failures": [],
+      "source_lines": 169,
+      "graphs": {
+        "S0": {
+          "nodes": 185,
+          "edges": 304,
+          "functions": 8,
+          "regions": 19,
+          "actions": {
+            "advance": 1,
+            "inline": 2
+          },
+          "defined_functions": 7
+        },
+        "S1": {
+          "nodes": 179,
+          "edges": 295,
+          "functions": 8,
+          "regions": 19,
+          "actions": {
+            "advance": 1,
+            "unroll2": 4
+          },
+          "defined_functions": 7
+        },
+        "S2": {
+          "nodes": 225,
+          "edges": 364,
+          "functions": 8,
+          "regions": 19,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 7
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 1,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix0",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix1",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix2",
+          "index": 3,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-perm-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "reed_solomon",
+      "split": "train",
+      "compiled_terminals": 38,
+      "distinct_objects": 16,
+      "new_static_attempts": 35,
+      "new_proposal_attempts": 2,
+      "wall_s": 161.86004201881588,
+      "command_s": 145.81605200842023,
+      "failures": [],
+      "source_lines": 447,
+      "graphs": {
+        "S0": {
+          "nodes": 1627,
+          "edges": 3017,
+          "functions": 8,
+          "regions": 133,
+          "actions": {
+            "advance": 1,
+            "inline": 2
+          },
+          "defined_functions": 7
+        },
+        "S1": {
+          "nodes": 1475,
+          "edges": 2816,
+          "functions": 8,
+          "regions": 133,
+          "actions": {
+            "advance": 1,
+            "unroll2": 29
+          },
+          "defined_functions": 7
+        },
+        "S2": {
+          "nodes": 1839,
+          "edges": 3362,
+          "functions": 8,
+          "regions": 133,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 7
+        }
+      },
+      "proposals": [
+        {
+          "model": "A",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S0",
+          "prefix": "root",
+          "index": 2,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix0",
+          "index": 20,
+          "in_static_labels": false
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix0",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix1",
+          "index": 29,
+          "in_static_labels": false
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix1",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "A",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "B",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        },
+        {
+          "model": "current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix2",
+          "index": 22,
+          "in_static_labels": true
+        },
+        {
+          "model": "B_current_only",
+          "stage": "S1",
+          "prefix": "campaign-v1-labels-reed_solomon-prefix2",
+          "index": 0,
+          "in_static_labels": true
+        }
+      ]
+    },
+    {
+      "program": "matrix",
+      "split": "validation",
+      "compiled_terminals": 36,
+      "distinct_objects": 11,
+      "new_static_attempts": 35,
+      "new_proposal_attempts": 0,
+      "wall_s": 22.527548366226256,
+      "command_s": 19.703938639722764,
+      "failures": [],
+      "source_lines": 71,
+      "graphs": {
+        "S0": {
+          "nodes": 254,
+          "edges": 445,
+          "functions": 7,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "inline": 3
+          },
+          "defined_functions": 5
+        },
+        "S1": {
+          "nodes": 248,
+          "edges": 436,
+          "functions": 7,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "unroll2": 9
+          },
+          "defined_functions": 5
+        },
+        "S2": {
+          "nodes": 328,
+          "edges": 556,
+          "functions": 7,
+          "regions": 24,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 5
+        }
+      },
+      "proposals": []
+    },
+    {
+      "program": "perlin",
+      "split": "validation",
+      "compiled_terminals": 16,
+      "distinct_objects": 2,
+      "new_static_attempts": 15,
+      "new_proposal_attempts": 0,
+      "wall_s": 17.752052694559097,
+      "command_s": 16.243982138112187,
+      "failures": [],
+      "source_lines": 81,
+      "graphs": {
+        "S0": {
+          "nodes": 394,
+          "edges": 735,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1,
+            "inline": 19
+          },
+          "defined_functions": 6
+        },
+        "S1": {
+          "nodes": 378,
+          "edges": 712,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          },
+          "defined_functions": 6
+        },
+        "S2": {
+          "nodes": 416,
+          "edges": 769,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 6
+        }
+      },
+      "proposals": []
+    },
+    {
+      "program": "des",
+      "split": "validation",
+      "compiled_terminals": 35,
+      "distinct_objects": 26,
+      "new_static_attempts": 34,
+      "new_proposal_attempts": 0,
+      "wall_s": 141.0004377430305,
+      "command_s": 77.06438217870891,
+      "failures": [],
+      "source_lines": 607,
+      "graphs": {
+        "S0": {
+          "nodes": 7836,
+          "edges": 15222,
+          "functions": 15,
+          "regions": 76,
+          "actions": {
+            "advance": 1,
+            "inline": 4
+          },
+          "defined_functions": 11
+        },
+        "S1": {
+          "nodes": 7782,
+          "edges": 15136,
+          "functions": 15,
+          "regions": 76,
+          "actions": {
+            "advance": 1,
+            "unroll2": 9
+          },
+          "defined_functions": 11
+        },
+        "S2": {
+          "nodes": 8240,
+          "edges": 15823,
+          "functions": 15,
+          "regions": 76,
+          "actions": {
+            "advance": 1
+          },
+          "defined_functions": 11
+        }
+      },
+      "proposals": []
+    }
+  ],
+  "compatibility": [
+    {
+      "program": "pc1",
+      "split": "train",
+      "family": "pc1",
+      "previously_observed": true,
+      "priority": 0,
+      "source_group": "pc1",
+      "recipe": {
+        "path": "Trimaran/enc-pc1/pc1cod.c",
+        "family": "pukall-pc1-complete-program",
+        "split": "validation",
+        "check_args": [
+          [
+            "100"
+          ],
+          [
+            "1000"
+          ]
+        ],
+        "measure_args": [
+          "1000000"
+        ],
+        "license": "Author unrestricted-use notice with attribution; source header"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Benchmarks/Trimaran/enc-pc1/pc1cod.c",
+      "source_lines": 335,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-pc1-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 1281,
+          "edges": 2217,
+          "functions": 7,
+          "regions": 29,
+          "actions": {
+            "advance": 1,
+            "inline": 16
+          }
+        },
+        "S1": {
+          "nodes": 1057,
+          "edges": 1993,
+          "functions": 7,
+          "regions": 29,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          }
+        },
+        "S2": {
+          "nodes": 1463,
+          "edges": 2602,
+          "functions": 7,
+          "regions": 29,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 1.3979423651471734,
+      "command_s": 1.0647122710943222,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "lists",
+      "split": "train",
+      "family": "linked-list",
+      "previously_observed": true,
+      "priority": 1,
+      "source_group": "lists",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/lists.c",
+        "source_root": "suite",
+        "family": "shootout-linked-list",
+        "split": "train",
+        "check_args": [
+          [
+            "1"
+          ],
+          [
+            "17"
+          ]
+        ],
+        "measure_args": [
+          "10000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT; Shootout original source notice retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/lists.c",
+      "source_lines": 231,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-lists-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 1147,
+          "edges": 2036,
+          "functions": 20,
+          "regions": 82,
+          "actions": {
+            "advance": 1,
+            "inline": 6
+          }
+        },
+        "S1": {
+          "nodes": 1053,
+          "edges": 1893,
+          "functions": 20,
+          "regions": 82,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          }
+        },
+        "S2": {
+          "nodes": 1067,
+          "edges": 1914,
+          "functions": 20,
+          "regions": 82,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.9047815874218941,
+      "command_s": 0.664787894114852,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "llu_v11",
+      "split": "train",
+      "family": "linked-list",
+      "previously_observed": true,
+      "priority": 2,
+      "source_group": "llu_v11",
+      "recipe": {
+        "path": "llubenchmark/llubenchmark.c",
+        "family": "linked-list",
+        "split": "train",
+        "check_args": [
+          [
+            "-i",
+            "8",
+            "-n",
+            "4"
+          ],
+          [
+            "-i",
+            "17",
+            "-n",
+            "8"
+          ]
+        ],
+        "measure_args": [
+          "-i",
+          "300"
+        ],
+        "license": "LLVM test-suite license with source author attribution",
+        "note": "Original input flag; shorter predeclared workload than V1 to bound repeated collection cost"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Benchmarks/llubenchmark/llubenchmark.c",
+      "source_lines": 191,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-llu_v11-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 614,
+          "edges": 1162,
+          "functions": 6,
+          "regions": 47,
+          "actions": {
+            "advance": 1
+          }
+        },
+        "S1": {
+          "nodes": 604,
+          "edges": 1150,
+          "functions": 6,
+          "regions": 47,
+          "actions": {
+            "advance": 1,
+            "unroll2": 6
+          }
+        },
+        "S2": {
+          "nodes": 662,
+          "edges": 1240,
+          "functions": 6,
+          "regions": 47,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "single-stage-only",
+      "reason": "correct default, but S0/S1 does not both offer a non-advance action",
+      "wall_s": 0.7796770688146353,
+      "command_s": 0.591072354465723,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "bubblesort",
+      "split": "train",
+      "family": "sorting",
+      "previously_observed": true,
+      "priority": 3,
+      "source_group": "stanford",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Stanford/Bubblesort.c",
+        "source_root": "suite",
+        "family": "sorting",
+        "split": "train",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Stanford/Bubblesort.c",
+      "source_lines": 171,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-bubblesort-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 236,
+          "edges": 392,
+          "functions": 6,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "inline": 3
+          }
+        },
+        "S1": {
+          "nodes": 230,
+          "edges": 386,
+          "functions": 6,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          }
+        },
+        "S2": {
+          "nodes": 280,
+          "edges": 461,
+          "functions": 6,
+          "regions": 24,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.7480566250160336,
+      "command_s": 0.5970088159665465,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "towers",
+      "split": "train",
+      "family": "towers",
+      "previously_observed": true,
+      "priority": 4,
+      "source_group": "stanford",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Stanford/Towers.c",
+        "source_root": "suite",
+        "family": "hanoi-recursion",
+        "split": "validation",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Stanford/Towers.c",
+      "source_lines": 218,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-towers-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 395,
+          "edges": 666,
+          "functions": 13,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "inline": 5
+          }
+        },
+        "S1": {
+          "nodes": 381,
+          "edges": 651,
+          "functions": 13,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "unroll2": 3
+          }
+        },
+        "S2": {
+          "nodes": 441,
+          "edges": 741,
+          "functions": 13,
+          "regions": 37,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.6399275213479996,
+      "command_s": 0.4735172027722001,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "queens",
+      "split": "train",
+      "family": "backtracking",
+      "previously_observed": true,
+      "priority": 5,
+      "source_group": "stanford",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Stanford/Queens.c",
+        "source_root": "suite",
+        "family": "backtracking",
+        "split": "test",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Stanford/Queens.c",
+      "source_lines": 188,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-queens-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 278,
+          "edges": 483,
+          "functions": 7,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          }
+        },
+        "S1": {
+          "nodes": 276,
+          "edges": 481,
+          "functions": 7,
+          "regions": 37,
+          "actions": {
+            "advance": 1,
+            "unroll2": 3
+          }
+        },
+        "S2": {
+          "nodes": 360,
+          "edges": 609,
+          "functions": 7,
+          "regions": 37,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.6584630459547043,
+      "command_s": 0.45068612415343523,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "puzzle",
+      "split": "train",
+      "family": "backtracking",
+      "previously_observed": true,
+      "priority": 6,
+      "source_group": "stanford",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Stanford/Puzzle.c",
+        "source_root": "suite",
+        "family": "backtracking",
+        "split": "test",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Stanford/Puzzle.c",
+      "source_lines": 225,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-puzzle-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 867,
+          "edges": 1439,
+          "functions": 9,
+          "regions": 80,
+          "actions": {
+            "advance": 1,
+            "inline": 2
+          }
+        },
+        "S1": {
+          "nodes": 751,
+          "edges": 1309,
+          "functions": 9,
+          "regions": 80,
+          "actions": {
+            "advance": 1,
+            "unroll2": 36
+          }
+        },
+        "S2": {
+          "nodes": 1185,
+          "edges": 1960,
+          "functions": 9,
+          "regions": 80,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 1.2631831960752606,
+      "command_s": 1.0499183256179094,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "heapsort",
+      "split": "train",
+      "family": "sorting",
+      "previously_observed": true,
+      "priority": 7,
+      "source_group": "heapsort",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/heapsort.c",
+        "source_root": "suite",
+        "family": "shootout-heapsort",
+        "split": "validation",
+        "check_args": [
+          [
+            "100"
+          ],
+          [
+            "1000"
+          ]
+        ],
+        "measure_args": [
+          "100000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT; Shootout original source notice retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/heapsort.c",
+      "source_lines": 81,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-heapsort-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 280,
+          "edges": 491,
+          "functions": 5,
+          "regions": 26,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          }
+        },
+        "S1": {
+          "nodes": 276,
+          "edges": 485,
+          "functions": 5,
+          "regions": 26,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          }
+        },
+        "S2": {
+          "nodes": 300,
+          "edges": 521,
+          "functions": 5,
+          "regions": 26,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.6413776567205787,
+      "command_s": 0.487302141264081,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "ackermann",
+      "split": "train",
+      "family": "ackermann",
+      "previously_observed": false,
+      "priority": 8,
+      "source_group": "ackermann",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/ackermann.c",
+        "source_root": "suite",
+        "family": "ackermann-recursion",
+        "check_args": [
+          [
+            "1"
+          ],
+          [
+            "3"
+          ]
+        ],
+        "measure_args": [
+          "7"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/ackermann.c",
+      "source_lines": 23,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-ackermann-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 111,
+          "edges": 182,
+          "functions": 4,
+          "regions": 14,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          }
+        },
+        "S1": {
+          "nodes": 111,
+          "edges": 182,
+          "functions": 4,
+          "regions": 14,
+          "actions": {
+            "advance": 1
+          }
+        },
+        "S2": {
+          "nodes": 113,
+          "edges": 185,
+          "functions": 4,
+          "regions": 14,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "single-stage-only",
+      "reason": "correct default, but S0/S1 does not both offer a non-advance action",
+      "wall_s": 0.49098300468176603,
+      "command_s": 0.3579130107536912,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "fib2",
+      "split": "train",
+      "family": "fib2",
+      "previously_observed": false,
+      "priority": 9,
+      "source_group": "fib2",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/fib2.c",
+        "source_root": "suite",
+        "family": "fibonacci-recursion",
+        "check_args": [
+          [
+            "10"
+          ],
+          [
+            "20"
+          ]
+        ],
+        "measure_args": [
+          "30"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/fib2.c",
+      "source_lines": 27,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-fib2-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 78,
+          "edges": 123,
+          "functions": 4,
+          "regions": 10,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          }
+        },
+        "S1": {
+          "nodes": 78,
+          "edges": 123,
+          "functions": 4,
+          "regions": 10,
+          "actions": {
+            "advance": 1
+          }
+        },
+        "S2": {
+          "nodes": 80,
+          "edges": 126,
+          "functions": 4,
+          "regions": 10,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "single-stage-only",
+      "reason": "correct default, but S0/S1 does not both offer a non-advance action",
+      "wall_s": 0.4861059933900833,
+      "command_s": 0.3582331435754895,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "hash",
+      "split": "train",
+      "family": "hash",
+      "previously_observed": false,
+      "priority": 10,
+      "source_group": "hash",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/hash.c",
+        "source_root": "suite",
+        "family": "hash-table",
+        "check_args": [
+          [
+            "100"
+          ],
+          [
+            "1000"
+          ]
+        ],
+        "measure_args": [
+          "10000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/hash.c",
+      "source_lines": 36,
+      "status": "failed",
+      "reason": "import: exit -6; see /home/chen/develop/IRLoom/logs/architecture/campaign-v1-probe-hash/001-import.log",
+      "wall_s": 1.251537213101983,
+      "command_s": 1.1365732178092003,
+      "terminal_attempts": 0
+    },
+    {
+      "program": "strcat",
+      "split": "train",
+      "family": "strcat",
+      "previously_observed": false,
+      "priority": 11,
+      "source_group": "strcat",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/strcat.c",
+        "source_root": "suite",
+        "family": "string-growth",
+        "check_args": [
+          [
+            "10"
+          ],
+          [
+            "100"
+          ]
+        ],
+        "measure_args": [
+          "100000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/strcat.c",
+      "source_lines": 36,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-strcat-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 189,
+          "edges": 314,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1
+          }
+        },
+        "S1": {
+          "nodes": 185,
+          "edges": 310,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          }
+        },
+        "S2": {
+          "nodes": 197,
+          "edges": 328,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "single-stage-only",
+      "reason": "correct default, but S0/S1 does not both offer a non-advance action",
+      "wall_s": 0.5258779656141996,
+      "command_s": 0.37657233234494925,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "quicksort",
+      "split": "train",
+      "family": "sorting",
+      "previously_observed": false,
+      "priority": 12,
+      "source_group": "stanford",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Stanford/Quicksort.c",
+        "source_root": "suite",
+        "family": "sorting",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Stanford/Quicksort.c",
+      "source_lines": 174,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-quicksort-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 309,
+          "edges": 525,
+          "functions": 7,
+          "regions": 32,
+          "actions": {
+            "advance": 1,
+            "inline": 4
+          }
+        },
+        "S1": {
+          "nodes": 303,
+          "edges": 517,
+          "functions": 7,
+          "regions": 32,
+          "actions": {
+            "advance": 1,
+            "unroll2": 2
+          }
+        },
+        "S2": {
+          "nodes": 347,
+          "edges": 583,
+          "functions": 7,
+          "regions": 32,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.8196267513558269,
+      "command_s": 0.6633612532168627,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "perm",
+      "split": "train",
+      "family": "perm",
+      "previously_observed": false,
+      "priority": 13,
+      "source_group": "stanford",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Stanford/Perm.c",
+        "source_root": "suite",
+        "family": "permutation-recursion",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Stanford/Perm.c",
+      "source_lines": 169,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-perm-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 185,
+          "edges": 304,
+          "functions": 8,
+          "regions": 19,
+          "actions": {
+            "advance": 1,
+            "inline": 2
+          }
+        },
+        "S1": {
+          "nodes": 179,
+          "edges": 295,
+          "functions": 8,
+          "regions": 19,
+          "actions": {
+            "advance": 1,
+            "unroll2": 4
+          }
+        },
+        "S2": {
+          "nodes": 225,
+          "edges": 364,
+          "functions": 8,
+          "regions": 19,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.6174636008217931,
+      "command_s": 0.4731936091557145,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "huffbench",
+      "split": "train",
+      "family": "huffbench",
+      "previously_observed": false,
+      "priority": 14,
+      "source_group": "huffbench",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/CoyoteBench/huffbench.c",
+        "source_root": "suite",
+        "family": "huffman-compression",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "Public domain, Scott Robert Ladd; original source header",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ]
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/CoyoteBench/huffbench.c",
+      "source_lines": 493,
+      "status": "failed",
+      "reason": "import: exit 5; see /home/chen/develop/IRLoom/logs/architecture/campaign-v1-probe-huffbench/001-import.log",
+      "wall_s": 0.23605139926075935,
+      "command_s": 0.1207805322483182,
+      "terminal_attempts": 0
+    },
+    {
+      "program": "reed_solomon",
+      "split": "train",
+      "family": "reed_solomon",
+      "previously_observed": false,
+      "priority": 15,
+      "source_group": "reed_solomon",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Misc/ReedSolomon.c",
+        "source_root": "suite",
+        "family": "reed-solomon-coding",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ]
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Misc/ReedSolomon.c",
+      "source_lines": 447,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-reed_solomon-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 1627,
+          "edges": 3017,
+          "functions": 8,
+          "regions": 133,
+          "actions": {
+            "advance": 1,
+            "inline": 2
+          }
+        },
+        "S1": {
+          "nodes": 1475,
+          "edges": 2816,
+          "functions": 8,
+          "regions": 133,
+          "actions": {
+            "advance": 1,
+            "unroll2": 29
+          }
+        },
+        "S2": {
+          "nodes": 1839,
+          "edges": 3362,
+          "functions": 8,
+          "regions": 133,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 3.6173092294484377,
+      "command_s": 3.2779333386570215,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "matrix",
+      "split": "validation",
+      "family": "matrix",
+      "previously_observed": true,
+      "priority": 0,
+      "source_group": "matrix",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/matrix.c",
+        "source_root": "suite",
+        "family": "shootout-matrix-product",
+        "split": "validation",
+        "check_args": [
+          [
+            "1"
+          ],
+          [
+            "3"
+          ]
+        ],
+        "measure_args": [
+          "1000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT; original Shootout notice retained"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/matrix.c",
+      "source_lines": 71,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-matrix-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 254,
+          "edges": 445,
+          "functions": 7,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "inline": 3
+          }
+        },
+        "S1": {
+          "nodes": 248,
+          "edges": 436,
+          "functions": 7,
+          "regions": 24,
+          "actions": {
+            "advance": 1,
+            "unroll2": 9
+          }
+        },
+        "S2": {
+          "nodes": 328,
+          "edges": 556,
+          "functions": 7,
+          "regions": 24,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.6214754721149802,
+      "command_s": 0.4667053474113345,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "perlin",
+      "split": "validation",
+      "family": "perlin",
+      "previously_observed": true,
+      "priority": 1,
+      "source_group": "perlin",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Misc/perlin.c",
+        "source_root": "suite",
+        "family": "perlin-noise",
+        "split": "test",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ],
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notice",
+        "note": "Official small input macro, source algorithm and floating-point semantics unchanged"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Misc/perlin.c",
+      "source_lines": 81,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-perlin-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 394,
+          "edges": 735,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1,
+            "inline": 19
+          }
+        },
+        "S1": {
+          "nodes": 378,
+          "edges": 712,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          }
+        },
+        "S2": {
+          "nodes": 416,
+          "edges": 769,
+          "functions": 8,
+          "regions": 23,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 1.1023060949519277,
+      "command_s": 0.9422092279419303,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "des",
+      "split": "validation",
+      "family": "des",
+      "previously_observed": true,
+      "priority": 2,
+      "source_group": "des",
+      "recipe": {
+        "path": "Trimaran/enc-3des/des.c",
+        "family": "des-block-cipher",
+        "split": "test",
+        "check_args": [
+          [
+            "1"
+          ]
+        ],
+        "measure_args": [
+          "1"
+        ],
+        "license": "GPL-2.0-or-later; original source header"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Benchmarks/Trimaran/enc-3des/des.c",
+      "source_lines": 607,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-des-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 7836,
+          "edges": 15222,
+          "functions": 15,
+          "regions": 76,
+          "actions": {
+            "advance": 1,
+            "inline": 4
+          }
+        },
+        "S1": {
+          "nodes": 7782,
+          "edges": 15136,
+          "functions": 15,
+          "regions": 76,
+          "actions": {
+            "advance": 1,
+            "unroll2": 9
+          }
+        },
+        "S2": {
+          "nodes": 8240,
+          "edges": 15823,
+          "functions": 15,
+          "regions": 76,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 4.57536737062037,
+      "command_s": 3.481040755286813,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "sieve",
+      "split": "validation",
+      "family": "sieve",
+      "previously_observed": false,
+      "priority": 3,
+      "source_group": "sieve",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/sieve.c",
+        "source_root": "suite",
+        "family": "prime-sieve",
+        "check_args": [
+          [
+            "1"
+          ],
+          [
+            "3"
+          ]
+        ],
+        "measure_args": [
+          "1000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/sieve.c",
+      "source_lines": 39,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-sieve-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 154,
+          "edges": 248,
+          "functions": 3,
+          "regions": 17,
+          "actions": {
+            "advance": 1
+          }
+        },
+        "S1": {
+          "nodes": 148,
+          "edges": 239,
+          "functions": 3,
+          "regions": 17,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          }
+        },
+        "S2": {
+          "nodes": 156,
+          "edges": 251,
+          "functions": 3,
+          "regions": 17,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "single-stage-only",
+      "reason": "correct default, but S0/S1 does not both offer a non-advance action",
+      "wall_s": 0.7922184076160192,
+      "command_s": 0.624171013943851,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "random",
+      "split": "validation",
+      "family": "random",
+      "previously_observed": false,
+      "priority": 4,
+      "source_group": "random",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Shootout/random.c",
+        "source_root": "suite",
+        "family": "lcg-random",
+        "check_args": [
+          [
+            "100"
+          ],
+          [
+            "1000"
+          ]
+        ],
+        "measure_args": [
+          "1000000"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Shootout/random.c",
+      "source_lines": 36,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-random-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 112,
+          "edges": 180,
+          "functions": 4,
+          "regions": 12,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          }
+        },
+        "S1": {
+          "nodes": 112,
+          "edges": 180,
+          "functions": 4,
+          "regions": 12,
+          "actions": {
+            "advance": 1
+          }
+        },
+        "S2": {
+          "nodes": 124,
+          "edges": 198,
+          "functions": 4,
+          "regions": 12,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "single-stage-only",
+      "reason": "correct default, but S0/S1 does not both offer a non-advance action",
+      "wall_s": 0.5457734363153577,
+      "command_s": 0.41087969578802586,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "fannkuch",
+      "split": "test",
+      "family": "fannkuch",
+      "previously_observed": false,
+      "priority": 0,
+      "source_group": "fannkuch",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/BenchmarkGame/fannkuch.c",
+        "source_root": "suite",
+        "family": "pancake-permutations",
+        "check_args": [
+          [
+            "4"
+          ],
+          [
+            "5"
+          ]
+        ],
+        "measure_args": [
+          "8"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/BenchmarkGame/fannkuch.c",
+      "source_lines": 105,
+      "status": "failed",
+      "reason": "import: exit 5; see /home/chen/develop/IRLoom/logs/architecture/campaign-v1-probe-fannkuch/001-import.log",
+      "wall_s": 0.17968850769102573,
+      "command_s": 0.06357208453118801,
+      "terminal_attempts": 0
+    },
+    {
+      "program": "spectral_norm",
+      "split": "test",
+      "family": "spectral_norm",
+      "previously_observed": false,
+      "priority": 1,
+      "source_group": "spectral_norm",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/BenchmarkGame/spectral-norm.c",
+        "source_root": "suite",
+        "family": "spectral-norm",
+        "check_args": [
+          [
+            "10"
+          ],
+          [
+            "20"
+          ]
+        ],
+        "measure_args": [
+          "300"
+        ],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/BenchmarkGame/spectral-norm.c",
+      "source_lines": 53,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-spectral_norm-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 212,
+          "edges": 373,
+          "functions": 7,
+          "regions": 18,
+          "actions": {
+            "advance": 1,
+            "inline": 4
+          }
+        },
+        "S1": {
+          "nodes": 204,
+          "edges": 361,
+          "functions": 7,
+          "regions": 18,
+          "actions": {
+            "advance": 1,
+            "unroll2": 7
+          }
+        },
+        "S2": {
+          "nodes": 236,
+          "edges": 409,
+          "functions": 7,
+          "regions": 18,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.6559281013906002,
+      "command_s": 0.504512102343142,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "richards",
+      "split": "test",
+      "family": "richards",
+      "previously_observed": false,
+      "priority": 2,
+      "source_group": "richards",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Misc/richards_benchmark.c",
+        "source_root": "suite",
+        "family": "richards-task-scheduler",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ]
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Misc/richards_benchmark.c",
+      "source_lines": 408,
+      "status": "failed",
+      "reason": "import: exit -6; see /home/chen/develop/IRLoom/logs/architecture/campaign-v1-probe-richards/001-import.log",
+      "wall_s": 1.2565149366855621,
+      "command_s": 1.1385415466502309,
+      "terminal_attempts": 0
+    },
+    {
+      "program": "oourafft",
+      "split": "test",
+      "family": "oourafft",
+      "previously_observed": false,
+      "priority": 3,
+      "source_group": "oourafft",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Misc/oourafft.c",
+        "source_root": "suite",
+        "family": "ooura-fft",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ]
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Misc/oourafft.c",
+      "source_lines": 763,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-oourafft-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 2561,
+          "edges": 5382,
+          "functions": 17,
+          "regions": 86,
+          "actions": {
+            "advance": 1,
+            "inline": 8
+          }
+        },
+        "S1": {
+          "nodes": 2313,
+          "edges": 4979,
+          "functions": 17,
+          "regions": 86,
+          "actions": {
+            "advance": 1,
+            "unroll2": 27
+          }
+        },
+        "S2": {
+          "nodes": 3897,
+          "edges": 7471,
+          "functions": 17,
+          "regions": 86,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 2.395607224665582,
+      "command_s": 1.9272595001384616,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "pi",
+      "split": "test",
+      "family": "pi",
+      "previously_observed": false,
+      "priority": 4,
+      "source_group": "pi",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Misc/pi.c",
+        "source_root": "suite",
+        "family": "monte-carlo-pi",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ]
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Misc/pi.c",
+      "source_lines": 64,
+      "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/campaign-v1-probe-pi-default/report.json",
+      "graphs": {
+        "S0": {
+          "nodes": 186,
+          "edges": 309,
+          "functions": 3,
+          "regions": 10,
+          "actions": {
+            "advance": 1,
+            "inline": 1
+          }
+        },
+        "S1": {
+          "nodes": 186,
+          "edges": 309,
+          "functions": 3,
+          "regions": 10,
+          "actions": {
+            "advance": 1,
+            "unroll2": 1
+          }
+        },
+        "S2": {
+          "nodes": 210,
+          "edges": 345,
+          "functions": 3,
+          "regions": 10,
+          "actions": {
+            "advance": 1
+          }
+        }
+      },
+      "status": "supported",
+      "reason": "complete source and independent outputs pass; two action stages",
+      "wall_s": 0.927416393533349,
+      "command_s": 0.76693906635046,
+      "terminal_attempts": 1
+    },
+    {
+      "program": "mandel",
+      "split": "test",
+      "family": "mandel",
+      "previously_observed": false,
+      "priority": 5,
+      "source_group": "mandel",
+      "recipe": {
+        "path": "SingleSource/Benchmarks/Misc/mandel.c",
+        "source_root": "suite",
+        "family": "mandelbrot-fractal",
+        "check_args": [
+          []
+        ],
+        "measure_args": [],
+        "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+        "defines": [
+          "SMALL_PROBLEM_SIZE"
+        ]
+      },
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/SingleSource/Benchmarks/Misc/mandel.c",
+      "source_lines": 48,
+      "status": "failed",
+      "reason": "import: exit -6; see /home/chen/develop/IRLoom/logs/architecture/campaign-v1-probe-mandel/001-import.log",
+      "wall_s": 1.2549520339816809,
+      "command_s": 1.1384151857346296,
+      "terminal_attempts": 0
+    }
+  ],
+  "large_application": {
+    "source": "MultiSource/Applications/sqlite3/sqlite3.c",
+    "license": "SQLite public domain; original amalgamation header",
+    "scope": "Full SQLite3 library TU import/structure feasibility only; shell not yet linked. Never claim whole executable MLIR success from library import.",
+    "defines": [
+      "SQLITE_OMIT_LOAD_EXTENSION=1",
+      "SQLITE_THREADSAFE=0"
+    ],
+    "timeout_s": 120,
+    "max_ir_bytes": 67108864,
+    "source_lines": 84545,
+    "source_bytes": 2862216,
+    "status": "failed",
+    "reason": "large-import: exit -11; see /home/chen/develop/IRLoom/logs/architecture/campaign-v1/sqlite-import/import.log",
+    "events": [
+      {
+        "stage": "large-import",
+        "command": [
+          "/home/chen/develop/IRLoom/benchmark-data/architecture/frontends/build/bin/cgeist",
+          "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Applications/sqlite3/sqlite3.c",
+          "-S",
+          "-O0",
+          "-raise-scf-to-affine",
+          "-std=gnu89",
+          "-resource-dir=/usr/lib/llvm-18/lib/clang/18",
+          "-DSQLITE_OMIT_LOAD_EXTENSION=1",
+          "-DSQLITE_THREADSAFE=0",
+          "-o",
+          "/home/chen/develop/IRLoom/benchmark-data/architecture/campaigns/campaign-v1/compatibility/sqlite/sqlite.mlir"
+        ],
+        "cwd": "/home/chen/develop/IRLoom",
+        "log": "/home/chen/develop/IRLoom/logs/architecture/campaign-v1/sqlite-import/import.log",
+        "returncode": -11,
+        "status": "failed",
+        "seconds": 1.3631318770349026
+      }
+    ],
+    "wall_s": 1.371870318427682,
+    "command_s": 1.3631318770349026
+  },
+  "costs": {
+    "probe_wall_s": 30.757482522167265,
+    "labels_wall_s": 480.221264093183,
+    "probe_command_s": 24.970942970365286,
+    "labels_command_s": 369.8089130986482,
+    "initial_native_measurements": 1410,
+    "interleaved_native_measurements": 660
+  },
+  "raw_results": "/home/chen/develop/IRLoom/benchmark-data/architecture/campaigns/campaign-v1",
+  "note": "Counterfactual matched labels, not neural performance results. CPU0 native timing overlapped G2 CPU1, affinity/cache/frequency limitations retained. No new test action labels."
+}

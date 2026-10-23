@@ -1,6 +1,18 @@
 # V1 架构运行记录
 
-## 当前入口：V1.3.1训练验收
+## 当前入口：多程序训练活动 G1–G3
+
+```bash
+bash scripts/architecture.sh --campaign all --name my-campaign
+```
+
+冻结配方为 `experiments/architecture/campaign-v1.json`，部署配方为 `campaign-evaluation-v1.json`，新源码配方为 `programs-campaign-v1.json`。支持 `--campaign probe/collect/diagnose/train/evaluate` 分阶段执行；`collect`不依赖诊断完成，`train`自动复用兼容性/数据/诊断缓存，`evaluate`仅在所有主权重完成后进入新留出。`--campaign-config "$PWD/path.json"`用于独立同版本配方；同名协议不匹配拒绝复用，不覆盖旧版本。
+
+缓存位于 `benchmark-data/architecture/campaigns/NAME`，日志位于 `logs/architecture`，临时文件仍在项目tmp；完整同名结果幂等复用，部分训练不会重写快照，需新活动名字。旧V1.3标签和V1.3.1四套冻结模型用于有界开发诊断/预注册训练域提议，需要保留对应缓存引用。
+
+先固定候选池及替补，实际支持不足不凑数；仅按完整输出正确性、图预算、S0/S1动作可达性收录。训练域最多一次四模型提议并集补标；固定后的全合法proposal实际执行，不能用闭集候选替代。数据覆盖、预算及限制见 [G1报告](../../experiments/reports/architecture-training-corpus.md)。以下V1.3.1及更早入口保留。
+
+## V1.3.1训练验收
 
 ```bash
 bash scripts/architecture.sh --training-review all --name my-v131

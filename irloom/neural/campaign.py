@@ -15,17 +15,20 @@ def run(args):
         from .campaign_training import diagnose
         diagnose(output,config)
     else:
-        from .campaign_corpus import probe,collect
+        from .campaign_corpus import probe,collect,audit
         catalog=probe(output,config)
         if args.campaign=='probe':return
         if args.campaign=='collect':
-            collect(output,config,catalog)
+            audit(output,collect(output,config,catalog),config,catalog)
             return
         from .campaign_training import diagnose,train
         diagnosis=diagnose(output,config)
         dataset=collect(output,config,catalog)
+        audit(output,dataset,config,catalog)
         models=train(output,dataset,config,diagnosis)
         if args.campaign in ('all','evaluate'):
             from .campaign_evaluation import evaluate
-            evaluate(output,config,dataset,models,catalog)
+            evaluation=evaluate(output,config,dataset,models,catalog)
+            from .campaign_summary import summarize
+            summarize(output,config,catalog,dataset,diagnosis,models,evaluation)
     print(json.dumps({'campaign':str(output),'phase':args.campaign}),flush=True)
