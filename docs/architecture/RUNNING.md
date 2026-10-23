@@ -1,6 +1,26 @@
 # V1 架构运行记录
 
-## 当前入口：多程序训练活动 G1–G3
+## C1–C2 正确性审查（当前）
+
+从仓库根目录运行，复用固定 LLVM/Polygeist SDK、原 campaign 数据与冻结权重：
+
+```sh
+bash scripts/architecture.sh --correctness-audit all --name c1-review
+```
+
+同名已完成结果直接复用；更换名字执行独立审计。`isolate` 重放旧错误对照，`minimal` 运行独立整数MLIR及官方旧pass复现，`regress` 做修复后的固定轨迹/冻结模型/guarded回归，`analyze` 审查273条历史标签并重编译13条受影响记录。单独 `regress` 需先执行同名 `isolate`；`all` 包含正确顺序。中断留下的session不自动覆盖，保留现场并使用新名字。
+
+新修复的普通程序入口：
+
+```sh
+bash scripts/architecture.sh --program spectral_norm --compiler-revision cleanup-positional-v1 --name my-fixed-spectral
+```
+
+统一入口只在私有缓存编译一个LoopUtils.cpp并链接匹配bridge对象；需要已有历史SDK、静态库和bridge对象，不会下载新LLVM或覆盖旧构建。新revision只用于普通 `--program` 路径及正确性审计；历史 campaign/pilot 仍使用旧协议，不借此选项迁移旧数据。默认revision仍是legacy。日志在 `logs/architecture`、临时目录在 `tmp`，新工具和审计产物在 `benchmark-data/architecture/{compilers/cleanup-positional-v1,correctness-v1}`。
+
+实际结果见 [C1–C2报告](../../experiments/reports/architecture-campaign-correctness.md)。原错误已修复，13条旧性能标签需另采，本轮无新训练或性能矩阵。以下保留历史操作说明，不表示应再次运行旧实验。
+
+## 历史入口：多程序训练活动 G1–G3
 
 ```bash
 bash scripts/architecture.sh --campaign all --name my-campaign

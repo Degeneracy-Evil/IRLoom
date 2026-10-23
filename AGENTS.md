@@ -19,11 +19,15 @@
 
 训练S1有113个强对，其中100对来自Puzzle的三个前缀；A两个种子112/113方向正确，但无记忆对照没有稳定劣势，尚无连续记忆增量收益。S0有益/中性/有害记录为5/39/0，S1为3/127/12，验证S1为0/63/6；不能用微平均方向准确率冒充发现新加速。
 
-32次完整提议的匹配后缀重放正确。64次raw/guarded调用61次成功，3次Spectral Norm raw的N=10输出为1.000000000而oracle为1.271844019；另6个guarded内部候选也被拒。所有24个留出guarded最终与默认产物相同。既保留无收益事实，也不能说所有神经路径正确。错误根因尚未定位，不预先归咎某个Pass或A/B记忆。
+32次完整提议的匹配后缀重放正确。64次raw/guarded调用61次成功，3次Spectral Norm raw的N=10输出为1.000000000而oracle为1.271844019；另6个guarded内部候选也被拒。所有24个留出guarded最终与默认产物相同。以上历史事实保留；C1现已定位为固定LLVM affine unroll cleanup carry按值替换导致接线错误，详见下段。
+
+C1–C2已完成，见 `experiments/reports/architecture-campaign-correctness.md` 及同名JSON。新revision `cleanup-positional-v1` 按operand位置连接cleanup carry，私有编译一个TU，保留旧SDK/bridge。独立MLIR及官方旧pass复现了同一缺陷；修复后两类固定轨迹的72项输入检查、原32条匹配动作、原3个冻结模型与相关程序回归通过，guarded仍拒绝私有错误产物。273条旧标签中260条不受本机制影响，Puzzle训练7条和DES验证6条新机器码改变，必须另采性能；训练S1的65/113强对涉及改变候选。C2按前缀/程序/家族分析既有预测，尚无记忆收益。不得将旧标签直接配给新产物；下一活动须先明确这13条及匹配参照的新采集协议，本轮不自动训练或启动旧全矩阵。
 
 本轮完整源码仅71–607行，SQLite库TU导入仍失败，没有完成大型工业程序的架构评价。新留出Spectral Norm/Ooura FFT/PI已经被观察，后续只能如实作复现/回归，不再次称新blind。
 
 ## 本轮执行顺序
+
+以下C1–C2已按原范围完成，保留为验收约束；复用入口 `bash scripts/architecture.sh --correctness-audit all --name c1-review`，同名完整缓存幂等复用。新正确程序运行必须显式指定 `--compiler-revision cleanup-positional-v1`，legacy默认仅保留历史协议。
 
 **C1：错误路径隔离与修复。** 读取原失败动作/IR/LLVM/命令/stdout，先去重并固定失败轨迹，不重新让模型选动作。比较默认、原S0内联加advance、能对应时的单独展开，以及完整失败组合。目标ID须在实际快照重新确认，不能跨路径硬套。若循环仅在内联后出现，明确单独展开对照不适用。找到最早造成错误的前缀及具体机制，保留最小独立诊断复现，不能按程序名/seed/节点ID黑名单绕过。
 

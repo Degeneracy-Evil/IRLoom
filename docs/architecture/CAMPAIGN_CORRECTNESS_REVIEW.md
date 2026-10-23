@@ -1,3 +1,7 @@
+# 执行记录：C1–C2 已完成
+
+2026-10-24 的根因、隔离修复、有限回归、273条标签/预测分析见 [交付报告](../../experiments/reports/architecture-campaign-correctness.md) 与同名JSON。原计划保留如下。旧SDK、权重、标签和结论不覆盖；13条改变的候选尚需新性能标签，本轮未启动训练或新性能活动。统一复现：`bash scripts/architecture.sh --correctness-audit all --name c1-review`。
+
 # G1–G3 审查：先修复语义失败，再解释架构收益
 
 审查基线：`4bf7804b600a96738b54459f711f2abe72a058c4`。依据活动报告、语料报告、机器摘要、MLIR bridge 及编译/评价代码；本次没有在原实验机器重新编译、训练或执行。下文是待实施任务，不是已经查明根因或取得新的性能结果。
