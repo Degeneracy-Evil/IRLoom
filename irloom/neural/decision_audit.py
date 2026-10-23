@@ -28,7 +28,15 @@ def audit(name):
                     'equal_default_ir':Path(report['final_ir']).read_bytes()==Path(json.loads((default/'report.json').read_text())['final_ir']).read_bytes()})
             paths=[Path(t['report']).parent for t in search['terminals']]
             first=terminals[0]['stages'][0]
+            raw_path=Path(pilot['single_path'][variant][program])
+            raw=json.loads(raw_path.read_text())
+            raw_trace=[{'stage':o['stage'],'candidate_count':len(o['graph']['candidates']),
+                        'advance_rank':d['ranking'].index(0)+1,'ranking':d['ranking'],
+                        'scores':d['scores'],'selected':d['selected']}
+                       for o,d in zip(raw['observations'],raw['decisions'])]
             result['programs'][variant][program]={'terminals':terminals,'actual_terminals':len(terminals),
+                'raw_proposal':{'report':str(raw_path),'stages':raw_trace,
+                    'equal_default_executable':(raw_path.parent/'program').read_bytes()==(default/'program').read_bytes()},
                 'terminal_cap':search['budget']['max_terminal_candidates'],
                 'default_first_excluded_stage':'S0' if first['default_excluded_by_local_width'] else 'not determined from surviving prefixes alone',
                 'two_terminal_executables_equal':len(paths)==2 and (paths[0]/'program').read_bytes()==(paths[1]/'program').read_bytes()}

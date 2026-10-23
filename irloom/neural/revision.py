@@ -23,6 +23,10 @@ def load_model(path, history=None):
 
 def train(name, dataset, config):
     output=CACHE/'pilots'/name
+    if (output/'training.json').exists():
+        cached=json.loads((output/'training.json').read_text())
+        if cached['config']!=config:raise ValueError('cached training protocol mismatch')
+        return cached
     result={'config':config,'models':{}}
     for seed in config['seeds']:
         recipes=[(label,options,'stage-q-v1') for label,options in config['models'].items()]
@@ -50,6 +54,10 @@ def train(name, dataset, config):
 
 def evaluate(name, dataset, training, config):
     output=CACHE/'pilots'/name
+    if (output/'evaluation.json').exists():
+        cached=json.loads((output/'evaluation.json').read_text())
+        if cached['config']!=config:raise ValueError('cached evaluation protocol mismatch')
+        return cached
     start=time.perf_counter()
     result={'config':config,'methods':{},'model_loading_s':{}}
     variants=[(key,key,None) for key in training['models']]
@@ -102,3 +110,4 @@ def run(args):
     if mode in ('all','measure'):
         from .revision_measurement import measure
         measure(args.name)
+        print(json.dumps({'v12_report':str(CACHE/'comparisons'/(args.name+'-interleaved')/'report.json')}),flush=True)
