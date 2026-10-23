@@ -9,7 +9,6 @@ import torch
 from .driver import ROOT,CACHE,save
 from .cost_objective import cost_loss,cost_parts
 from .stage_learning import prepare_groups,forward_prefix,quality
-from .revision import load_model
 from .interleaved import Interleaved
 from .recurrent import Recurrent
 
@@ -50,7 +49,8 @@ def data_audit(dataset,config):
             records.append({'program':a['program'],'stage':a['stage'],'prefix':a['prefix'],'split':split,
                 'rows':len(a['rows']),'distinct_objects':len(unique),
                 'old_strong':len(a['pairs']),'old_positive_gaps':sum(d['old_effective_gap']>0 for d in details),
-                'canonical_strong':len(b['pairs']),'canonical_positive_gaps':sum(p[3]>0 for p in b['pairs']), 'pairs':details})
+                'canonical_strong':len(b['pairs']),'canonical_positive_gaps':sum(p[3]>0 for p in b['pairs']),
+                'canonical_pairs':b['pairs'],'old_counts':a['counts'],'canonical_counts':b['counts'],'pairs':details})
     # 100/97 ms: absolute intervals may overlap, but the confirmed pair must
     # remain directional after the common root cancels.
     from .pair_labels import canonicalize
@@ -68,8 +68,14 @@ def data_audit(dataset,config):
     true=y.clone().requires_grad_();truth=cost_loss(true,y,margins,pairs,'shared-root-margin-v1')
     assert truth==0 and torch.autograd.grad(truth,true)[0].abs().sum()==0
     neutral=torch.zeros(2,requires_grad=True)
-    assert cost_loss(neutral,torch.zeros(2),torch.ones(2)*.05,[],'shared-root-margin-v1')==0
-    return {'groups':records,'scalar_fixture_not_performance':{'times_ms':[100,97],'threshold_ms':2,
+    for identical in (False,True):
+        fixture=[dict(rows[0]),{**rows[1],'target':0.0 if identical else math.log(.99),
+            'samples':[97.0 if identical else 99.0]*6,'object':rows[0]['object'] if identical else b'near'}]
+        neutral_pairs,_=canonicalize(fixture,100.0,config)
+        assert not neutral_pairs
+        neutral_loss=cost_loss(neutral,torch.tensor([r['target'] for r in fixture]),torch.ones(2)*.05,neutral_pairs,'shared-root-margin-v1')
+        assert neutral_loss==0 and torch.autograd.grad(neutral_loss,neutral)[0].abs().sum()==0
+    return {'audit_version':2,'groups':records,'identical_and_near_tie_zero_loss_and_gradient':True,'scalar_fixture_not_performance':{'times_ms':[100,97],'threshold_ms':2,
         'old_tied_loss':float(old.detach()),'new_tied_loss':float(new.detach()),'new_tied_gradient':gradient.tolist(),
         'gamma':pairs[0][3],'true_q_zero_loss_and_gradient':True},'note':'Canonical artifact targets, pair membership, sign and gamma use the same times; old measurements untouched.'}
 
@@ -151,6 +157,55 @@ def train_one(output,key,kind,model_config,dataset,objective,protocol,diagnostic
     return result
 
 
+def acceptance(output,records,protocol):
+    checks={};summary={}
+    for key,record in records.items():
+        main=torch.load(output/(key+'.pt'),weights_only=True)
+        assert main['optimizer_steps']==protocol['updates']==len(record['curves'])
+        for step in protocol['snapshots']:
+            snapshot=torch.load(output/f'{key}-step{step}.pt',weights_only=True)
+            result=json.loads((output/f'{key}-step{step}.json').read_text())
+            assert snapshot['optimizer_steps']==result['optimizer_steps']==step
+            for split in ('train','validation'):
+                for group in result[split]['groups']:
+                    assert all(math.isfinite(q) for q in group['predicted_q'])
+            if step==protocol['updates']:
+                assert all(torch.equal(main['state_dict'][k],v) for k,v in snapshot['state_dict'].items())
+        first=torch.load(output/f'{key}-step1.pt',weights_only=True)
+        change=max(float((v-first['state_dict'][k]).abs().max()) for k,v in main['state_dict'].items())
+        assert change>0
+        assert [r['optimizer_steps'] for r in record['curves']]==list(range(1,protocol['updates']+1))
+        assert all(math.isfinite(row['total']) and row['interval']>=0 and row['pair']>=0 for row in record['curves'])
+        checks[key]={'main_equals_step20':True,'main_vs_step1_max_parameter_change':change,'snapshots':protocol['snapshots']}
+        final=record['snapshots'][str(protocol['updates'])]
+        summary[key]={'parameters':record['parameters'],'seconds':record['seconds'],
+            'optimizer_steps':record['optimizer_steps'],'earliest_diagnostic_steps':record['earliest_diagnostic_steps'],
+            'train':final['canonical_train'],'validation':final['canonical_validation'],
+            'initial_train':record['snapshots']['0']['canonical_train']['metrics'],
+            'initial_validation':record['snapshots']['0']['canonical_validation']['metrics'],
+            'loss_first':record['curves'][0],'loss_last':record['curves'][-1]}
+    original=json.loads((CACHE/'pilots/v13-stage/training.json').read_text())
+    for key,old_key in (('A_fixed_legacy','A-s23'),('B_fixed_legacy','B-s23')):
+        first=torch.load(output/f'{key}-step1.pt',weights_only=True)['state_dict']
+        old=torch.load(CACHE/f'pilots/v13-stage/{old_key}.pt',weights_only=True)['state_dict']
+        difference=max(float((v-old[k]).abs().max()) for k,v in first.items())
+        assert difference==0
+        for index in (0,19):
+            assert records[key]['curves'][index]['validation']==original['models'][old_key]['curves'][index]['validation']
+            assert records[key]['curves'][index]['total']==original['models'][old_key]['curves'][index]['loss']
+        checks[key]['old_step1_exact_parameter_match']=True
+        checks[key]['old_step1_and_step20_metrics_exact_match']=True
+    for a,b in (('A_fixed_legacy','A'),('B_fixed_legacy','B'),('A','current_only'),('B','B_current_only')):
+        left=torch.load(output/f'{a}-step0.pt',weights_only=True)['state_dict']
+        right=torch.load(output/f'{b}-step0.pt',weights_only=True)['state_dict']
+        assert all(torch.equal(v,right[k]) for k,v in left.items())
+    result={'checks':checks,'matched_initializations':True,'models':summary,
+        'training_s':sum(r['seconds'] for r in records.values()),'scope':'train/validation only; no checkpoint selected using test or replay latency'}
+    path=output/'acceptance.json'
+    if not path.exists():save(path,result)
+    return result
+
+
 def run(args):
     torch.set_num_threads(1)
     protocol=json.loads((args.training_config.resolve() if args.training_config else ROOT/'experiments/architecture/training-v1-3-1.json').read_text())
@@ -162,7 +217,8 @@ def run(args):
     save(config_path,protocol)
     if args.training_review in ('audit','all'):
         path=output/'data-audit.json'
-        if not path.exists():save(path,data_audit(dataset,dataset['config']['training']))
+        if not path.exists() or json.loads(path.read_text()).get('audit_version')!=2:
+            save(path,data_audit(dataset,dataset['config']['training']))
         print(json.dumps({'data_audit':str(path)}),flush=True)
     if args.training_review=='audit':return
     records={}
@@ -172,7 +228,8 @@ def run(args):
                    'pair_version':recipe['pair_version'],'loss_version':recipe['loss_version']}
         model_config={'hidden':128,'heads':4,'history':recipe['history'],'encoder_version':'hierarchical-v3','decision_version':'stage-q-v1'}
         if path.exists() and weights.exists():records[key]=json.loads(path.read_text())
-        elif path.exists() or weights.exists():raise RuntimeError('partial training cache; use a new run name')
+        elif path.exists() or weights.exists() or any(output.glob(f'{key}-step*.pt')):
+            raise RuntimeError('partial training cache; use a new run name')
         else:
             records[key]=train_one(output,key,recipe['kind'],model_config,dataset,objective,protocol)
             print(json.dumps({'trained':key,'deployed_optimizer_steps':records[key]['optimizer_steps']}),flush=True)
@@ -184,11 +241,14 @@ def run(args):
         missed=group['correct_pair_directions']<group['strong_pairs']
         path=output/'overfit-A.json'
         if missed and not path.exists():
+            if any(output.glob('overfit-A-step*.pt')):
+                raise RuntimeError('partial diagnostic cache; use a new run name')
             bounded={**protocol,'updates':diagnostic['updates'],'snapshots':diagnostic['snapshots']}
             train_one(output,'overfit-A','A',records['A']['config'],dataset,records['A']['objective'],bounded,True)
         save(output/'diagnostic-decision.json',{'trigger':'A final training strong-pair direction coverage < 100%',
             'triggered':missed,'group':group,'diagnostic_weights_never_deployed':True})
     if args.training_review=='all':
         from .training_replay import replay
+        acceptance(output,records,protocol)
         replay(output,dataset,protocol)
     print(json.dumps({'training_review':str(output)}),flush=True)

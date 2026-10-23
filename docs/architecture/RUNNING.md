@@ -1,5 +1,21 @@
 # V1 架构运行记录
 
+## 当前入口：V1.3.1训练验收
+
+```bash
+bash scripts/architecture.sh --training-review all --name my-v131
+```
+
+读取既有 `benchmark-data/architecture/pilots/v13-stage/dataset.json` 及其引用产物；不重新采标签。配置是 `experiments/architecture/training-v1-3-1.json`，也可用 `--training-config "$PWD/path.json"` 指定独立配置。`audit/train/all` 分别执行数值审计、六模型训练、训练及少量真实编译重放；`all` 包含主权重/快照验收。与旧入口共用工具链，自动增量准备前端。
+
+主checkpoint固定20次Adam更新，保存0/1/5/10/20步。A/B先用旧有限margin隔离选模，再替换共享根margin，最后独立训练无连续记忆版本。若A在既有PC1训练组仍未正确排序全部强对，自动执行唯一的200步单组诊断，诊断不读取验证/测试，也不部署。没有新标签、测试选模或历史搜索大矩阵。
+
+结果位于 `benchmark-data/architecture/training-reviews/NAME`：`data-audit.json`、各模型快照/曲线、`training.json`、`acceptance.json`、`replay.json`。重放每模型仅PC1 S0和matrix第三个S1前缀，在已标注候选中选择，保留完整候选proposal以说明范围；五次原生计时只是正确执行的诊断，不做新加速结论。日志在 `logs/architecture`。同名完整结果幂等复用，不用缓存命中耗时覆盖原成本；中断的训练使用新名字。
+
+验收与限制见 [V1.3.1报告](../../experiments/reports/architecture-v1-3-training-review.md)。以下V1.3及更早入口作为历史保留。
+
+## V1.3历史入口
+
 V1.3 的内容摘要、角色读出和有限 margin 对照见 [新报告](../../experiments/reports/architecture-v1-3-pilot.md)。一条命令运行新配方：
 
 ```sh
