@@ -1,0 +1,9 @@
+{
+  "suite_commit": "72a946a42cbce06afef68b2326ff6c3869d09799",
+  "selection": "Full unmodified official sources selected for import/correctness and S0/S1 reachability before formal labels. des is a new block-cipher family, not evidence for large C++ projects. Queens/Puzzle are diagnostics only.",
+  "programs": {
+    "lists": {"path": "SingleSource/Benchmarks/Shootout/lists.c", "source_root": "suite", "family": "shootout-linked-list", "split": "train", "check_args": [["1"], ["17"]], "measure_args": ["10000"], "license": "LLVM test-suite LICENSE.TXT; Shootout original source notice retained"},
+    "heapsort": {"path": "SingleSource/Benchmarks/Shootout/heapsort.c", "source_root": "suite", "family": "shootout-heapsort", "split": "validation", "check_args": [["100"], ["1000"]], "measure_args": ["100000"], "license": "LLVM test-suite LICENSE.TXT; Shootout original source notice retained"},
+    "des": {"path": "Trimaran/enc-3des/des.c", "family": "des-block-cipher", "split": "test", "check_args": [["1"]], "measure_args": ["1"], "license": "GPL-2.0-or-later; original source header"}
+  }
+}

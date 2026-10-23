@@ -1,0 +1,21 @@
+{
+  "schema": 1,
+  "protocol": "architecture-v1-2",
+  "continuation": "all-advance-v1; q=log(native latency / same-program root default latency); maximize -q; S2 observe-only retains S1 branch score",
+  "programs": ["pc1", "lists", "heapsort", "des", "queens", "puzzle"],
+  "splits": {"pc1": "train", "lists": "train", "heapsort": "validation", "des": "test", "queens": "diagnostic", "puzzle": "diagnostic"},
+  "collection": {"actions_per_prefix": 3, "prefix_policies": ["advance", "balanced"], "stages": ["S0", "S1"]},
+  "training": {"epochs": 20, "learning_rate": 0.0003, "resource_weight": 0.01, "near_tie_relative": 0.02, "near_tie_absolute_ms": 0.05, "uncertainty_mad_multiplier": 2, "selection": "minimum validation candidate-set log regret; if no distinguishable validation pairs use frozen final epoch; regression never breaks ties", "objective": "stage root-relative log-cost interval regression and matched-prefix pair ranking; policy baseline retains whole-trajectory preference loss"},
+  "seeds": [23, 47],
+  "models": {
+    "A": {"hidden": 128, "heads": 4, "history": true},
+    "B": {"hidden": 128, "heads": 4, "history": true},
+    "current_only": {"hidden": 128, "heads": 4, "history": false},
+    "B_current_only": {"hidden": 128, "heads": 4, "history": false},
+    "B_capacity": {"hidden": 160, "heads": 4, "history": true}
+  },
+  "policy_baselines": ["A", "B"],
+  "budget": {"optimization_timeout_s": 180, "max_action_attempts": 18, "max_terminal_candidates": 3, "beam_width": 2, "near_tie_relative": 0.02, "near_tie_absolute_ms": 0.05, "uncertainty_mad_multiplier": 2},
+  "measurement": {"rounds": 10, "seed": 41, "policy_baseline_seed": 23},
+  "limitations": "All action targets re-enumerated per actual IR. One all-advance continuation, finite conditional value not Q*. Validation regret restricted to sampled candidate set. Seen Queens/Puzzle never select epochs. Default seat is charged as one of three terminals; search protection is not memory. Do not lower thresholds or replace programs based on measured effects."
+}
