@@ -231,7 +231,13 @@ def main():
     parser.add_argument("--v13-config", type=Path)
     parser.add_argument("--training-review", choices=("audit", "train", "all"), help="V1.3.1 frozen-data fixed-final training acceptance")
     parser.add_argument("--training-config", type=Path)
+    parser.add_argument("--campaign", choices=("probe", "collect", "diagnose", "train", "evaluate", "all"), help="frozen multi-program corpus and bounded A/B training campaign")
+    parser.add_argument("--campaign-config", type=Path)
     args = parser.parse_args()
+    if args.campaign:
+        from .campaign import run
+        run(args)
+        return
     if args.training_review:
         from .training_review import run
         run(args)

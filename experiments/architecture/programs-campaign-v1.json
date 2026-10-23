@@ -1,0 +1,239 @@
+{
+  "suite_commit": "72a946a42cbce06afef68b2326ff6c3869d09799",
+  "programs": {
+    "ackermann": {
+      "path": "SingleSource/Benchmarks/Shootout/ackermann.c",
+      "source_root": "suite",
+      "family": "ackermann-recursion",
+      "check_args": [
+        [
+          "1"
+        ],
+        [
+          "3"
+        ]
+      ],
+      "measure_args": [
+        "7"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "fib2": {
+      "path": "SingleSource/Benchmarks/Shootout/fib2.c",
+      "source_root": "suite",
+      "family": "fibonacci-recursion",
+      "check_args": [
+        [
+          "10"
+        ],
+        [
+          "20"
+        ]
+      ],
+      "measure_args": [
+        "30"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "hash": {
+      "path": "SingleSource/Benchmarks/Shootout/hash.c",
+      "source_root": "suite",
+      "family": "hash-table",
+      "check_args": [
+        [
+          "100"
+        ],
+        [
+          "1000"
+        ]
+      ],
+      "measure_args": [
+        "10000"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "strcat": {
+      "path": "SingleSource/Benchmarks/Shootout/strcat.c",
+      "source_root": "suite",
+      "family": "string-growth",
+      "check_args": [
+        [
+          "10"
+        ],
+        [
+          "100"
+        ]
+      ],
+      "measure_args": [
+        "100000"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "sieve": {
+      "path": "SingleSource/Benchmarks/Shootout/sieve.c",
+      "source_root": "suite",
+      "family": "prime-sieve",
+      "check_args": [
+        [
+          "1"
+        ],
+        [
+          "3"
+        ]
+      ],
+      "measure_args": [
+        "1000"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "random": {
+      "path": "SingleSource/Benchmarks/Shootout/random.c",
+      "source_root": "suite",
+      "family": "lcg-random",
+      "check_args": [
+        [
+          "100"
+        ],
+        [
+          "1000"
+        ]
+      ],
+      "measure_args": [
+        "1000000"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "quicksort": {
+      "path": "SingleSource/Benchmarks/Stanford/Quicksort.c",
+      "source_root": "suite",
+      "family": "sorting",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "perm": {
+      "path": "SingleSource/Benchmarks/Stanford/Perm.c",
+      "source_root": "suite",
+      "family": "permutation-recursion",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "huffbench": {
+      "path": "SingleSource/Benchmarks/CoyoteBench/huffbench.c",
+      "source_root": "suite",
+      "family": "huffman-compression",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "Public domain, Scott Robert Ladd; original source header",
+      "defines": [
+        "SMALL_PROBLEM_SIZE"
+      ]
+    },
+    "reed_solomon": {
+      "path": "SingleSource/Benchmarks/Misc/ReedSolomon.c",
+      "source_root": "suite",
+      "family": "reed-solomon-coding",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+      "defines": [
+        "SMALL_PROBLEM_SIZE"
+      ]
+    },
+    "fannkuch": {
+      "path": "SingleSource/Benchmarks/BenchmarkGame/fannkuch.c",
+      "source_root": "suite",
+      "family": "pancake-permutations",
+      "check_args": [
+        [
+          "4"
+        ],
+        [
+          "5"
+        ]
+      ],
+      "measure_args": [
+        "8"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "spectral_norm": {
+      "path": "SingleSource/Benchmarks/BenchmarkGame/spectral-norm.c",
+      "source_root": "suite",
+      "family": "spectral-norm",
+      "check_args": [
+        [
+          "10"
+        ],
+        [
+          "20"
+        ]
+      ],
+      "measure_args": [
+        "300"
+      ],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source"
+    },
+    "richards": {
+      "path": "SingleSource/Benchmarks/Misc/richards_benchmark.c",
+      "source_root": "suite",
+      "family": "richards-task-scheduler",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+      "defines": [
+        "SMALL_PROBLEM_SIZE"
+      ]
+    },
+    "oourafft": {
+      "path": "SingleSource/Benchmarks/Misc/oourafft.c",
+      "source_root": "suite",
+      "family": "ooura-fft",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+      "defines": [
+        "SMALL_PROBLEM_SIZE"
+      ]
+    },
+    "pi": {
+      "path": "SingleSource/Benchmarks/Misc/pi.c",
+      "source_root": "suite",
+      "family": "monte-carlo-pi",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+      "defines": [
+        "SMALL_PROBLEM_SIZE"
+      ]
+    },
+    "mandel": {
+      "path": "SingleSource/Benchmarks/Misc/mandel.c",
+      "source_root": "suite",
+      "family": "mandelbrot-fractal",
+      "check_args": [
+        []
+      ],
+      "measure_args": [],
+      "license": "LLVM test-suite LICENSE.TXT and original source notices; unmodified pinned source",
+      "defines": [
+        "SMALL_PROBLEM_SIZE"
+      ]
+    }
+  }
+}

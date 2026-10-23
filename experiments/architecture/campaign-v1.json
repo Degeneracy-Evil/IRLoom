@@ -1,0 +1,333 @@
+{
+  "protocol": "architecture-training-campaign-v1",
+  "targets": {
+    "train": 12,
+    "validation": 4,
+    "test": 4
+  },
+  "pool": [
+    {
+      "program": "pc1",
+      "split": "train",
+      "family": "pc1",
+      "previously_observed": true,
+      "priority": 0,
+      "source_group": "pc1"
+    },
+    {
+      "program": "lists",
+      "split": "train",
+      "family": "linked-list",
+      "previously_observed": true,
+      "priority": 1,
+      "source_group": "lists"
+    },
+    {
+      "program": "llu_v11",
+      "split": "train",
+      "family": "linked-list",
+      "previously_observed": true,
+      "priority": 2,
+      "source_group": "llu_v11"
+    },
+    {
+      "program": "bubblesort",
+      "split": "train",
+      "family": "sorting",
+      "previously_observed": true,
+      "priority": 3,
+      "source_group": "stanford"
+    },
+    {
+      "program": "towers",
+      "split": "train",
+      "family": "towers",
+      "previously_observed": true,
+      "priority": 4,
+      "source_group": "stanford"
+    },
+    {
+      "program": "queens",
+      "split": "train",
+      "family": "backtracking",
+      "previously_observed": true,
+      "priority": 5,
+      "source_group": "stanford"
+    },
+    {
+      "program": "puzzle",
+      "split": "train",
+      "family": "backtracking",
+      "previously_observed": true,
+      "priority": 6,
+      "source_group": "stanford"
+    },
+    {
+      "program": "heapsort",
+      "split": "train",
+      "family": "sorting",
+      "previously_observed": true,
+      "priority": 7,
+      "source_group": "heapsort"
+    },
+    {
+      "program": "ackermann",
+      "split": "train",
+      "family": "ackermann",
+      "previously_observed": false,
+      "priority": 8,
+      "source_group": "ackermann"
+    },
+    {
+      "program": "fib2",
+      "split": "train",
+      "family": "fib2",
+      "previously_observed": false,
+      "priority": 9,
+      "source_group": "fib2"
+    },
+    {
+      "program": "hash",
+      "split": "train",
+      "family": "hash",
+      "previously_observed": false,
+      "priority": 10,
+      "source_group": "hash"
+    },
+    {
+      "program": "strcat",
+      "split": "train",
+      "family": "strcat",
+      "previously_observed": false,
+      "priority": 11,
+      "source_group": "strcat"
+    },
+    {
+      "program": "quicksort",
+      "split": "train",
+      "family": "sorting",
+      "previously_observed": false,
+      "priority": 12,
+      "source_group": "stanford"
+    },
+    {
+      "program": "perm",
+      "split": "train",
+      "family": "perm",
+      "previously_observed": false,
+      "priority": 13,
+      "source_group": "stanford"
+    },
+    {
+      "program": "huffbench",
+      "split": "train",
+      "family": "huffbench",
+      "previously_observed": false,
+      "priority": 14,
+      "source_group": "huffbench"
+    },
+    {
+      "program": "reed_solomon",
+      "split": "train",
+      "family": "reed_solomon",
+      "previously_observed": false,
+      "priority": 15,
+      "source_group": "reed_solomon"
+    },
+    {
+      "program": "matrix",
+      "split": "validation",
+      "family": "matrix",
+      "previously_observed": true,
+      "priority": 0,
+      "source_group": "matrix"
+    },
+    {
+      "program": "perlin",
+      "split": "validation",
+      "family": "perlin",
+      "previously_observed": true,
+      "priority": 1,
+      "source_group": "perlin"
+    },
+    {
+      "program": "des",
+      "split": "validation",
+      "family": "des",
+      "previously_observed": true,
+      "priority": 2,
+      "source_group": "des"
+    },
+    {
+      "program": "sieve",
+      "split": "validation",
+      "family": "sieve",
+      "previously_observed": false,
+      "priority": 3,
+      "source_group": "sieve"
+    },
+    {
+      "program": "random",
+      "split": "validation",
+      "family": "random",
+      "previously_observed": false,
+      "priority": 4,
+      "source_group": "random"
+    },
+    {
+      "program": "fannkuch",
+      "split": "test",
+      "family": "fannkuch",
+      "previously_observed": false,
+      "priority": 0,
+      "source_group": "fannkuch"
+    },
+    {
+      "program": "spectral_norm",
+      "split": "test",
+      "family": "spectral_norm",
+      "previously_observed": false,
+      "priority": 1,
+      "source_group": "spectral_norm"
+    },
+    {
+      "program": "richards",
+      "split": "test",
+      "family": "richards",
+      "previously_observed": false,
+      "priority": 2,
+      "source_group": "richards"
+    },
+    {
+      "program": "oourafft",
+      "split": "test",
+      "family": "oourafft",
+      "previously_observed": false,
+      "priority": 3,
+      "source_group": "oourafft"
+    },
+    {
+      "program": "pi",
+      "split": "test",
+      "family": "pi",
+      "previously_observed": false,
+      "priority": 4,
+      "source_group": "pi"
+    },
+    {
+      "program": "mandel",
+      "split": "test",
+      "family": "mandel",
+      "previously_observed": false,
+      "priority": 5,
+      "source_group": "mandel"
+    }
+  ],
+  "selection": "Fixed ordered pool. Accept by full source import, exact independent output, graph budget and real S0/S1 non-advance reachability only. No timing or model-score filter. Replacements stay in preassigned split; shortages reported.",
+  "collection": {
+    "seed": 71,
+    "prefixes": 3,
+    "small_pool": 16,
+    "static_per_program": 36,
+    "max_per_program": 64,
+    "static_terminal_limit": 576,
+    "proposal_terminal_limit": 192,
+    "terminal_limit": 768,
+    "timing_rounds": 6
+  },
+  "proposal": {
+    "rounds": 1,
+    "domain": "train only",
+    "weights": {
+      "A": "training-reviews/v131-review/A.pt",
+      "B": "training-reviews/v131-review/B.pt",
+      "current_only": "training-reviews/v131-review/current_only.pt",
+      "B_current_only": "training-reviews/v131-review/B_current_only.pt"
+    },
+    "selection": "union of frozen full legal argmax proposals at each real prefix; same extra labels for all methods, no validation/test supplement"
+  },
+  "objective": {
+    "learning_rate": 0.0003,
+    "near_tie_relative": 0.02,
+    "near_tie_absolute_ms": 0.05,
+    "uncertainty_mad_multiplier": 2,
+    "interval_version": "log-ratio-v2",
+    "pair_version": "shared-root-v1",
+    "loss_version": "shared-root-margin-v1"
+  },
+  "development": {
+    "dataset": "pilots/v13-stage/dataset.json",
+    "seed": 23,
+    "updates": 200,
+    "learning_rates": [
+      0.0003,
+      0.0001
+    ],
+    "snapshots": [
+      0,
+      20,
+      50,
+      100,
+      200
+    ],
+    "reuse_A_single": "training-reviews/v131-review/overfit-A.json",
+    "selection": "Joint A/B final validation regret then q MAE across prelisted mixed recipes; no test access. Main always fixed final200, no earliest-tie deployment."
+  },
+  "training": {
+    "seeds": [
+      23,
+      47
+    ],
+    "updates": 200,
+    "groups_per_update": 4,
+    "snapshots": [
+      0,
+      20,
+      50,
+      100,
+      200
+    ],
+    "validation_interval": 20,
+    "selection": "fixed-final-200; common LR selected only by G2 train/validation diagnosis; same minibatch order for all four methods"
+  },
+  "models": {
+    "A": {
+      "kind": "A",
+      "history": true
+    },
+    "B": {
+      "kind": "B",
+      "history": true
+    },
+    "current_only": {
+      "kind": "A",
+      "history": false
+    },
+    "B_current_only": {
+      "kind": "B",
+      "history": false
+    }
+  },
+  "budget": {
+    "optimization_timeout_s": 180,
+    "max_action_attempts": 18,
+    "max_terminal_candidates": 3,
+    "beam_width": 2,
+    "near_tie_relative": 0.02,
+    "near_tie_absolute_ms": 0.05,
+    "uncertainty_mad_multiplier": 2
+  },
+  "large_application": {
+    "source": "MultiSource/Applications/sqlite3/sqlite3.c",
+    "license": "SQLite public domain; original amalgamation header",
+    "scope": "Full SQLite3 library TU import/structure feasibility only; shell not yet linked. Never claim whole executable MLIR success from library import.",
+    "defines": [
+      "SQLITE_OMIT_LOAD_EXTENSION=1",
+      "SQLITE_THREADSAFE=0"
+    ],
+    "timeout_s": 120,
+    "max_ir_bytes": 67108864
+  },
+  "test_policy": "Only default legality/correctness during corpus construction. Freeze training recipes and weights before one formal raw/guarded activity. Seen families never relabeled blind.",
+  "limits": "No new backbone/action/loss/threshold changes. Whole original programs, no synthesized copies. Actual terminal attempts including failures and defaults charged separately from distinct objects and measurement repetitions."
+}
