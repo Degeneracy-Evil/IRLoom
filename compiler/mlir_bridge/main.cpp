@@ -108,6 +108,9 @@ struct Graph {
       StringRef key = item.getName().strref();
       // No source names, locations, provenance markers or large data payloads.
       if (key == "sym_name" || key == "callee" || key == "irloom.origins" ||
+          // Polygeist constructs this set-like spec in pointer-map order.
+          // llvm.data_layout below is its canonical, complete target layout.
+          key == "dlti.dl_spec" ||
           isa<ElementsAttr>(item.getValue()) || isa<SymbolRefAttr>(item.getValue())) continue;
       attributeStream << key << '=' << item.getValue() << ';';
     }
@@ -303,7 +306,7 @@ int main(int argc, char **argv) {
   raw_fd_ostream out(argv[2], error);
   if (error) { errs() << error.message(); return 2; }
   out << formatv("{0:2}", json::Value(json::Object{
-      {"schema", 1}, {"snapshot", outputSnapshot}, {"source_snapshot", argv[3]}, {"branch", argv[4]}, {"stage", argv[5]},
+      {"schema", 1}, {"feature_schema", "typed-ports-v2-canonical-layout"}, {"snapshot", outputSnapshot}, {"source_snapshot", argv[3]}, {"branch", argv[4]}, {"stage", argv[5]},
       {"nodes", std::move(graph.nodes)}, {"edges", std::move(graph.edges)},
       {"candidates", std::move(graph.candidates)}, {"lineage", std::move(lineage)},
       {"unmapped", "unknown; refresh values/blocks/new regions"}}));
