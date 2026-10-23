@@ -40,9 +40,9 @@ def tolerance(a, b, config):
     return max(config['near_tie_absolute_ms'], config['near_tie_relative']*max(ma,mb), config['uncertainty_mad_multiplier']*mad)
 
 
-def guided(name, program, model, budget, mode='guarded', inject_failure=False):
+def guided(name, program, model, budget, mode='guarded', inject_failure=False, session_factory=Session):
     start = time.perf_counter()
-    root = Session(name+'-root', program=program)
+    root = session_factory(name+'-root', program=program)
     root.deadline = start + budget['optimization_timeout_s']
     root.observe('S0')
     sessions, failures, traces = [root], [], []
@@ -102,8 +102,14 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False):
             report=candidate.finalize()
             terminals.append({'report':str(candidate.output/'report.json'),'latency_ms':report['median_latency_ms'],'role':'proposal','guidance':score})
         except (CommandError,RuntimeError) as error:
-            failures.append({'branch':candidate.branch,'error':str(error)})
-    if not terminals: raise RuntimeError('no correct terminal within the common budget')
+            failures.append({'branch':candidate.branch,'error':str(error),**getattr(error,'details',{})})
+    if not terminals:
+        ledger={e['log']:e for s in sessions for e in s.events}
+        path=root.output/'guided-failure.json'
+        save(path,{'program':program,'mode':mode,'attempts':attempts,'budget':budget,'failures':failures,
+            'traces':traces,'actual_terminals':0,'wall_s':time.perf_counter()-start,'events':list(ledger.values()),
+            'model_costs':list(model.costs),'command_s':sum(e['seconds'] for e in ledger.values())})
+        raise RuntimeError('no correct terminal within the common budget; see '+str(path))
     chosen=incumbent or min(terminals,key=lambda row:row['latency_ms'])
     def session_for(row):
         return next(s for s in sessions if str(s.output/'report.json')==row['report'])

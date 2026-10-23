@@ -11,6 +11,13 @@ RECIPES["programs"].update(json.loads((ROOT / "experiments/architecture/programs
 RECIPES["programs"].update(json.loads((ROOT / "experiments/architecture/programs-campaign-v1.json").read_text())["programs"])
 
 
+class WrongOutputError(RuntimeError):
+    def __init__(self,args,expected,actual,candidate,oracle):
+        self.details={'category':'wrong_output','args':list(args),'expected':expected,'actual':actual,
+            'candidate':str(candidate),'oracle':str(oracle)}
+        super().__init__('wrong_output: full original-source oracle mismatch; candidate excluded')
+
+
 def prepare(session, program):
     recipe = RECIPES["programs"][program]
     suite = ROOT / "benchmark-data/sources/llvm-test-suite-18.1.3"
@@ -18,6 +25,12 @@ def prepare(session, program):
     session.manifest = json.loads((ROOT / "compiler/pipelines/polygeist-v1.json").read_text())
     session.bridge, session.opt, session.translate = (BASE / "build/bin" / x for x in
         ("irloom-polygeist-bridge", "polygeist-opt", "mlir-translate"))
+    revision=getattr(session,'compiler_revision','legacy')
+    if revision!='legacy':
+        if revision!='cleanup-positional-v1':raise ValueError('unknown compiler revision: '+revision)
+        session.bridge=ROOT/'benchmark-data/architecture/compilers'/revision/'bin/irloom-polygeist-bridge'
+        session.manifest['id']+='-'+revision
+        session.manifest['compiler_revision']=revision
     for tool in (session.bridge, session.opt, session.translate, BASE / "build/bin/cgeist"):
         if not tool.is_file():
             raise FileNotFoundError(f"missing {tool}; run bash scripts/prepare-polygeist.sh --build")
@@ -44,7 +57,7 @@ def measure(session):
         expected = session.run([reference, *args], "reference-check")
         actual = session.run([exe, *args], "program-check")
         if actual != expected:
-            raise RuntimeError("whole-program output mismatch; candidate excluded")
+            raise WrongOutputError(args,expected,actual,exe,reference)
         checks.append({"args": args, "status": "pass", "oracle": "independent Clang O3 original source", "bytes": len(actual)})
     samples = sample_existing(session, exe, reference)
     return TerminalMeasurement(checks, samples, obj.stat().st_size,

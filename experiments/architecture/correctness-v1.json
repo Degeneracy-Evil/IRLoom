@@ -1,0 +1,9 @@
+{
+  "protocol": "campaign-correctness-v1",
+  "campaign": "campaigns/campaign-v1",
+  "inputs": [1, 2, 3, 9, 10, 11, 20, 21, 300],
+  "revision": "cleanup-positional-v1",
+  "regression_programs": ["pc1", "matrix", "puzzle", "perm"],
+  "frozen_models": ["B-s23", "B_current_only-s23", "A-s47"],
+  "scope": "Fixed historical failure traces, source-independent integer reproducer, bounded correctness-only replay and read-only 273-label analysis. No training, performance search or new test claims."
+}

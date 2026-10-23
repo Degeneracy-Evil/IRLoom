@@ -23,7 +23,7 @@ def save(path, value):
 
 
 class Session:
-    def __init__(self, name, context="single", size=32, multi_function=False, program=None):
+    def __init__(self, name, context="single", size=32, multi_function=False, program=None, compiler_revision="legacy"):
         self.output = CACHE / "runs" / name
         self.logs = ROOT / "logs/architecture" / name
         self.output.mkdir(parents=True, exist_ok=False)
@@ -40,6 +40,7 @@ class Session:
         self.manifest = MANIFEST
         self.bridge, self.opt, self.translate = CACHE / "build/irloom-bridge", SDK / "bin/mlir-opt", SDK / "bin/mlir-translate"
         self.program = program
+        self.compiler_revision = compiler_revision
         if program:
             from .programs import prepare
             prepare(self, program)
@@ -95,7 +96,7 @@ class Session:
                           copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining, copy.deepcopy(self.path_lineage), self.lineage_cursor)
 
     def fork(self, name):
-        child = object.__new__(Session)
+        child = object.__new__(type(self))
         child.__dict__ = self.__dict__.copy()
         child.output, child.logs = CACHE / "runs" / name, ROOT / "logs/architecture" / name
         child.output.mkdir(parents=True, exist_ok=False)
@@ -233,7 +234,13 @@ def main():
     parser.add_argument("--training-config", type=Path)
     parser.add_argument("--campaign", choices=("probe", "collect", "diagnose", "train", "evaluate", "all"), help="frozen multi-program corpus and bounded A/B training campaign")
     parser.add_argument("--campaign-config", type=Path)
+    parser.add_argument("--correctness-audit", choices=("isolate", "minimal", "regress", "analyze", "all"), help="C1 fixed-trace correctness and C2 existing-artifact audit; no training")
+    parser.add_argument("--compiler-revision", choices=("legacy", "cleanup-positional-v1"), default="legacy", help="explicit isolated whole-program bridge; historical protocols keep legacy")
     args = parser.parse_args()
+    if args.correctness_audit:
+        from .correctness import run
+        run(args)
+        return
     if args.campaign:
         from .campaign import run
         run(args)
@@ -278,7 +285,8 @@ def main():
     if args.audit and args.model != "default":
         parser.error("scripted audit and neural selection are separate modes")
     run_started = time.perf_counter()
-    session = Session(args.name, args.context, args.size, args.multi_function, args.program)
+    if args.compiler_revision!='legacy' and not args.program:parser.error('corrected bridge profile requires a whole program')
+    session = Session(args.name, args.context, args.size, args.multi_function, args.program, args.compiler_revision)
     model, metadata = None, {}
     if args.model != "default":
         start = time.perf_counter()
