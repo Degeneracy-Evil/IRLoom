@@ -8,4 +8,8 @@
 
 源码、模型、IR、原始报告仍在现有外部缓存，日志在 `logs/architecture`。本次不改骨干、动作、损失、阈值或默认O3后端。准备接入更大SQLite库翻译单元，仅作为导入/结构可行性记录，未完成完整应用链接之前不作架构主结果。
 
-完整入口开发中：`bash scripts/architecture.sh --campaign all --name my-campaign`；阶段模式为 `probe/diagnose/collect/train/evaluate`。后续在本报告补充实际覆盖、错误、成本与复现验收，不预报正收益。
+完整入口开发中：`bash scripts/architecture.sh --campaign all --name my-campaign`；阶段模式为 `probe/diagnose/collect/train/evaluate`。`collect`独立于训练诊断，可在固定CPU1诊断时采集CPU0的完整标签；记录该并行负载，不宣称已控制全部系统噪声。
+
+首轮固定池兼容性得到10训练/3验证/3新留出，未达12/4/4目标，保留缺口而不按性能临时补池。hash/richards/mandel导入崩溃，huffbench/fannkuch被前端拒绝；部分其余程序正确运行但没有两个非平凡动作阶段，另列为single-stage-only。SQLite原始库翻译单元84545行、2862216字节，匹配cgeist导入退出-11，未进入神经MLIR主结果。具体诊断与规模在外部compatibility记录，不通过改源算法或关闭verifier绕过。
+
+PC1/lists/bubblesort已完成匹配前缀采集及完整输出验证；后续在本报告补充最终覆盖、错误、成本与复现验收，不预报正收益。部署评价协议独立冻结在 `campaign-evaluation-v1.json`，闭集选择、完整提议匹配后缀、raw路径和guarded系统分开；新留出只在全部权重冻结后执行一次正式活动。

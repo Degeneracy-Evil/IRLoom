@@ -1,0 +1,15 @@
+{
+  "protocol": "architecture-campaign-evaluation-v1",
+  "matched_cases": [
+    {"program": "pc1", "group_ordinals": [0, 2]},
+    {"program": "matrix", "group_ordinals": [0, 2]}
+  ],
+  "deployment_diagnostics": ["pc1", "matrix"],
+  "diagnostic_seeds": [23],
+  "test_programs": "all compatibility-selected new test families, without replacement after performance",
+  "test_seeds": [23, 47],
+  "modes": ["raw", "guarded"],
+  "final_measurement": {"rounds": 6, "seed": 91, "deduplicate": "direct executable bytes within each program, retain all method aliases"},
+  "selection": "All data, learning rate, budgets, main weights and this evaluation recipe freeze before any test model inference. No test feedback. Matched full-argmax suffixes are diagnostic and never feed training; raw paths are not early-stage all-advance q labels.",
+  "costs": "Each raw/guarded call pays its unchanged shared budget including default and confirmation. Final interleaving is separately charged. Cached original costs preserved. Failed methods retained, not replaced."
+}

@@ -18,10 +18,12 @@ def run(args):
         from .campaign_corpus import probe,collect
         catalog=probe(output,config)
         if args.campaign=='probe':return
+        if args.campaign=='collect':
+            collect(output,config,catalog)
+            return
         from .campaign_training import diagnose,train
         diagnosis=diagnose(output,config)
         dataset=collect(output,config,catalog)
-        if args.campaign=='collect':return
         models=train(output,dataset,config,diagnosis)
         if args.campaign in ('all','evaluate'):
             from .campaign_evaluation import evaluate
