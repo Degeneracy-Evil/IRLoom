@@ -140,18 +140,30 @@ def forward_prefix(model, group):
 
 
 def quality(model, groups, config):
-    metrics=[]; calibration=[]
+    metrics=[]; calibration=[]; relative=[]; advance_bias=[]; harmful=0; harmful_wrong=0; advances=0
     for group in groups:
         (scores,_,_),_=forward_prefix(model,group)
         rows=group['rows']; chosen=max(rows,key=lambda r:float(scores[r['candidate_index']]))
+        advances+=chosen['candidate_index']==0
         best=min(rows,key=lambda r:r['latency'])
         if group['pairs']:
             gap=max(0,math.log(chosen['latency']/best['latency'])-math.log1p(tolerance(chosen['samples'],best['samples'],config)/best['latency']))
             metrics.append(gap)
         if model.heads.decision_version=='stage-q-v1':
             calibration.extend(abs(float(-scores[r['candidate_index']])-r['target']) for r in rows)
+            relative.extend(abs(math.expm1(float(-scores[r['candidate_index']])-r['target'])) for r in rows)
+            advance=next(r for r in rows if r['candidate_index']==0)
+            advance_bias.append(float(-scores[0])-advance['target'])
+            for row in rows:
+                if row['object']!=advance['object'] and row['latency']-advance['latency']>tolerance(row['samples'],advance['samples'],config):
+                    harmful+=1
+                    harmful_wrong+=float(scores[row['candidate_index']])>float(scores[0])
     return {'regret':statistics.mean(metrics) if metrics else None,'distinguishable_groups':len(metrics),
-            'q_mae':statistics.mean(calibration) if calibration else None}
+            'q_mae':statistics.mean(calibration) if calibration else None,
+            'relative_cost_error':statistics.mean(relative) if relative else None,
+            'advance_bias':statistics.mean(advance_bias) if advance_bias else None,
+            'advance_fraction':advances/len(groups),'harmful_actions':harmful,
+            'harmful_predicted_beneficial':harmful_wrong/harmful if harmful else None}
 
 
 def fit(model, dataset, config):
