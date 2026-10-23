@@ -5,11 +5,13 @@ from irloom.compiler import ROOT
 
 BASE = ROOT / "benchmark-data/architecture/frontends"
 RECIPES = json.loads((ROOT / "experiments/architecture/programs.json").read_text())
+RECIPES["programs"].update(json.loads((ROOT / "experiments/architecture/programs-v1-1.json").read_text())["programs"])
 
 
 def prepare(session, program):
     recipe = RECIPES["programs"][program]
-    source = ROOT / "benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Benchmarks" / recipe["path"]
+    suite = ROOT / "benchmark-data/sources/llvm-test-suite-18.1.3"
+    source = (suite if recipe.get("source_root") == "suite" else suite / "MultiSource/Benchmarks") / recipe["path"]
     session.manifest = json.loads((ROOT / "compiler/pipelines/polygeist-v1.json").read_text())
     session.bridge, session.opt, session.translate = (BASE / "build/bin" / x for x in
         ("irloom-polygeist-bridge", "polygeist-opt", "mlir-translate"))

@@ -1,0 +1,12 @@
+{
+  "suite_commit": "72a946a42cbce06afef68b2326ff6c3869d09799",
+  "source": "https://github.com/llvm/llvm-test-suite/tree/llvmorg-18.1.3/SingleSource/Benchmarks/Stanford",
+  "programs": {
+    "llu_v11": {"path": "llubenchmark/llubenchmark.c", "family": "linked-list", "split": "train", "check_args": [["-i", "8", "-n", "4"], ["-i", "17", "-n", "8"]], "measure_args": ["-i", "300"], "license": "LLVM test-suite license with source author attribution", "note": "Original input flag; shorter predeclared workload than V1 to bound repeated collection cost"},
+    "bubblesort": {"path": "SingleSource/Benchmarks/Stanford/Bubblesort.c", "source_root": "suite", "family": "sorting", "split": "train", "check_args": [[]], "measure_args": [], "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"},
+    "towers": {"path": "SingleSource/Benchmarks/Stanford/Towers.c", "source_root": "suite", "family": "hanoi-recursion", "split": "validation", "check_args": [[]], "measure_args": [], "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"},
+    "queens": {"path": "SingleSource/Benchmarks/Stanford/Queens.c", "source_root": "suite", "family": "backtracking", "split": "test", "check_args": [[]], "measure_args": [], "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"},
+    "puzzle": {"path": "SingleSource/Benchmarks/Stanford/Puzzle.c", "source_root": "suite", "family": "backtracking", "split": "test", "check_args": [[]], "measure_args": [], "license": "LLVM test-suite LICENSE.TXT; original Stanford benchmark source retained"}
+  },
+  "selection": "Chosen by import legality and two-stage action reachability before neural collection; no speedup filtering. Queens/Puzzle share a held-out backtracking family; do not count as independent families. Stanford suite shares historical declarations: no claim of unrelated real-world distributions. Complete original files, no copied kernels or padding."
+}

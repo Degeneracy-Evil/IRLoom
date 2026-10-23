@@ -182,6 +182,13 @@ class Session:
                   "transitions": self.transitions, "decisions": self.decisions, "remaining_attempts": self.remaining,
                   "median_latency_ms": statistics.median(x["latency_ms"] for x in measurement.samples),
                   "scope": scope, "program": self.program}
+        report["final_ir"] = str(self.ir)
+        if self.program:
+            cpu = json.loads(self.hardware["cpu"])["lscpu"]
+            report["comparison_group"] = {"program": self.program, "input": self.recipe["measure_args"],
+                "defines": self.recipe.get("defines", []), "pipeline": self.manifest,
+                "hardware": {**{k: self.hardware.get(k) for k in ("os", "arch", "cpu_caches", "affinity", "tools", "frontend_version")},
+                             "cpu": [item for item in cpu if item["field"].rstrip(":") in ("Model name", "Flags", "CPU(s)", "Thread(s) per core", "Core(s) per socket", "Socket(s)")]}}
         save(self.output / "report.json", report)
         return report
 
@@ -191,7 +198,8 @@ def main():
     parser.add_argument("--name", default=f"smoke-{time.time_ns()}")
     parser.add_argument("--context", choices=("single", "transpose", "row_reduce"), default="single")
     parser.add_argument("--size", type=int, default=32)
-    parser.add_argument("--program", choices=("rc4", "pc1", "md5", "llu", "sim", "trie"), help="whole-program frontend adapter; prepares matching tools automatically")
+    from .programs import RECIPES
+    parser.add_argument("--program", choices=tuple(RECIPES["programs"]), help="whole-program frontend adapter; prepares matching tools automatically")
     parser.add_argument("--audit", action="store_true", help="N1 integration rejection/rollback/replay; scripted actions, not a model")
     parser.add_argument("--model", choices=("default", "A", "B"), default="default")
     parser.add_argument("--multi-function", action="store_true", help="call-graph integration smoke, not a real-program import")
@@ -205,6 +213,7 @@ def main():
     parser.add_argument("--fit-report", type=Path, help="integration fit only; no held-out performance claim")
     parser.add_argument("--steps", type=int, default=25)
     parser.add_argument("--pilot", action="store_true", help="run the checked-in whole-program collection/training/evaluation budget")
+    parser.add_argument("--pilot-config", type=Path, help="versioned pilot configuration; default preserves the V1 protocol")
     parser.add_argument("--compare-pilot", type=Path, help="N5 common bounded search using frozen pilot weights")
     parser.add_argument("--profile-inference", action="store_true", help="record cold load and five identical-input steady inference samples")
     parser.add_argument("--encoder-version", choices=("legacy-v1", "structured-v2"), default="structured-v2")
@@ -216,7 +225,7 @@ def main():
         return
     if args.pilot:
         from .pilot import run
-        run(args.name)
+        run(args.name, json.loads(args.pilot_config.resolve().read_text()) if args.pilot_config else None)
         return
     if args.compare_pilot:
         from .search import compare

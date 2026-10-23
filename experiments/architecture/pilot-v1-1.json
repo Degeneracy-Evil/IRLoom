@@ -1,0 +1,22 @@
+{
+  "schema": 2,
+  "measurement": "independent C++ native wall timer; V1.1 grouped labels and frozen balanced interleaving",
+  "seed": 23,
+  "programs": ["llu_v11", "pc1", "bubblesort", "towers", "queens", "puzzle"],
+  "splits": {"llu_v11": "train", "pc1": "train", "bubblesort": "train", "towers": "validation", "queens": "test", "puzzle": "test"},
+  "selection": "Import legality and S0/S1 reachability checked before new labels. Old PC1 validation is now train, never claimed held out. Queens/Puzzle share one held-out backtracking family. Shared Stanford suite ancestry limits independence. No choice by measured speedup.",
+  "lineage_version": "v2: controlled same-stage composition, anchor-only after generic lowering; usage counters",
+  "collection": {"train_and_validation_paths": ["default", "balanced", "random0", "random1", "random2"], "test_paths_before_fit": ["default"]},
+  "training": {"epochs": 20, "learning_rate": 0.0003, "resource_weight": 0.01, "near_tie_relative": 0.02, "near_tie_absolute_ms": 0.05, "uncertainty_mad_multiplier": 2, "objective": "equal comparison-group means: within-group relative log latency/value/resource and pairwise continuation ranking; skip identical IR/object and near-ties; terminal supervision, not prefix value search"},
+  "models": {
+    "A": {"hidden": 128, "heads": 4, "encoder_version": "structured-v2"},
+    "B": {"hidden": 128, "heads": 4, "encoder_version": "structured-v2"},
+    "legacy_A": {"hidden": 128, "heads": 4, "encoder_version": "legacy-v1"},
+    "legacy_B": {"hidden": 128, "heads": 4, "encoder_version": "legacy-v1"},
+    "current_only": {"hidden": 128, "heads": 4, "history": false, "encoder_version": "structured-v2"},
+    "B_current_only": {"hidden": 128, "heads": 4, "history": false, "encoder_version": "structured-v2"},
+    "B_capacity": {"hidden": 160, "heads": 4, "encoder_version": "structured-v2"}
+  },
+  "evaluation": {"repetitions": 5, "warmups": 1, "variants": ["default", "legacy_A", "legacy_B", "current_only", "B_current_only", "A", "A_no_history", "B", "B_reset", "B_capacity"], "beam_width": 2, "max_terminal_candidates": 8, "max_action_attempts": 24, "optimization_timeout_s": 180, "interleave_seed": 41, "interleave_rounds": 10},
+  "limits": "Single seed pilot, modest unmodified full programs, no large C++ generalization. Formal action classes inline/unroll2/advance; fuse smoke-only/action-OOD. Test family never selects epochs/config. Native startup/output included. Frozen original native Clang O3 is separately timed. Legacy-vs-v2 shares data and lineage; not a separately trained lineage ablation."
+}
