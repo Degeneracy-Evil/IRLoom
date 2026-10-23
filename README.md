@@ -20,7 +20,7 @@ V1.2 已接通匹配检查点的阶段 q 监督与实际动作排序，并加入
 
 V1.3 新增由内容产生的分层摘要和角色化候选读出，修正 q 的校准目标，并以固定结构种子扩充到49个匹配动作终端。八套最小对照、120次 raw/guarded 编译及1320次冻结交错计时见 [V1.3 报告](experiments/reports/architecture-v1-3-pilot.md)。Perlin 新测试族仍无可靠收益；结构/数值修正通过验收，数据与验证选择仍有限。完整入口：`bash scripts/architecture.sh --v13 all --name my-v13`。
 
-V1.3.1 保留骨干和冻结数据，修订为固定20次更新的主权重，并使成对 margin 消去共享根参照的不确定量；仅做训练/验证验收与少量真实编译重放。入口：`bash scripts/architecture.sh --training-review all --name my-v131`，见 [训练修订报告](experiments/reports/architecture-v1-3-training-review.md)。不重跑历史性能矩阵。
+V1.3.1 已完成六模型固定20次更新、共享根成对 margin、12次训练/验证真实编译重放及缓存验收。B与独立无记忆B都选到已知有益动作，A仍未学好；未建立记忆或新泛化收益。入口：`bash scripts/architecture.sh --training-review all --name my-v131`，见 [训练修订报告](experiments/reports/architecture-v1-3-training-review.md)。保留旧权重与数据，不重跑历史性能矩阵。
 
 ## 当前阅读入口
 
