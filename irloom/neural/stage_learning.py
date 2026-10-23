@@ -19,7 +19,8 @@ def collect(name, config):
     output.mkdir(parents=True,exist_ok=False)
     result={'config':config,'groups':[],'defaults':{},'trajectory_paths':{},'failures':[]}
     sessions=[]; start=time.perf_counter()
-    for program in config['programs']:
+    result['label_timing']={}
+    for program_index,program in enumerate(config['programs']):
         root=Session(name+'-'+program+'-root',program=program); sessions.append(root)
         root.observe('S0')
         baseline=root.fork(name+'-'+program+'-default'); sessions.append(baseline)
@@ -29,17 +30,29 @@ def collect(name, config):
         result['defaults'][program]=path; result['trajectory_paths'][program]=[path]
         split=config['splits'][program]
         if split not in ('train','validation'): continue
+        measured_sessions=[baseline]
+        structural=config['collection'].get('sampling_version')=='structure-strata-v1'
         prefixes=[('S0',root)]
-        for policy in config['collection']['prefix_policies']:
+        if structural:
+            from .sampling import select
+            choices,_=select(root.current.graph,config['collection']['s1_prefixes'],config['collection']['seed']+program_index*100)
+            prefix_choices=[(f'choice-{index}',index) for index in choices]
+        else:
+            prefix_choices=[(policy,min(1,len(root.current.graph['candidates'])-1) if policy=='balanced' else 0)
+                            for policy in config['collection']['prefix_policies']]
+        for policy,index in prefix_choices:
             prefix=root.fork(name+'-'+program+'-prefix-'+policy); sessions.append(prefix)
-            index=min(1,len(prefix.current.graph['candidates'])-1) if policy=='balanced' else 0
             execute(prefix,prefix.manifest['stages'][0],index)
             prefix.observe('S1'); prefixes.append(('S1',prefix))
         for group_index,(stage,parent) in enumerate(prefixes):
             count=len(parent.current.graph['candidates'])
-            indices=sorted({0, min(1,count-1), count-1})[:config['collection']['actions_per_prefix']]
+            if structural:
+                indices,sampling=select(parent.current.graph,config['collection']['actions_per_prefix'],config['collection']['seed']+program_index*100+group_index+1)
+            else:
+                indices=sorted({0, min(1,count-1), count-1})[:config['collection']['actions_per_prefix']]
+                sampling={'version':'legacy-first-last'}
             group={'program':program,'split':split,'stage':stage,'prefix':parent.branch,
-                   'observations':parent.observations,'reference_report':path,'continuation':config['continuation'],'rows':[]}
+                   'observations':parent.observations,'reference_report':path,'continuation':config['continuation'],'rows':[], 'sampling':sampling}
             for index in indices:
                 child=parent.fork(f'{name}-{program}-g{group_index}-a{index}');sessions.append(child)
                 try:
@@ -52,16 +65,22 @@ def collect(name, config):
                     terminal_path=str(child.output/'report.json')
                     group['rows'].append({'candidate_index':index,'report':terminal_path})
                     result['trajectory_paths'][program].append(terminal_path)
+                    measured_sessions.append(child)
                 except RuntimeError as error:
                     result['failures'].append({'program':program,'prefix':parent.branch,'index':index,'error':str(error)})
             if not any(row['candidate_index']==0 for row in group['rows']):
                 raise RuntimeError('matched prefix lacks a valid advance continuation')
             result['groups'].append(group)
             save(output/'progress.json',result)
+        if structural:
+            from .label_timing import retime
+            if len(measured_sessions)>config['collection']['max_terminals_per_program']:
+                raise RuntimeError('label terminal budget exceeded')
+            result['label_timing'][program]=retime(measured_sessions,baseline,config['collection']['seed']+program_index,config['collection']['timing_rounds'])
         print(json.dumps({'phase':'matched-labels','program':program,'groups':len(prefixes)}),flush=True)
     events={e['log']:e for session in sessions for e in session.events}
     result.update(wall_s=time.perf_counter()-start,command_s=sum(e['seconds'] for e in events.values()),
-                  events=list(events.values()),measurement_invocations=sum(e['stage']=='measure' for e in events.values()))
+                  events=list(events.values()),measurement_invocations=sum(e['stage'] in ('measure','label-measure') for e in events.values()))
     save(output/'dataset.json',result)
     return result
 
@@ -88,6 +107,16 @@ def prepare_groups(dataset, split, config):
             a['target']=math.log(statistics.median(cluster)/base)
             if a['object']==(Path(source['reference_report']).parent/'program.o').read_bytes(): a['target']=0.0
             a['margin']=math.log1p(tolerance(a['samples'],advance['samples'],config)/base)
+            if config.get('interval_version')=='log-ratio-v2':
+                reference_samples=[s['latency_ms'] for s in reference['measurement']['samples']]
+                # Propagate frozen millisecond resolution through numerator
+                # and denominator before constructing a symmetric log interval.
+                center=base*math.exp(a['target'])
+                delta=tolerance(a['samples'],a['samples'],config)
+                delta0=tolerance(reference_samples,reference_samples,config)
+                lower=math.log(max(center-delta,1e-9)/(base+delta0))
+                upper=math.log((center+delta)/max(base-delta0,1e-9))
+                a['margin']=max(a['target']-lower,upper-a['target'])
             difference=a['latency']-advance['latency']
             neutral=a['object']==advance['object'] or abs(difference)<=tolerance(a['samples'],advance['samples'],config)
             counts['neutral' if neutral else 'harmful' if difference>0 else 'beneficial']+=1
@@ -142,9 +171,8 @@ def fit(model, dataset, config):
                 scores.retain_grad(); stage_scores.setdefault(group['stage'],[]).append(scores)
                 predicted=torch.stack([-scores[r['candidate_index']] for r in group['rows']])
                 targets=torch.tensor([r['target'] for r in group['rows']]); margins=torch.tensor([r['margin'] for r in group['rows']])
-                regression=(predicted.sub(targets).abs().sub(margins).relu().square()).mean()
-                pairs=[torch.nn.functional.softplus(-direction*(predicted[i]-predicted[j])) for i,j,direction in group['pairs']]
-                loss_group=regression+(torch.stack(pairs).mean() if pairs else 0)
+                from .cost_objective import cost_loss
+                loss_group=cost_loss(predicted,targets,margins,group['pairs'],config.get('loss_version','softplus-v1'))
                 program_losses.setdefault(group['program'],[]).append(loss_group)
                 if epoch==0 and group['stage']=='S1' and model.history and cross_gradient is None:
                     gradient=torch.autograd.grad(loss_group,first,retain_graph=True,allow_unused=True)[0]

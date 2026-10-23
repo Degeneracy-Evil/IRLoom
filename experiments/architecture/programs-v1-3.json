@@ -1,0 +1,8 @@
+{
+  "suite_commit": "72a946a42cbce06afef68b2326ff6c3869d09799",
+  "selection": "Full sources selected by legal import and structural action reachability before formal labels; no selection by model performance. Perlin is a new fixed test family; prior DES/Puzzle only diagnostics.",
+  "programs": {
+    "matrix": {"path": "SingleSource/Benchmarks/Shootout/matrix.c", "source_root": "suite", "family": "shootout-matrix-product", "split": "validation", "check_args": [["1"], ["3"]], "measure_args": ["1000"], "license": "LLVM test-suite LICENSE.TXT; original Shootout notice retained"},
+    "perlin": {"path": "SingleSource/Benchmarks/Misc/perlin.c", "source_root": "suite", "family": "perlin-noise", "split": "test", "defines": ["SMALL_PROBLEM_SIZE"], "check_args": [[]], "measure_args": [], "license": "LLVM test-suite LICENSE.TXT and original source notice", "note": "Official small input macro, source algorithm and floating-point semantics unchanged"}
+  }
+}

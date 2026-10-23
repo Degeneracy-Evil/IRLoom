@@ -1,0 +1,24 @@
+{
+  "schema": 1,
+  "protocol": "architecture-v1-3",
+  "continuation": "all-advance-v1; q=log(native latency / same-program root default latency); maximize -q; S2 observe-only retains S1 branch score",
+  "programs": ["pc1", "lists", "matrix", "perlin", "des", "puzzle"],
+  "splits": {"pc1": "train", "lists": "train", "matrix": "validation", "perlin": "test", "des": "diagnostic", "puzzle": "diagnostic"},
+  "collection": {"sampling_version": "structure-strata-v1", "seed": 31, "actions_per_prefix": 6, "s1_prefixes": 3, "max_terminals_per_program": 25, "timing_rounds": 6, "stages": ["S0", "S1"]},
+  "training": {"epochs": 20, "learning_rate": 0.0003, "resource_weight": 0.01, "near_tie_relative": 0.02, "near_tie_absolute_ms": 0.05, "uncertainty_mad_multiplier": 2, "interval_version": "log-ratio-v2", "loss_version": "calibrated-margin-v1", "selection": "minimum distinguishable validation candidate-set regret, earliest tied epoch; fixed final epoch when unresolved, no regression tie break", "objective": "interval root-log-cost regression plus finite empirical log margin; legacy softplus comparison uses same intervals/data"},
+  "seeds": [23],
+  "models": {
+    "A_old_loss": {"hidden": 128, "heads": 4, "history": true, "encoder_version": "structured-v2", "loss_version": "softplus-v1"},
+    "B_old_loss": {"hidden": 128, "heads": 4, "history": true, "encoder_version": "structured-v2", "loss_version": "softplus-v1"},
+    "A_one_hop": {"hidden": 128, "heads": 4, "history": true, "encoder_version": "structured-v2"},
+    "B_one_hop": {"hidden": 128, "heads": 4, "history": true, "encoder_version": "structured-v2"},
+    "A": {"hidden": 128, "heads": 4, "history": true, "encoder_version": "hierarchical-v3"},
+    "B": {"hidden": 128, "heads": 4, "history": true, "encoder_version": "hierarchical-v3"},
+    "current_only": {"hidden": 128, "heads": 4, "history": false, "encoder_version": "hierarchical-v3"},
+    "B_current_only": {"hidden": 128, "heads": 4, "history": false, "encoder_version": "hierarchical-v3"}
+  },
+  "policy_baselines": [],
+  "budget": {"optimization_timeout_s": 180, "max_action_attempts": 18, "max_terminal_candidates": 3, "beam_width": 2, "near_tie_relative": 0.02, "near_tie_absolute_ms": 0.05, "uncertainty_mad_multiplier": 2},
+  "measurement": {"rounds": 10, "seed": 41, "policy_baseline_seed": 23},
+  "limitations": "Single-seed minimal staged ablations, not full historical matrix. One new test family with official small input. Summaries/head add shared parameters, not a capacity-matched proof. No lowering-lineage changes. No test-directed threshold/epoch/program tuning. Fixed continuation, not Q*."
+}

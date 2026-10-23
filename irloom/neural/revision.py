@@ -39,11 +39,12 @@ def train(name, dataset, config):
             if path.exists() or record.exists(): raise RuntimeError('incomplete training cache; use a fresh run name')
             torch.manual_seed(seed)
             kind='B' if label.startswith('B') or label=='policy_B' else 'A'
-            model_config={**options,'encoder_version':'structured-v2','decision_version':version}
+            model_config={'encoder_version':'structured-v2',**{k:v for k,v in options.items() if k!='loss_version'},'decision_version':version}
             model=(Interleaved if kind=='A' else Recurrent)(**model_config)
-            start=time.perf_counter();fitting=fit(model,dataset,config['training'])
+            objective={**config['training'],'loss_version':options.get('loss_version',config['training'].get('loss_version','softplus-v1'))}
+            start=time.perf_counter();fitting=fit(model,dataset,objective)
             fitting.update(seconds=time.perf_counter()-start,parameters=sum(p.numel() for p in model.parameters()),
-                           config=model_config,model=kind,seed=seed)
+                           config=model_config,model=kind,seed=seed,objective=objective)
             torch.save({'model':kind,'config':model_config,'state_dict':model.state_dict()},path)
             save(record,fitting);result['models'][key]=fitting
             save(output/'training-progress.json',result)

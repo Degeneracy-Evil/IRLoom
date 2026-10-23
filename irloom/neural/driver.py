@@ -219,13 +219,28 @@ def main():
     parser.add_argument("--pilot-config", type=Path, help="versioned pilot configuration; default preserves the V1 protocol")
     parser.add_argument("--compare-pilot", type=Path, help="N5 common bounded search using frozen pilot weights")
     parser.add_argument("--profile-inference", action="store_true", help="record cold load and five identical-input steady inference samples")
-    parser.add_argument("--encoder-version", choices=("legacy-v1", "structured-v2"), default="structured-v2")
+    parser.add_argument("--encoder-version", choices=("legacy-v1", "structured-v2", "hierarchical-v3"), default="structured-v2")
     parser.add_argument("--structure-audit", action="store_true", help="extract and compare semantic MLIR structure fixtures")
     parser.add_argument("--interleave-pilot", type=Path, help="freeze single/beam binaries and measure in balanced random order")
     parser.add_argument("--search-report", type=Path, help="optional common beam report for frozen interleaved comparison")
     parser.add_argument("--v12", choices=("audit", "guard", "collect", "train", "evaluate", "measure", "all"), help="stage-cost learning and common guarded search")
     parser.add_argument("--v12-config", type=Path, help="versioned V1.2 protocol; defaults to pilot-v1-2.json")
+    parser.add_argument("--context-audit", action="store_true", help="compiler-backed callee/body visibility fixture")
+    parser.add_argument("--objective-audit", action="store_true", help="log-cost feasibility and real-label calibration audit")
+    parser.add_argument("--v13", choices=("guard", "collect", "train", "evaluate", "measure", "all"), help="hierarchical context and calibrated q pilot")
+    parser.add_argument("--v13-config", type=Path)
     args = parser.parse_args()
+    if args.objective_audit:
+        from .cost_objective import audit
+        audit(args.name)
+        return
+    if args.v13:
+        args.v12=args.v13
+        args.v12_config=args.v13_config or ROOT/'experiments/architecture/pilot-v1-3.json'
+    if args.context_audit:
+        from .context_audit import audit
+        audit(args.name)
+        return
     if args.v12:
         from .revision import run
         run(args)
