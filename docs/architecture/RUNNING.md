@@ -108,3 +108,36 @@ bash scripts/architecture.sh --interleave-pilot "$PWD/benchmark-data/architectur
 当前正式配方含六个完整原始程序、一个留出 backtracking 族（Queens/Puzzle），均为规模有限的测试程序。不同程序存在 Stanford suite 的共同历史来源；这不构成大型应用或大型 C++ 泛化验证。实际覆盖、near-tie/重复数量和尚无记忆增量收益的边界见 [V1.1 报告](../../experiments/reports/architecture-v1-1-pilot.md)。
 
 统一入口另外写入 `logs/architecture/entry-*.json`：`started_ns` 到 `ready_ns` 是依赖准备与增量构建，`wall_ns` 是完整入口的总时间，`exit_code` 保留失败状态。原始批次只记录了 driver 内部工作，这个限制已写入报告；之后复现可把包装启动成本一并纳入。
+
+## V1.2：阶段价值学习与共同默认保护
+
+一条命令完成匹配标签采集、训练、冻结 raw/guarded 编译和交错测量：
+
+```sh
+bash scripts/architecture.sh --v12 all --name my-v12
+```
+
+同名、同协议再次执行复用已完成的 dataset、checkpoint、evaluation 和最终计时，不重新训练/下载，也不覆盖原始成本。新实验或改配方使用新名称；配置为 `experiments/architecture/pilot-v1-2.json`，可用 `--v12-config "$PWD/...json"` 明确指定。部分阶段失败时完整阶段的缓存仍保留，未完整写出的模型/运行会明确报错，不自动删除产物。
+
+分阶段检查仍使用同一入口：
+
+```sh
+bash scripts/architecture.sh --v12 audit --name my-frozen-v11-audit
+bash scripts/architecture.sh --v12 guard --program puzzle --weights "$PWD/benchmark-data/architecture/pilots/pilot-v1-1-canonical/A.pt" --name my-paid-guard
+bash scripts/architecture.sh --v12 collect --name my-v12
+bash scripts/architecture.sh --v12 train --name my-v12
+bash scripts/architecture.sh --v12 evaluate --name my-v12
+bash scripts/architecture.sh --v12 measure --name my-v12
+```
+
+`audit` 只读取本机已有冻结 V1.1 记录；其它阶段复用既有固定工具链和源码缓存。`collect` 在同一 Session 检查点分叉动作，实际完成并比较全程序；q 的完成策略固定为后续全 advance，用根默认延迟作统一归一化参照。q 输出没有概率/置信度含义。`raw` 评估直接提议；`guarded` 的 3 个完整候选席位包含 1 个计费默认席位，另外最多 2 个提议，18 次尝试、180 秒；失败和确认也计费。全部搜索使用相同合法动作和 near-tie 规则。
+
+新模型文件位于 `benchmark-data/architecture/pilots/NAME/A-s23.pt` 等目录。可直接检查冻结模型的完整编译：
+
+```sh
+bash scripts/architecture.sh --program des --model A --weights "$PWD/benchmark-data/architecture/pilots/my-v12/A-s23.pt"
+```
+
+新完整 3DES 测试使用原源码 `1` 参数运行自带 Monte Carlo 正确性检查。Queens/Puzzle 只作回归诊断。模型选择若验证候选不可分辨，使用预先固定最后一轮，并明确记为证据不足。详细覆盖、控制器与记忆收益的区别、原始计时位置见 [V1.2 报告](../../experiments/reports/architecture-v1-2-pilot.md)。
+
+若交错测量中断且已产生样本，保留旧样本，可用同一入口对冻结目录换一个测量名重测，例如 `bash scripts/architecture.sh --interleave-pilot "$PWD/benchmark-data/architecture/pilots/my-v12/frozen" --name my-v12-remeasure`；无需重新采集标签或训练。

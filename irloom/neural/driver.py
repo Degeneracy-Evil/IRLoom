@@ -105,6 +105,9 @@ class Session:
         child.restore(self.checkpoint(), name)
         save(child.output / "environment.json", child.hardware)
         save(child.output / "manifest.json", child.manifest)
+        source_record = self.output / "program-source.json"
+        if source_record.exists():
+            save(child.output / "program-source.json", json.loads(source_record.read_text()))
         return child
 
     def restore(self, checkpoint, branch=None):

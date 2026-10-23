@@ -18,8 +18,12 @@ def interleave(name, pilot_dir, search_path=None):
     if search and search['config'] != config:
         raise ValueError('frozen search/pilot protocol mismatch')
     output = CACHE / 'comparisons' / name
-    output.mkdir(parents=True, exist_ok=False)
     logs = ROOT / 'logs/architecture' / name
+    # A failure before the first command can leave empty directories. Preserve
+    # any real samples/progress and require a new name for partial measurements.
+    if (output.exists() and any(output.iterdir())) or (logs.exists() and any(logs.iterdir())):
+        raise FileExistsError(f'measurement already has artifacts: {output}; use a new name')
+    output.mkdir(parents=True, exist_ok=True)
     logs.mkdir(parents=True, exist_ok=True)
     rng = random.Random(config['evaluation']['interleave_seed'])
     result = {'source_pilot':str(pilot_dir), 'source_search':str(search_path), 'config':config,
@@ -38,7 +42,9 @@ def interleave(name, pilot_dir, search_path=None):
         binaries['native-clang-O3']=paths['default']/'reference'
         env=json.loads((paths['default']/'environment.json').read_text())
         cpu=min(env['affinity'])
-        source=json.loads((paths['default']/'program-source.json').read_text())
+        source=pilot.get('program_sources',{}).get(program)
+        if source is None:
+            source=json.loads((paths['default']/'program-source.json').read_text())
         source_dir=(ROOT/'benchmark-data/sources/llvm-test-suite-18.1.3')
         if source.get('source_root') != 'suite':
             source_dir=source_dir/'MultiSource/Benchmarks'

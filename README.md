@@ -14,7 +14,9 @@ IRLoom 研究神经网络与多级编译过程的内部耦合，目标是在正�
 
 两者共用结构化 IR 图、来源账本、硬件输入、动作执行器、正确性检查和有限预算搜索器。网络在编译过程中选择并执行合法变换。**N0–N5 首轮原型和完整程序 pilot 已完成，尚未建立跨阶段记忆带来增量性能收益的证据。** LLU/PC1/trie 的训练、验证、留出评估及同预算 beam、断连/重置、容量匹配对照见 [首轮结果](experiments/reports/architecture-v1-pilot.md)。这三个规模有限的完整程序不代表大型项目覆盖。
 
-最新 V1.1 修正了结构顺序、边关系/方向/端口和来源使用统计，新增按程序组内归一化的多程序训练、独立训练的 A/B 无持续记忆对照，以及冻结产物的平衡交错测量。正式配置为 `experiments/architecture/pilot-v1-1-canonical.json`，结果与限制见 [V1.1 报告](experiments/reports/architecture-v1-1-pilot.md)。两次新进程导入检查用于排除无序 DLTI 打印带来的输入变化；旧试跑和 V1 产物均保留。
+V1.1 修正了结构顺序、边关系/方向/端口和来源使用统计，新增按程序组内归一化的多程序训练、独立训练的 A/B 无持续记忆对照，以及冻结产物的平衡交错测量。正式配置为 `experiments/architecture/pilot-v1-1-canonical.json`，结果与限制见 [V1.1 报告](experiments/reports/architecture-v1-1-pilot.md)。两次新进程导入检查用于排除无序 DLTI 打印带来的输入变化；旧试跑和 V1 产物均保留。
+
+V1.2 已接通匹配检查点的阶段 q 监督与实际动作排序，并加入同预算计费的默认保护；保留 A/B 骨干。12 套 checkpoint、192 次 raw/guarded 编译及 2040 次冻结交错计时见 [V1.2 报告](experiments/reports/architecture-v1-2-pilot.md)。新 DES 测试族未显示可靠加速，默认保护的效果不算记忆收益。完整入口：`bash scripts/architecture.sh --v12 all --name my-v12`。
 
 ## 当前阅读入口
 
