@@ -1,5 +1,7 @@
 # V1 架构运行记录
 
+V1.1 当前修订见 [新报告](../../experiments/reports/architecture-v1-1-pilot.md)。`--encoder-version structured-v2` 为新 CLI 的默认表示，保留 `legacy-v1` 开关；旧 checkpoint 未声明版本时继续使用旧表示。`bash scripts/architecture.sh --structure-audit` 执行真实 MLIR 语义结构夹具和来源使用审计。以下 V1 pilot 记录原样保留。
+
 本目录的新入口独立于历史 RealBench/PGO 工具。依赖下载、SDK、构建、IR、权重和原始报告放在 `benchmark-data/architecture/`（本机链接到 `/mnt/data/chp/irloom-benchmarks`），命令日志在 `logs/architecture/`，临时文件在 `tmp/`。源码与锁文件提交，产物不提交。N0–N5 首轮已完成；正式统计、成本与限制见 [结果报告](../../experiments/reports/architecture-v1-pilot.md)。
 
 ## 依赖与来源

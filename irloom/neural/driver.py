@@ -31,6 +31,7 @@ class Session:
         self.events, self.observations = [], []
         self.history, self.transitions, self.decisions = [], [], []
         self.path_lineage = []
+        self.lineage_cursor = 0
         self.state, self.current = None, None
         self.remaining = MANIFEST["budget"]["attempts"]
         self.branch, self.serial = "root", 0
@@ -81,7 +82,8 @@ class Session:
             raise RuntimeError("graph budget exceeded; refusing to truncate")
         previous = self.current.graph if self.current else None
         obs = Observation(1, self.manifest["id"], stage, snapshot, self.branch, graph, self.hardware,
-                          align(previous, graph), copy.deepcopy(self.history))
+                          align(previous, graph, self.path_lineage[self.lineage_cursor:]), copy.deepcopy(self.history))
+        self.lineage_cursor = len(self.path_lineage)
         self.current = obs
         self.observed_ir = self.ir
         self.observations.append(asdict(obs))
@@ -90,7 +92,7 @@ class Session:
     def checkpoint(self):
         import torch
         return Checkpoint(self.ir, self.observed_ir, copy.deepcopy(self.current), clone_state(self.state),
-                          copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining, copy.deepcopy(self.path_lineage))
+                          copy.deepcopy(self.history), torch.get_rng_state().clone(), self.remaining, copy.deepcopy(self.path_lineage), self.lineage_cursor)
 
     def fork(self, name):
         child = object.__new__(Session)
@@ -111,6 +113,7 @@ class Session:
         # budget only through the searcher's common accounting.
         self.ir, self.current = checkpoint.ir, copy.deepcopy(checkpoint.observation)
         self.observed_ir, self.path_lineage = checkpoint.observed_ir, copy.deepcopy(checkpoint.lineage)
+        self.lineage_cursor = checkpoint.lineage_cursor
         self.state, self.history = clone_state(checkpoint.state), copy.deepcopy(checkpoint.history)
         self.remaining = min(self.remaining, checkpoint.remaining)
         torch.set_rng_state(checkpoint.rng)
@@ -204,7 +207,13 @@ def main():
     parser.add_argument("--pilot", action="store_true", help="run the checked-in whole-program collection/training/evaluation budget")
     parser.add_argument("--compare-pilot", type=Path, help="N5 common bounded search using frozen pilot weights")
     parser.add_argument("--profile-inference", action="store_true", help="record cold load and five identical-input steady inference samples")
+    parser.add_argument("--encoder-version", choices=("legacy-v1", "structured-v2"), default="structured-v2")
+    parser.add_argument("--structure-audit", action="store_true", help="extract and compare semantic MLIR structure fixtures")
     args = parser.parse_args()
+    if args.structure_audit:
+        from .audit import structure_audit
+        structure_audit(args.name)
+        return
     if args.pilot:
         from .pilot import run
         run(args.name)
@@ -228,7 +237,7 @@ def main():
         from .training import fit_smoke
         torch.set_num_threads(1)
         torch.manual_seed(args.seed)
-        config = {"hidden": args.hidden, "heads": args.heads, "history": not args.no_history}
+        config = {"hidden": args.hidden, "heads": args.heads, "history": not args.no_history, "encoder_version": args.encoder_version}
         checkpoint = torch.load(args.weights.resolve(), weights_only=True) if args.weights else None
         if checkpoint:
             if checkpoint["model"] != args.model:

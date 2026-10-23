@@ -59,8 +59,8 @@ struct Graph {
                                  {"anchor", anchor.str()}, {"features", json::Array{}}});
     return id;
   }
-  void edge(int64_t src, int64_t dst, StringRef kind) {
-    edges.push_back(json::Array{src, dst, kind});
+  void edge(int64_t src, int64_t dst, StringRef kind, int64_t position = 0) {
+    edges.push_back(json::Array{src, dst, kind, position});
   }
   int64_t value(Value v) {
     if (values.count(v)) return values[v];
@@ -80,7 +80,7 @@ struct Graph {
     (*obj)["features"] = std::move(features);
     return id;
   }
-  void visit(Operation *op, int64_t parent = -1) {
+  void visit(Operation *op, int64_t parent = -1, int64_t position = 0) {
     std::string kind = "operation", anchor;
     if (isa<ModuleOp>(op)) { kind = "module"; anchor = "module"; }
     if (isa<FunctionOpInterface>(op)) {
@@ -104,31 +104,46 @@ struct Graph {
     // feed symbol/benchmark names or dense constant payloads to the network.
     std::string attributes;
     raw_string_ostream attributeStream(attributes);
-    for (StringRef key : {"indexing_maps", "iterator_types", "map", "lower_bound", "upper_bound"})
-      if (Attribute attribute = op->getAttr(key)) attributeStream << key << '=' << attribute << ';';
+    for (NamedAttribute item : op->getAttrs()) {
+      StringRef key = item.getName().strref();
+      // No source names, locations, provenance markers or large data payloads.
+      if (key == "sym_name" || key == "callee" || key == "irloom.origins" ||
+          isa<ElementsAttr>(item.getValue()) || isa<SymbolRefAttr>(item.getValue())) continue;
+      attributeStream << key << '=' << item.getValue() << ';';
+    }
     (*nodes[id].getAsObject())["attributes"] = attributes;
+    std::string legacyAttributes;
+    raw_string_ostream legacyStream(legacyAttributes);
+    for (StringRef key : {"indexing_maps", "iterator_types", "map", "lower_bound", "upper_bound"})
+      if (Attribute attribute = op->getAttr(key)) legacyStream << key << '=' << attribute << ';';
+    (*nodes[id].getAsObject())["attributes_v1"] = legacyAttributes;
     (*nodes[id].getAsObject())["memory"] = isMemoryEffectFree(op) ? "none" : "conservative-unknown-alias";
-    if (parent >= 0) edge(parent, id, "contains");
-    for (Value v : op->getResults()) edge(id, value(v), "defines");
+    if (parent >= 0) edge(parent, id, "contains", position);
+    for (auto item : llvm::enumerate(op->getResults())) edge(id, value(item.value()), "defines", item.index());
+    int64_t regionIndex = 0;
     for (Region &region : op->getRegions()) {
       // Only the function body and module region survive this adapter's lowering
       // by contract. Nested region identity is deliberately snapshot-local.
       std::string ra = anchor.empty() ? "" : anchor + ":body";
       auto rid = node("region", "region", ra);
-      edge(id, rid, "contains");
+      edge(id, rid, "contains", regionIndex++);
+      int64_t blockIndex = 0;
       for (Block &block : region) {
         auto bid = node("block", "block");
-        blocks[&block] = bid; edge(rid, bid, "contains");
-        for (Value v : block.getArguments()) edge(bid, value(v), "argument");
-        for (Operation &nested : block) visit(&nested, bid);
+        blocks[&block] = bid; edge(rid, bid, "contains", blockIndex++);
+        for (auto item : llvm::enumerate(block.getArguments())) edge(bid, value(item.value()), "argument", item.index());
+        int64_t operationIndex = 0;
+        for (Operation &nested : block) {
+          visit(&nested, bid, operationIndex++);
+        }
       }
     }
   }
   void finish(ModuleOp module, StringRef stage) {
     module.walk([&](Operation *op) {
       auto id = ops.lookup(op);
-      for (Value v : op->getOperands()) edge(value(v), id, "uses");
-      for (Block *b : op->getSuccessors()) edge(id, blocks.lookup(b), "cfg");
+      for (auto item : llvm::enumerate(op->getOperands())) edge(value(item.value()), id, "uses", item.index());
+      for (auto item : llvm::enumerate(op->getSuccessors())) edge(id, blocks.lookup(item.value()), "cfg", item.index());
       if (auto call = dyn_cast<CallOpInterface>(op)) {
         Operation *callee = call.resolveCallable();
         if (callee && ops.count(callee)) edge(id, ops.lookup(callee), "call");

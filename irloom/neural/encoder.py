@@ -7,6 +7,7 @@ from torch import nn
 
 KINDS = {name: i for i, name in enumerate(("operation", "value", "block", "region", "function", "module"))}
 ACTIONS = {"advance": 0, "fuse": 1, "unroll2": 2, "inline": 3}
+RELATIONS = {name: i for i, name in enumerate(("uses", "defines", "contains", "argument", "cfg", "call", "conservative-memory", "unknown"))}
 
 
 def hardware_features(hardware):
@@ -28,8 +29,11 @@ def numeric(node):
 
 
 class Encoder(nn.Module):
-    def __init__(self, hidden):
+    def __init__(self, hidden, version="legacy-v1"):
         super().__init__()
+        self.version = version
+        if version not in ("legacy-v1", "structured-v2"):
+            raise ValueError(version)
         self.names = nn.Embedding(256, hidden)
         self.kinds = nn.Embedding(len(KINDS), hidden)
         self.numbers = nn.Linear(8, hidden)
@@ -40,12 +44,26 @@ class Encoder(nn.Module):
         nodes = graph["nodes"] if indices is None else [graph["nodes"][i] for i in indices]
         # Byte vocabulary is fixed across programs/checkpoints; unknown operation
         # names still encode without growing a training-dependent vocabulary.
-        names = [list((n["name"] + ":" + n.get("type", "") + ":" + n.get("attributes", "")).encode()) for n in nodes]
+        names = []
+        for n in nodes:
+            attributes = n.get("attributes", "")
+            if self.version == "legacy-v1":
+                attributes = n.get("attributes_v1", attributes)
+            names.append(list((n["name"] + ":" + n.get("type", "") + ":" + attributes).encode()))
         offsets, flat = [], []
         for name in names:
             offsets.append(len(flat)); flat.extend(name or [0])
-        text = nn.functional.embedding_bag(torch.tensor(flat), self.names.weight,
-                                           torch.tensor(offsets), mode="mean")
+        if self.version == "legacy-v1":
+            text = nn.functional.embedding_bag(torch.tensor(flat), self.names.weight,
+                                               torch.tensor(offsets), mode="mean")
+        else:
+            # Ordered bytes from canonical typed MLIR attributes. No vocabulary
+            # learned from program identities and no silent sequence truncation.
+            positions = torch.cat([torch.arange(len(name) or 1) for name in names]).float()
+            weights = 1 + (positions * 0.37).sin() + (positions * 0.11).cos()
+            text = nn.functional.embedding_bag(torch.tensor(flat), self.names.weight,
+                       torch.tensor(offsets), mode="sum", per_sample_weights=weights)
+            text = text / torch.tensor([len(name) or 1 for name in names])[:, None]
         return text + self.kinds(torch.tensor([KINDS[n["kind"]] for n in nodes])) + self.numbers(torch.tensor([numeric(n) for n in nodes]))
 
     def contextualize(self, base, observation):
@@ -57,9 +75,23 @@ class Encoder(nn.Module):
         return base + context + self.stages.weight[int(observation.stage[1:])]
 
 
-def edges(graph):
+def edges(graph, version="legacy-v1"):
+    if version == "structured-v2":
+        # Keep parallel ports, relation direction and multiplicity. Artificial
+        # reverse edges have distinct relation IDs from the original relation.
+        records = []
+        for edge in graph["edges"]:
+            source, target, kind = edge[:3]
+            position = edge[3] if len(edge) > 3 else 0
+            relation = RELATIONS.get(kind, RELATIONS["unknown"])
+            records.extend(((source, target, relation, position),
+                            (target, source, relation + len(RELATIONS), position)))
+        for i in range(len(graph["nodes"])):
+            records.extend(((i, i, 16, 0), (0, i, 17, 0), (i, 0, 18, 0)))
+        return torch.tensor(records).T
     pairs = {(i, i) for i in range(len(graph["nodes"]))}
-    for source, target, _ in graph["edges"]:
+    for edge in graph["edges"]:
+        source, target = edge[:2]
         pairs.add((source, target)); pairs.add((target, source))
     # Module summary exchange is linear-sized, not all-pairs attention.
     for i in range(len(graph["nodes"])):
@@ -68,26 +100,39 @@ def edges(graph):
 
 
 class SparseBlock(nn.Module):
-    def __init__(self, hidden=128, heads=4):
+    def __init__(self, hidden=128, heads=4, version="legacy-v1"):
         super().__init__()
         if hidden % heads:
             raise ValueError("hidden must be divisible by heads")
         self.heads, self.width = heads, hidden // heads
+        self.version = version
+        if version == "structured-v2":
+            self.relation_keys = nn.Embedding(19, hidden)
+            self.relation_values = nn.Embedding(19, hidden)
+            self.positions = nn.Linear(3, hidden, bias=False)
         self.qkv = nn.Linear(hidden, hidden * 3)
         self.output = nn.Linear(hidden, hidden)
         self.norm1, self.norm2 = nn.LayerNorm(hidden), nn.LayerNorm(hidden)
         self.ff = nn.Sequential(nn.Linear(hidden, hidden * 2), nn.GELU(), nn.Linear(hidden * 2, hidden))
 
     def forward(self, x, graph):
-        src, dst = edges(graph)
+        topology = edges(graph, self.version)
+        src, dst = topology[:2]
         q, k, v = self.qkv(self.norm1(x)).reshape(len(x), 3, self.heads, self.width).unbind(1)
-        logits = (q[dst] * k[src]).sum(-1) / math.sqrt(self.width)
+        keys, messages = k[src], v[src]
+        if self.version == "structured-v2":
+            relation, position = topology[2:]
+            p = position.float()
+            ports = self.positions(torch.stack((p / (1 + p), torch.log1p(p) / 10, (p * 0.37).sin()), -1))
+            keys = keys + (self.relation_keys(relation) + ports).reshape(-1, self.heads, self.width)
+            messages = messages + (self.relation_values(relation) + ports).reshape(-1, self.heads, self.width)
+        logits = (q[dst] * keys).sum(-1) / math.sqrt(self.width)
         index = dst[:, None].expand(-1, self.heads)
         maximum = torch.full((len(x), self.heads), -torch.inf)
         maximum.scatter_reduce_(0, index, logits.detach(), reduce="amax", include_self=True)
         weight = (logits - maximum[dst]).exp()
         denominator = torch.zeros_like(maximum).scatter_add(0, index, weight)
-        message = v[src] * (weight / denominator[dst]).unsqueeze(-1)
+        message = messages * (weight / denominator[dst]).unsqueeze(-1)
         pooled = torch.zeros_like(v).index_add(0, dst, message).reshape(len(x), -1)
         x = x + self.output(pooled)
         return x + self.ff(self.norm2(x))

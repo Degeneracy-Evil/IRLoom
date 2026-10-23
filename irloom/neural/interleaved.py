@@ -6,11 +6,11 @@ from .heads import Heads
 
 
 class Interleaved(nn.Module):
-    def __init__(self, hidden=128, heads=4, history=True):
+    def __init__(self, hidden=128, heads=4, history=True, encoder_version="legacy-v1"):
         super().__init__()
         self.hidden, self.history = hidden, history
-        self.encoder = Encoder(hidden)
-        self.blocks = nn.ModuleList([SparseBlock(hidden, heads) for _ in range(3)])
+        self.encoder = Encoder(hidden, encoder_version)
+        self.blocks = nn.ModuleList([SparseBlock(hidden, heads, encoder_version) for _ in range(3)])
         self.heads = Heads(hidden)
         self.costs = []
 
@@ -21,5 +21,6 @@ class Interleaved(nn.Module):
         x = x + aligned(previous if self.history else None, observation, self.hidden)
         h = self.blocks[int(observation.stage[1:])](x, observation.graph)
         outputs = self.heads(h, observation.graph["candidates"])
-        self.costs.append({"full_encoding_s": encoded - start, "network_s": time.perf_counter() - encoded})
+        self.costs.append({"full_encoding_s": encoded - start, "network_s": time.perf_counter() - encoded,
+                           "read_state_nodes": sum(len(r["new"]) for r in observation.lineage["relations"] if r["status"] == "known") if previous is not None and self.history else 0})
         return outputs, {"h": h}

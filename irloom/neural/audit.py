@@ -79,3 +79,55 @@ def state_audit(model, name, context, size):
               "limitation": "full graph extraction and sparse attention still run; only unchanged base embeddings are cached"}
     save(root.output / "state-audit.json", result)
     return result
+
+
+def structure_audit(name):
+    """Compiler-backed semantic fixtures; no separate unit-test framework."""
+    import json
+    from .encoder import Encoder, edges
+    root = Session(name)
+    torch.set_num_threads(1)
+    torch.manual_seed(23)
+    graphs = {}
+    for opcode in ('subi', 'divsi', 'cmpi slt,'):
+        for reverse in (False, True):
+            args = '%b, %a' if reverse else '%a, %b'
+            source = f'module {{ func.func @fixture(%a: i32, %b: i32) -> i32 {{ %x = arith.{opcode} {args} : i32\n'
+            source += ' %y = arith.extui %x : i1 to i32\n return %y : i32 } }' if opcode.startswith('cmpi') else ' return %x : i32 } }'
+            label = opcode.split()[0] + str(int(reverse))
+            path, output = root.output / (label + '.mlir'), root.output / (label + '.json')
+            path.write_text(source)
+            root.run([root.bridge, path, output, label, 'fixture', 'S0'], 'structure')
+            graphs[label] = json.loads(output.read_text())
+            renamed = root.output / (label + '-renamed.mlir')
+            renamed.write_text(source.replace('%a', '%left').replace('%b', '%right').replace('%x', '%answer'))
+            root.run([root.bridge, renamed, output, label, 'fixture', 'S0'], 'structure-rename')
+            assert graphs[label] == json.loads(output.read_text())
+        assert not torch.equal(edges(graphs[opcode.split()[0] + '0'], 'structured-v2'), edges(graphs[opcode.split()[0] + '1'], 'structured-v2'))
+    for index, mapping in enumerate(('d0, d1', 'd1, d0')):
+        path, output = root.output / f'map{index}.mlir', root.output / f'map{index}.json'
+        # affine.apply has one result; use an unused structured map attribute to
+        # exercise canonical typed affine-map parsing with two ordered results.
+        path.write_text('module attributes {fixture.map = affine_map<(d0, d1) -> (' + mapping + ')>} {}')
+        root.run([root.bridge, path, output, f'map{index}', 'fixture', 'S0'], 'structure-map')
+        graphs[f'map{index}'] = json.loads(output.read_text())
+    encoder = Encoder(32, 'structured-v2')
+    assert graphs['map0']['nodes'][0]['attributes'] != graphs['map1']['nodes'][0]['attributes']
+    assert not torch.equal(encoder.base(graphs['map0']), encoder.base(graphs['map1']))
+    # Real controlled fusion -> observe: ledger relations must enter Observation.
+    before = root.observe('S0')
+    assert root.apply(before.graph['candidates'][1]).success
+    after = root.observe('S0')
+    assert after.lineage['event'] == 'controlled composition'
+    assert after.lineage['coverage']['operation']['known'] > 0
+    stage = root.manifest['stages'][0]
+    root.advance(stage)
+    lowered = root.observe('S1')
+    assert lowered.lineage['lowering_events'] == 1
+    assert lowered.lineage['coverage']['operation']['known'] == 0
+    result = {'ssa_rename_invariant': True, 'operand_ports_distinguish_sub_div_compare': True,
+              'affine_order_distinguishable': True, 'controlled_observation': after.lineage,
+              'lowered_observation': lowered.lineage, 'events': root.events}
+    save(root.output / 'structure-audit.json', result)
+    print(json.dumps({'structure_audit': str(root.output / 'structure-audit.json')}))
+    return result

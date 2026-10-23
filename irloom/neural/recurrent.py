@@ -10,7 +10,8 @@ SUMMARY = {"module", "function", "region"}
 
 def summary_owners(graph):
     parents = {}
-    for source, target, kind in graph["edges"]:
+    for edge in graph["edges"]:
+        source, target, kind = edge[:3]
         if kind in ("contains", "defines", "argument"):
             parents[target] = source
     result = []
@@ -26,11 +27,11 @@ def summary_owners(graph):
 
 
 class Recurrent(nn.Module):
-    def __init__(self, hidden=128, heads=4, history=True, incremental=False):
+    def __init__(self, hidden=128, heads=4, history=True, incremental=False, encoder_version="legacy-v1"):
         super().__init__()
         self.hidden, self.history, self.incremental = hidden, history, incremental
-        self.encoder = Encoder(hidden)
-        self.block = SparseBlock(hidden, heads)
+        self.encoder = Encoder(hidden, encoder_version)
+        self.block = SparseBlock(hidden, heads, encoder_version)
         self.update = nn.GRUCell(hidden, hidden)
         self.norm = nn.LayerNorm(hidden)
         self.heads = Heads(hidden)
@@ -87,5 +88,6 @@ class Recurrent(nn.Module):
         self.costs.append({"encoding_s": encoded - start, "network_s": time.perf_counter() - encoded,
                            "mode": "incremental" if self.incremental and not self.training else "full",
                            "reused_nodes": len(reused), "fresh_nodes": len(fresh), "records": len(summaries),
+                           "read_state_records": len(retained),
                            "invalidated_records": len(previous["records"]) - len(retained) if previous else 0})
         return outputs, state
