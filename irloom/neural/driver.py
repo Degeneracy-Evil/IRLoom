@@ -220,7 +220,13 @@ def main():
     parser.add_argument("--structure-audit", action="store_true", help="extract and compare semantic MLIR structure fixtures")
     parser.add_argument("--interleave-pilot", type=Path, help="freeze single/beam binaries and measure in balanced random order")
     parser.add_argument("--search-report", type=Path, help="optional common beam report for frozen interleaved comparison")
+    parser.add_argument("--v12", choices=("audit", "guard", "collect", "train", "evaluate", "measure", "all"), help="stage-cost learning and common guarded search")
+    parser.add_argument("--v12-config", type=Path, help="versioned V1.2 protocol; defaults to pilot-v1-2.json")
     args = parser.parse_args()
+    if args.v12:
+        from .revision import run
+        run(args)
+        return
     if args.structure_audit:
         from .audit import structure_audit
         structure_audit(args.name)

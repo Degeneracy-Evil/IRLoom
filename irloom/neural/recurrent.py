@@ -27,14 +27,14 @@ def summary_owners(graph):
 
 
 class Recurrent(nn.Module):
-    def __init__(self, hidden=128, heads=4, history=True, incremental=False, encoder_version="legacy-v1"):
+    def __init__(self, hidden=128, heads=4, history=True, incremental=False, encoder_version="legacy-v1", decision_version="policy-v1"):
         super().__init__()
         self.hidden, self.history, self.incremental = hidden, history, incremental
         self.encoder = Encoder(hidden, encoder_version)
         self.block = SparseBlock(hidden, heads, encoder_version)
         self.update = nn.GRUCell(hidden, hidden)
         self.norm = nn.LayerNorm(hidden)
-        self.heads = Heads(hidden)
+        self.heads = Heads(hidden, decision_version)
         self.costs = []
 
     def forward(self, observation, previous=None):

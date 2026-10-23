@@ -101,7 +101,7 @@ def interleave(name, pilot_dir, search_path=None):
         save(output/'progress.json',result)
         print(json.dumps({'phase':'interleaved','program':program,'methods':len(binaries)}),flush=True)
     split_summary={}
-    for split in ('train','validation','test'):
+    for split in dict.fromkeys(('train','validation','test',*config['splits'].values())):
         programs=[p for p in result['programs'].values() if p['split']==split]
         labels=next(iter(programs))['paired_median_speedup'] if programs else {}
         split_summary[split]={label:{'geomean_speedup':math.exp(statistics.mean(math.log(p['paired_median_speedup'][label]) for p in programs)),

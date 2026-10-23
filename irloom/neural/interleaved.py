@@ -6,12 +6,12 @@ from .heads import Heads
 
 
 class Interleaved(nn.Module):
-    def __init__(self, hidden=128, heads=4, history=True, encoder_version="legacy-v1"):
+    def __init__(self, hidden=128, heads=4, history=True, encoder_version="legacy-v1", decision_version="policy-v1"):
         super().__init__()
         self.hidden, self.history = hidden, history
         self.encoder = Encoder(hidden, encoder_version)
         self.blocks = nn.ModuleList([SparseBlock(hidden, heads, encoder_version) for _ in range(3)])
-        self.heads = Heads(hidden)
+        self.heads = Heads(hidden, decision_version)
         self.costs = []
 
     def forward(self, observation, previous=None):

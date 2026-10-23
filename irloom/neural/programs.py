@@ -6,6 +6,7 @@ from irloom.compiler import ROOT
 BASE = ROOT / "benchmark-data/architecture/frontends"
 RECIPES = json.loads((ROOT / "experiments/architecture/programs.json").read_text())
 RECIPES["programs"].update(json.loads((ROOT / "experiments/architecture/programs-v1-1.json").read_text())["programs"])
+RECIPES["programs"].update(json.loads((ROOT / "experiments/architecture/programs-v1-2.json").read_text())["programs"])
 
 
 def prepare(session, program):

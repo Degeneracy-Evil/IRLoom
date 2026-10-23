@@ -19,8 +19,9 @@ def execute(session, stage, index, scores=(), value=0.0, resources=()):
     if len(scores):
         ranking = sorted(ranking, key=lambda i: -float(scores[i]))
     session.decisions.append(asdict(Decision(observation.snapshot, ranking, action, list(scores), value, list(resources))))
-    if not session.apply(action).success:
-        raise RuntimeError('registered action failed; no terminal success label')
+    transition=session.apply(action)
+    if not transition.success:
+        raise RuntimeError('registered action failed: '+transition.diagnostic)
     session.advance(stage)
 
 
@@ -78,7 +79,9 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False):
                         break
                     child=parent.fork(f'{name}-branch-{serial}'); serial+=1; sessions.append(child)
                     attempts+=1
-                    if inject_failure:
+                    if inject_failure=='deadline':
+                        child.deadline=time.perf_counter()-1
+                    elif inject_failure:
                         # Integration fault after the protected default is usable.
                         raise RuntimeError('injected proposal failure')
                     try:
@@ -130,7 +133,11 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False):
             'selected':chosen,'terminals':terminals,'actual_terminals':len(terminals),'distinct_executables':len(distinct),
             'attempts':attempts,'default_paid':incumbent is not None,'fallback_to_default':chosen is incumbent,
             'traces':traces,'failures':failures,'confirmation':confirmed,
+            'confirmation_complete':confirmed is not None,
             'wall_s':time.perf_counter()-start,'events':list(events.values()),'model_costs':list(model.costs),
+            'command_s':sum(e['seconds'] for e in events.values()),
+            'feature_s':sum(e['seconds'] for e in events.values() if e['stage']=='observe'),
+            'deadline_overrun_s':max(0,time.perf_counter()-root.deadline),
             'measurement_invocations':sum(e['stage'] in ('measure','confirm-measure') for e in events.values())}
     save(root.output/'guided.json',result)
     return result
