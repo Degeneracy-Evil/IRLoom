@@ -111,4 +111,5 @@ def run(args):
     if mode in ('all','measure'):
         from .revision_measurement import measure
         measure(args.name)
-        print(json.dumps({'v12_report':str(CACHE/'comparisons'/(args.name+'-interleaved')/'report.json')}),flush=True)
+        key='v13_report' if config.get('protocol')=='architecture-v1-3' else 'v12_report'
+        print(json.dumps({key:str(CACHE/'comparisons'/(args.name+'-interleaved')/'report.json')}),flush=True)

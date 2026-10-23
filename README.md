@@ -18,6 +18,8 @@ V1.1 修正了结构顺序、边关系/方向/端口和来源使用统计，新�
 
 V1.2 已接通匹配检查点的阶段 q 监督与实际动作排序，并加入同预算计费的默认保护；保留 A/B 骨干。12 套 checkpoint、192 次 raw/guarded 编译及 2040 次冻结交错计时见 [V1.2 报告](experiments/reports/architecture-v1-2-pilot.md)。新 DES 测试族未显示可靠加速，默认保护的效果不算记忆收益。完整入口：`bash scripts/architecture.sh --v12 all --name my-v12`。
 
+V1.3 新增由内容产生的分层摘要和角色化候选读出，修正 q 的校准目标，并以固定结构种子扩充到49个匹配动作终端。八套最小对照、120次 raw/guarded 编译及1320次冻结交错计时见 [V1.3 报告](experiments/reports/architecture-v1-3-pilot.md)。Perlin 新测试族仍无可靠收益；结构/数值修正通过验收，数据与验证选择仍有限。完整入口：`bash scripts/architecture.sh --v13 all --name my-v13`。
+
 ## 当前阅读入口
 
 - [架构设计 V1](docs/architecture/V1_DESIGN.md) 定义阶段、双流、图表示、A/B、状态对齐与训练边界。

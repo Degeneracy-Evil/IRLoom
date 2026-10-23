@@ -1,5 +1,24 @@
 # V1 架构运行记录
 
+V1.3 的内容摘要、角色读出和有限 margin 对照见 [新报告](../../experiments/reports/architecture-v1-3-pilot.md)。一条命令运行新配方：
+
+```sh
+bash scripts/architecture.sh --v13 all --name my-v13
+```
+
+结构与数值验收分别为 `--context-audit`、`--objective-audit`，均用同一包装脚本；后者的真实数据检查读取既有 `v12-stage` 缓存。它们不是性能 benchmark。可用 `--v13 collect/train/evaluate/measure --name my-v13` 分阶段检查，或 `--v13-config "$PWD/...json"` 指定独立配方。默认配置为 `experiments/architecture/pilot-v1-3.json`，完整缓存同名复用，新试验使用新名字。
+
+hierarchical-v3 的顺序为局部 typed 图、自底向上内容汇总、call/module 交互、原 A/B、角色读出。每阶段共享摘要，summary/candidate-read 是 encoding/network 中的子计时，不能重复求和。structured-v2、旧 softplus 和纯区间目标均保留。新标签按动作类型/函数/循环深度/callee 的固定种子分层，最多25个产物/程序；标签冻结后六轮配对交错根默认与候选。PC1/lists 训练、matrix 验证、Perlin 为唯一新测试族；DES/Puzzle 仅诊断。
+
+```sh
+bash scripts/architecture.sh --context-audit --name my-v13-context
+bash scripts/architecture.sh --objective-audit --name my-v13-objective
+bash scripts/architecture.sh --model B --encoder-version hierarchical-v3 --state-audit --multi-function
+bash scripts/architecture.sh --program perlin --model A --weights "$PWD/benchmark-data/architecture/pilots/my-v13/A-s23.pt"
+```
+
+Perlin 使用上游已有 SMALL_PROBLEM_SIZE 宏，不改算法；结构可分辨不等于已学会性能，实际监督与验证限制见报告。下文的 V1/V1.1/V1.2 记录保留供追溯。
+
 V1.1 当前修订见 [新报告](../../experiments/reports/architecture-v1-1-pilot.md)。`--encoder-version structured-v2` 为新 CLI 的默认表示，保留 `legacy-v1` 开关；旧 checkpoint 未声明版本时继续使用旧表示。`bash scripts/architecture.sh --structure-audit` 执行真实 MLIR 语义结构夹具和来源使用审计。以下 V1 pilot 记录原样保留。
 
 本目录的新入口独立于历史 RealBench/PGO 工具。依赖下载、SDK、构建、IR、权重和原始报告放在 `benchmark-data/architecture/`（本机链接到 `/mnt/data/chp/irloom-benchmarks`），命令日志在 `logs/architecture/`，临时文件在 `tmp/`。源码与锁文件提交，产物不提交。N0–N5 首轮已完成；正式统计、成本与限制见 [结果报告](../../experiments/reports/architecture-v1-pilot.md)。
