@@ -2,19 +2,28 @@
 import torch
 
 
-def cost_loss(predicted, targets, margins, pairs, version='calibrated-margin-v1'):
+def cost_parts(predicted, targets, margins, pairs, version='calibrated-margin-v1'):
     regression=(predicted.sub(targets).abs().sub(margins).relu().square()).mean()
     ranking=[]
-    for i,j,direction in pairs:
+    for pair in pairs:
+        i,j,direction=pair[:3]
         if version=='softplus-v1':
             ranking.append(torch.nn.functional.softplus(-direction*(predicted[i]-predicted[j])))
         elif version=='calibrated-margin-v1':
             delta=targets[i]-targets[j]
             gap=(delta.abs()-margins[i]-margins[j]).clamp_min(0)
             ranking.append((gap-delta.sign()*(predicted[i]-predicted[j])).relu().square())
+        elif version=='shared-root-margin-v1':
+            if len(pair)!=4 or pair[3]<=0:raise ValueError('shared-root margin requires a positive canonical pair gap')
+            ranking.append((pair[3]-direction*(predicted[i]-predicted[j])).relu().square())
         elif version!='interval-only-v1':raise ValueError(version)
-    if version not in ('softplus-v1','calibrated-margin-v1','interval-only-v1'):raise ValueError(version)
-    return regression+(torch.stack(ranking).mean() if ranking else 0)
+    if version not in ('softplus-v1','calibrated-margin-v1','shared-root-margin-v1','interval-only-v1'):raise ValueError(version)
+    return regression,torch.stack(ranking).mean() if ranking else predicted.new_zeros(())
+
+
+def cost_loss(predicted,targets,margins,pairs,version='calibrated-margin-v1'):
+    regression,ranking=cost_parts(predicted,targets,margins,pairs,version)
+    return regression+ranking
 
 
 def audit(name):

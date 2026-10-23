@@ -125,6 +125,9 @@ def prepare_groups(dataset, split, config):
                 if abs(a['latency']-b['latency'])<=tolerance(a['samples'],b['samples'],config):
                     counts['near_tie_pairs']+=1;continue
                 pairs.append((i,j,math.copysign(1,a['latency']-b['latency'])))
+        if config.get('pair_version')=='shared-root-v1':
+            from .pair_labels import canonicalize
+            pairs,counts=canonicalize(rows,base,config)
         groups.append({**source,'observations':[Observation(**o) for o in source['observations']],
                        'rows':rows,'pairs':pairs,'counts':counts,'root_reference_ms':base})
     if not groups: raise ValueError('no groups in '+split)
@@ -145,9 +148,16 @@ def quality(model, groups, config):
         (scores,_,_),_=forward_prefix(model,group)
         rows=group['rows']; chosen=max(rows,key=lambda r:float(scores[r['candidate_index']]))
         advances+=chosen['candidate_index']==0
-        best=min(rows,key=lambda r:r['latency'])
+        canonical=config.get('pair_version')=='shared-root-v1'
+        def latency(row):return row['canonical_ms'] if canonical else row['latency']
+        def uncertainty(a,b):
+            if canonical:
+                from .pair_labels import resolution
+                return resolution(a,b,config)
+            return tolerance(a['samples'],b['samples'],config)
+        best=min(rows,key=latency)
         if group['pairs']:
-            gap=max(0,math.log(chosen['latency']/best['latency'])-math.log1p(tolerance(chosen['samples'],best['samples'],config)/best['latency']))
+            gap=max(0,math.log(latency(chosen)/latency(best))-math.log1p(uncertainty(chosen,best)/latency(best)))
             metrics.append(gap)
         if model.heads.decision_version=='stage-q-v1':
             calibration.extend(abs(float(-scores[r['candidate_index']])-r['target']) for r in rows)
@@ -155,7 +165,7 @@ def quality(model, groups, config):
             advance=next(r for r in rows if r['candidate_index']==0)
             advance_bias.append(float(-scores[0])-advance['target'])
             for row in rows:
-                if row['object']!=advance['object'] and row['latency']-advance['latency']>tolerance(row['samples'],advance['samples'],config):
+                if row['object']!=advance['object'] and latency(row)-latency(advance)>uncertainty(row,advance):
                     harmful+=1
                     harmful_wrong+=float(scores[row['candidate_index']])>float(scores[0])
     return {'regret':statistics.mean(metrics) if metrics else None,'distinguishable_groups':len(metrics),

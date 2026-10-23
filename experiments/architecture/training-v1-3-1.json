@@ -1,0 +1,20 @@
+{
+  "protocol": "architecture-v1-3-1-training",
+  "dataset": "pilots/v13-stage/dataset.json",
+  "seed": 23,
+  "updates": 20,
+  "snapshots": [0, 1, 5, 10, 20],
+  "selection": "fixed-final-v1; always deploy weights after update20, earliest-best is diagnostic only",
+  "learning_rate": 0.0003,
+  "models": {
+    "A_fixed_legacy": {"kind": "A", "history": true, "pair_version": "absolute-v1", "loss_version": "calibrated-margin-v1"},
+    "B_fixed_legacy": {"kind": "B", "history": true, "pair_version": "absolute-v1", "loss_version": "calibrated-margin-v1"},
+    "A": {"kind": "A", "history": true, "pair_version": "shared-root-v1", "loss_version": "shared-root-margin-v1"},
+    "B": {"kind": "B", "history": true, "pair_version": "shared-root-v1", "loss_version": "shared-root-margin-v1"},
+    "current_only": {"kind": "A", "history": false, "pair_version": "shared-root-v1", "loss_version": "shared-root-margin-v1"},
+    "B_current_only": {"kind": "B", "history": false, "pair_version": "shared-root-v1", "loss_version": "shared-root-margin-v1"}
+  },
+  "replay_cases": [{"program": "pc1", "group_ordinal": 0}, {"program": "matrix", "group_ordinal": 3}],
+  "overfit": {"enabled_if_A_final_misses_training_preference": true, "model": "A", "program": "pc1", "group_ordinal": 0, "updates": 200, "snapshots": [0, 1, 5, 10, 20, 200], "scope": "bounded single training-group diagnosis only; never deployed or used for test selection"},
+  "limits": "Frozen V1.3 inputs/measurements, hierarchical-v3/128x4/A-B formulas/lineage/actions/all-advance continuation unchanged. No new labels or test inference. Main six models get exactly20 optimizer updates. Canonical shared-root pairs keep thresholds and absolute q intervals; changed pair membership must be reported. Known candidate-set compilation replay only, no new blind performance claim."
+}

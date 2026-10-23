@@ -229,7 +229,13 @@ def main():
     parser.add_argument("--objective-audit", action="store_true", help="log-cost feasibility and real-label calibration audit")
     parser.add_argument("--v13", choices=("guard", "collect", "train", "evaluate", "measure", "all"), help="hierarchical context and calibrated q pilot")
     parser.add_argument("--v13-config", type=Path)
+    parser.add_argument("--training-review", choices=("audit", "train", "all"), help="V1.3.1 frozen-data fixed-final training acceptance")
+    parser.add_argument("--training-config", type=Path)
     args = parser.parse_args()
+    if args.training_review:
+        from .training_review import run
+        run(args)
+        return
     if args.objective_audit:
         from .cost_objective import audit
         audit(args.name)
