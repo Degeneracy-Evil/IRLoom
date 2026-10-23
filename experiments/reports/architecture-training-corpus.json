@@ -4559,5 +4559,66 @@
     "interleaved_native_measurements": 660
   },
   "raw_results": "/home/chen/develop/IRLoom/benchmark-data/architecture/campaigns/campaign-v1",
-  "note": "Counterfactual matched labels, not neural performance results. CPU0 native timing overlapped G2 CPU1, affinity/cache/frequency limitations retained. No new test action labels."
+  "note": "Counterfactual matched labels, not neural performance results. CPU0 native timing overlapped G2 CPU1, affinity/cache/frequency limitations retained. No new test action labels.",
+  "sqlite_official_configuration_retry": {
+    "source": "MultiSource/Applications/sqlite3/sqlite3.c",
+    "license": "SQLite 3.5.7 public domain; unmodified test-suite amalgamation",
+    "scope": "Independent bounded retry with official test-suite CMake header-feature definitions; library TU only, no training/test labels or whole-application claim. Original campaign attempt retained.",
+    "defines": [
+      "STDC_HEADERS=1",
+      "HAVE_SYS_TYPES_H=1",
+      "HAVE_SYS_STAT_H=1",
+      "HAVE_STDLIB_H=1",
+      "HAVE_STRING_H=1",
+      "HAVE_MEMORY_H=1",
+      "HAVE_STRINGS_H=1",
+      "HAVE_INTTYPES_H=1",
+      "HAVE_STDINT_H=1",
+      "HAVE_UNISTD_H=1",
+      "SQLITE_OMIT_LOAD_EXTENSION=1",
+      "SQLITE_THREADSAFE=0"
+    ],
+    "timeout_s": 120,
+    "max_ir_bytes": 67108864,
+    "source_lines": 84545,
+    "source_bytes": 2862216,
+    "status": "failed",
+    "reason": "large-import: exit -11; see /home/chen/develop/IRLoom/logs/architecture/sqlite-official-v1/sqlite-import/import.log",
+    "events": [
+      {
+        "stage": "large-import",
+        "command": [
+          "/home/chen/develop/IRLoom/benchmark-data/architecture/frontends/build/bin/cgeist",
+          "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Applications/sqlite3/sqlite3.c",
+          "-S",
+          "-O0",
+          "-raise-scf-to-affine",
+          "-std=gnu89",
+          "-resource-dir=/usr/lib/llvm-18/lib/clang/18",
+          "-DSTDC_HEADERS=1",
+          "-DHAVE_SYS_TYPES_H=1",
+          "-DHAVE_SYS_STAT_H=1",
+          "-DHAVE_STDLIB_H=1",
+          "-DHAVE_STRING_H=1",
+          "-DHAVE_MEMORY_H=1",
+          "-DHAVE_STRINGS_H=1",
+          "-DHAVE_INTTYPES_H=1",
+          "-DHAVE_STDINT_H=1",
+          "-DHAVE_UNISTD_H=1",
+          "-DSQLITE_OMIT_LOAD_EXTENSION=1",
+          "-DSQLITE_THREADSAFE=0",
+          "-o",
+          "/home/chen/develop/IRLoom/benchmark-data/architecture/campaigns/sqlite-official-v1/compatibility/sqlite/sqlite.mlir"
+        ],
+        "cwd": "/home/chen/develop/IRLoom",
+        "log": "/home/chen/develop/IRLoom/logs/architecture/sqlite-official-v1/sqlite-import/import.log",
+        "returncode": -11,
+        "status": "failed",
+        "seconds": 1.4381062053143978
+      }
+    ],
+    "wall_s": 1.448336509987712,
+    "command_s": 1.4381062053143978
+  },
+  "sqlite_official_configuration_recipe": "experiments/architecture/sqlite-import-official-v1.json"
 }

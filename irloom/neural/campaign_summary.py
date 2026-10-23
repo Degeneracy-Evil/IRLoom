@@ -4,7 +4,25 @@ import json
 import math
 from pathlib import Path
 
-from .driver import save
+from .driver import ROOT,CACHE,save
+
+
+def failure_evidence(output,row):
+    prefix=f'{output.name}-{row["model"]}-{row["program"]}-{row["mode"]}'
+    checks=[];actions=[]
+    for folder in sorted((ROOT/'logs/architecture').glob(prefix+'*')):
+        for path in sorted(folder.glob('*.log')):
+            lines=path.read_text().splitlines()
+            if not lines:continue
+            try:event=json.loads(lines[0])
+            except json.JSONDecodeError:continue
+            if event.get('stage') in ('reference-check','program-check'):
+                checks.append({'log':str(path),'stage':event['stage'],'command':event['command'],'output':'\n'.join(lines[1:]).strip()})
+    for folder in sorted((CACHE/'runs').glob(prefix+'*')):
+        for path in sorted(folder.glob('trial-*-action.json')):
+            actions.append({'request':str(path),**json.loads(path.read_text())})
+    return {**{k:v for k,v in row.items() if k!='result'},'executed_action_requests':actions,
+        'attempts':len(actions),'oracle_evidence':checks,'scope':'read-only evidence from rejected original run; no test rerun or label feedback'}
 
 
 def compact_snapshot(snapshot):

@@ -38,6 +38,16 @@ S0训练有益/中性/有害记录为5/39/0；S1为3/127/12。S1强对来自Quee
 
 兼容性累计wall30.757秒、标签累计wall480.221秒，命令累计24.971/369.809秒；与固定CPU1的G2训练有重叠，不将两者相加冒充串行经过时间。全部初始原生计时1410次（含默认/未收录/留出默认），去重后110个目标产物做6轮随机/反向成对交错，共660次。2070次计时不等于2070个训练样本。全部完整输出由独立Clang -O3原源码oracle检查，verifier只作结构检查。
 
+大应用尝试使用test-suite携带的SQLite3.5.7库，并非现有native新版SQLite的MLIR成功接入。保留第一次最小配置失败后，另用官方CMake中的全部标准头部feature定义作独立、有界重试（`sqlite-import-official-v1.json`，每命令上限120秒），仍在原始库导入退出-11，wall1.448秒、命令1.438秒；未改算法或原实验协议，未产生模型/标签。复现同一包装入口：
+
+```bash
+bash scripts/architecture.sh --campaign probe \
+  --campaign-config "$PWD/experiments/architecture/sqlite-import-official-v1.json" \
+  --name my-sqlite-import
+```
+
+该probe完成表示诊断已记录，`large_application.status=failed`才是实际导入结果；未链接shell，不宣称完整应用成功。
+
 原生程序/编译子进程固定CPU0，Torch诊断固定CPU1；二者可能共享cache和功耗域，频率与其他主机负载未控制。硬件、版本、原始命令、计时顺序和失败日志保存在各run，来源许可证保留原头部（ReedSolomon要求保留Simon Rockliff署名）。没有新增依赖下载、系统设置修改、hash或单元测试工程。
 
-部署评价协议独立冻结在 `campaign-evaluation-v1.json`，闭集选择、完整提议匹配后缀、raw路径和guarded系统分开；新留出只在全部权重冻结后执行一次正式活动。G2/G3的训练和部署结果另见后续训练活动报告；G1覆盖本身不是神经收益。
+部署评价协议独立冻结在 `campaign-evaluation-v1.json`，闭集选择、完整提议匹配后缀、raw路径和guarded系统分开；新留出只在全部权重冻结后执行一次正式活动。G2/G3结果见 [训练活动报告](architecture-training-campaign.md)；G1覆盖本身不是神经收益。

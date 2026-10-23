@@ -1,0 +1,18 @@
+{
+  "protocol": "architecture-sqlite-official-config-import-v1",
+  "pool": [],
+  "targets": {"train": 0, "validation": 0, "test": 0},
+  "large_application": {
+    "source": "MultiSource/Applications/sqlite3/sqlite3.c",
+    "license": "SQLite 3.5.7 public domain; unmodified test-suite amalgamation",
+    "scope": "Independent bounded retry with official test-suite CMake header-feature definitions; library TU only, no training/test labels or whole-application claim. Original campaign attempt retained.",
+    "defines": [
+      "STDC_HEADERS=1", "HAVE_SYS_TYPES_H=1", "HAVE_SYS_STAT_H=1",
+      "HAVE_STDLIB_H=1", "HAVE_STRING_H=1", "HAVE_MEMORY_H=1",
+      "HAVE_STRINGS_H=1", "HAVE_INTTYPES_H=1", "HAVE_STDINT_H=1",
+      "HAVE_UNISTD_H=1", "SQLITE_OMIT_LOAD_EXTENSION=1", "SQLITE_THREADSAFE=0"
+    ],
+    "timeout_s": 120,
+    "max_ir_bytes": 67108864
+  }
+}

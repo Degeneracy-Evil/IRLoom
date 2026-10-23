@@ -10,7 +10,7 @@ bash scripts/architecture.sh --campaign all --name my-campaign
 
 缓存位于 `benchmark-data/architecture/campaigns/NAME`，日志位于 `logs/architecture`，临时文件仍在项目tmp；完整同名结果幂等复用，部分训练不会重写快照，需新活动名字。旧V1.3标签和V1.3.1四套冻结模型用于有界开发诊断/预注册训练域提议，需要保留对应缓存引用。
 
-先固定候选池及替补，实际支持不足不凑数；仅按完整输出正确性、图预算、S0/S1动作可达性收录。训练域最多一次四模型提议并集补标；固定后的全合法proposal实际执行，不能用闭集候选替代。数据覆盖、预算及限制见 [G1报告](../../experiments/reports/architecture-training-corpus.md)。以下V1.3.1及更早入口保留。
+先固定候选池及替补，实际支持不足不凑数；仅按完整输出正确性、图预算、S0/S1动作可达性收录。训练域最多一次四模型提议并集补标；固定后的全合法proposal实际执行，不能用闭集候选替代。数据覆盖见 [G1报告](../../experiments/reports/architecture-training-corpus.md)，两种子训练、raw语义失败与guarded结果见 [G2/G3报告](../../experiments/reports/architecture-training-campaign.md)。同配方新名字是复现，三个原留出程序现已被观察，不能再称新blind。以下V1.3.1及更早入口保留。
 
 ## V1.3.1训练验收
 

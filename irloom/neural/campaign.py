@@ -29,6 +29,10 @@ def run(args):
         if args.campaign in ('all','evaluate'):
             from .campaign_evaluation import evaluate
             evaluation=evaluate(output,config,dataset,models,catalog)
-            from .campaign_summary import summarize
+            from .campaign_summary import summarize,failure_evidence
             summarize(output,config,catalog,dataset,diagnosis,models,evaluation)
+            failure_audit=output/'failure-audit.json'
+            if not failure_audit.exists():
+                save(failure_audit,{'system_failures':[failure_evidence(output,r) for r in evaluation['systems'] if r['status']!='ok'],
+                    'scope':'read-only original-run actions/oracle evidence, no new compilation or performance measurement'})
     print(json.dumps({'campaign':str(output),'phase':args.campaign}),flush=True)

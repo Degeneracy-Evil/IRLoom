@@ -24,7 +24,7 @@ V1.3.1 已完成六模型固定20次更新、共享根成对 margin、12次训�
 
 ## 当前阅读入口
 
-当前G1–G3活动冻结既有骨干，扩建到10训练/3验证/3新留出完整程序；273条匹配记录包含真实S1排序，未达到12/4/4工程目标的缺口如实保留。入口为 `bash scripts/architecture.sh --campaign all --name my-campaign`，见 [数据覆盖报告](experiments/reports/architecture-training-corpus.md)。数据覆盖不代表连续记忆或泛化收益。
+G1–G3已完成首批活动：10训练/3验证/3留出完整程序、273条匹配记录、四模型×两种子各200次更新。S1监督与拟合有进展，仍无连续记忆收益；3条raw语义错误被拒，留出guarded全为默认产物。入口为 `bash scripts/architecture.sh --campaign all --name my-campaign`，见 [数据覆盖](experiments/reports/architecture-training-corpus.md) 和 [训练/部署报告](experiments/reports/architecture-training-campaign.md)。12/4/4覆盖目标和大应用接入的缺口保留。
 
 - [架构设计 V1](docs/architecture/V1_DESIGN.md) 定义阶段、双流、图表示、A/B、状态对齐与训练边界。
 - [开发规划 N0–N5](docs/architecture/V1_DEVELOPMENT.md) 定义实现顺序、并行的大程序接入和验收标准。
