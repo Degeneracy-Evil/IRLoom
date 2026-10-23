@@ -5,21 +5,26 @@ from .encoder import ACTIONS
 
 
 class Heads(nn.Module):
-    def __init__(self, hidden, decision_version="policy-v1"):
+    def __init__(self, hidden, decision_version="policy-v1", role_context=False):
         super().__init__()
         self.actions = nn.Embedding(len(ACTIONS), hidden)
         self.parameter_embedding = nn.Linear(1, hidden)
         self.rank = nn.Sequential(nn.Linear(hidden * 3, hidden), nn.GELU(), nn.Linear(hidden, 1))
         self.value = nn.Linear(hidden, 1)
         self.resource = nn.Linear(hidden, 2)
+        if role_context:
+            self.role_read = nn.Linear(hidden * 5 + 5, hidden)
         self.decision_version = decision_version
         if decision_version == "stage-q-v1":
             self.q = nn.Sequential(nn.Linear(hidden * 3, hidden), nn.GELU(), nn.Linear(hidden, 1))
         elif decision_version != "policy-v1":
             raise ValueError(decision_version)
 
-    def forward(self, h, candidates):
+    def forward(self, h, candidates, contexts=None):
         target = h[torch.tensor([c["target"] for c in candidates])]
+        if contexts is not None:
+            vectors, masks = contexts
+            target = target + self.role_read(torch.cat([vectors.flatten(1), masks], -1))
         kind = self.actions(torch.tensor([ACTIONS[c["kind"]] for c in candidates]))
         parameters = self.parameter_embedding(torch.tensor([[c["parameters"].get("operand", 0) / 10] for c in candidates]))
         features = torch.cat([target, h[0].expand_as(target), kind + parameters], dim=-1)

@@ -32,7 +32,7 @@ class Encoder(nn.Module):
     def __init__(self, hidden, version="legacy-v1"):
         super().__init__()
         self.version = version
-        if version not in ("legacy-v1", "structured-v2"):
+        if version not in ("legacy-v1", "structured-v2", "hierarchical-v3"):
             raise ValueError(version)
         self.names = nn.Embedding(256, hidden)
         self.kinds = nn.Embedding(len(KINDS), hidden)

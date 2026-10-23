@@ -31,10 +31,13 @@ class Recurrent(nn.Module):
         super().__init__()
         self.hidden, self.history, self.incremental = hidden, history, incremental
         self.encoder = Encoder(hidden, encoder_version)
-        self.block = SparseBlock(hidden, heads, encoder_version)
+        if encoder_version == "hierarchical-v3":
+            from .hierarchy import Hierarchy
+            self.hierarchy = Hierarchy(hidden, heads)
+        self.block = SparseBlock(hidden, heads, "structured-v2" if encoder_version == "hierarchical-v3" else encoder_version)
         self.update = nn.GRUCell(hidden, hidden)
         self.norm = nn.LayerNorm(hidden)
-        self.heads = Heads(hidden, decision_version)
+        self.heads = Heads(hidden, decision_version, encoder_version == "hierarchical-v3")
         self.costs = []
 
     def forward(self, observation, previous=None):
@@ -63,6 +66,10 @@ class Recurrent(nn.Module):
                 base[new] = value
         else:
             base = self.encoder.base(graph)
+        context = self.encoder.contextualize(base, observation)
+        summary_costs = {}
+        if hasattr(self, "hierarchy"):
+            context, summary_costs = self.hierarchy(context, graph)
         encoded = time.perf_counter()
         summaries = [n["id"] for n in graph["nodes"] if n["kind"] in SUMMARY]
         inherited = torch.zeros_like(base)
@@ -76,7 +83,7 @@ class Recurrent(nn.Module):
                     inherited[new] = memory
                     retained.update(old)
         owners = summary_owners(graph)
-        local = self.block(self.encoder.contextualize(base, observation) + inherited[owners], graph)
+        local = self.block(context + inherited[owners], graph)
         written = torch.zeros_like(local)
         written[summaries] = self.update(local[summaries], inherited[summaries])
         h = self.norm(local + written[owners])
@@ -84,8 +91,12 @@ class Recurrent(nn.Module):
         # cannot be read on a later stage. h is for heads/gradient diagnostics;
         # recurrence exclusively reads records, never previous['h'].
         state = {"records": {i: h[i] for i in summaries}, "h": h, "base": base, "graph": graph}
-        outputs = self.heads(h, graph["candidates"])
-        self.costs.append({"encoding_s": encoded - start, "network_s": time.perf_counter() - encoded,
+        contexts = None
+        if hasattr(self, "hierarchy"):
+            contexts, reading = self.hierarchy.read(h, graph)
+            summary_costs.update(reading)
+        outputs = self.heads(h, graph["candidates"], contexts)
+        self.costs.append({**summary_costs, "encoding_s": encoded - start, "network_s": time.perf_counter() - encoded,
                            "mode": "incremental" if self.incremental and not self.training else "full",
                            "reused_nodes": len(reused), "fresh_nodes": len(fresh), "records": len(summaries),
                            "read_state_records": len(retained),
