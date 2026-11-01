@@ -1,6 +1,18 @@
 # V1 架构运行记录
 
-## C1–C2 正确性审查（当前）
+## 修复后数据恢复（已完成，本轮到此停止）
+
+```sh
+bash scripts/architecture.sh --recover-data --name campaign-v1-cleanup-positional-v1
+```
+
+入口固定使用修复版 `cleanup-positional-v1`，从原 dataset 与 C2 审计生成 Puzzle 36 / DES 35 条原路径及两个根参照；不加载模型、不增加候选。71 个实际终端全部重新构建并做完整输出检查，两个根参照各与一条原记录重合；完整 ELF 去重后的 38 个产物按原 seed=71 六轮随机/反向交错测量，228 次计时逐次检查 stdout。其余 202 条明确标为 C2 机制审计继承的历史测量，保留原参照与时间。
+
+数据在 `benchmark-data/architecture/recoveries/campaign-v1-cleanup-positional-v1/`：`protocol.json` 是固定清单/工具/来源，`dataset.json` 是 71 新鲜 + 202 继承记录，`differences.json` 包含新旧 q、margin、canonical time、强对/gamma 与覆盖，`acceptance.json`、`cache-acceptance.json` 保存实际验收。每个程序 JSON 保存全部命令、实际 bridge/manifest、环境、六轮顺序、路径映射与成本；日志在 `logs/architecture`，临时文件在 `tmp`。
+
+同名完整缓存复用时校验源 dataset 原字节、协议/工具构建、实际 manifest/命令、产物字节副本、原始计时样本和派生结果，不增加编译或计时。新名字会重新执行同一有限清单，无需再次运行；部分中断保留现场并使用新名字，不覆盖 session。新入口只准备已有匹配 SDK 的私有修复 bridge；不全局切换旧 campaign/pilot，也不启动训练。实际结果和限制见 [恢复报告](../../experiments/reports/architecture-postfix-labels.md)。后续训练等待新的数据设计方案。
+
+## C1–C2 正确性审查（已完成）
 
 从仓库根目录运行，复用固定 LLVM/Polygeist SDK、原 campaign 数据与冻结权重：
 

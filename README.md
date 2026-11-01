@@ -24,6 +24,8 @@ V1.3.1 已完成六模型固定20次更新、共享根成对 margin、12次训�
 
 ## 当前阅读入口
 
+修复后数据恢复已完成：按原轨迹刷新 Puzzle 36 条、DES 35 条和两个根默认，71 个实际终端全部通过完整输出检查，38 个完整可执行产物完成 228 次交错计时。其余 202 条显式继承旧测量；新标签、强对和差异独立保存，见 [数据恢复报告](experiments/reports/architecture-postfix-labels.md)。入口：`bash scripts/architecture.sh --recover-data --name campaign-v1-cleanup-positional-v1`。本轮已结束，后续训练等待新的数据设计方案。
+
 当前 C1–C2 正确性审查已完成：定位并隔离修复固定 LLVM 的 affine unroll cleanup carry 接线错误，原失败路径、32 条匹配动作与 3 个冻结模型调用通过回归。273 条旧标签中，13 条（Puzzle/DES）修复后机器码改变，需要新性能标签；本轮未训练或重跑性能矩阵。见 [正确性与候选分析报告](experiments/reports/architecture-campaign-correctness.md)。复现：`bash scripts/architecture.sh --correctness-audit all --name c1-review`。新完整程序运行显式使用 `--compiler-revision cleanup-positional-v1`；历史默认保留 legacy。
 
 G1–G3已完成首批活动：10训练/3验证/3留出完整程序、273条匹配记录、四模型×两种子各200次更新。S1监督与拟合有进展，仍无连续记忆收益；3条raw语义错误被拒，留出guarded全为默认产物。入口为 `bash scripts/architecture.sh --campaign all --name my-campaign`，见 [数据覆盖](experiments/reports/architecture-training-corpus.md) 和 [训练/部署报告](experiments/reports/architecture-training-campaign.md)。12/4/4覆盖目标和大应用接入的缺口保留。
@@ -53,7 +55,7 @@ bash scripts/architecture.sh --model B --state-audit --multi-function
 bash scripts/architecture.sh --program pc1
 ```
 
-下一步先审查并独立重采受修复影响的标签及匹配参照，再决定后续架构活动；不自动启动旧全矩阵。完整历史训练和对照命令见运行指南。
+受影响组及匹配参照已按独立版本恢复；后续数据设计与训练等待新方案，不自动启动旧全矩阵。完整历史训练和对照命令见运行指南。
 
 ## 已有可复用基础
 
