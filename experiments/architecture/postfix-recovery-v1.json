@@ -1,0 +1,14 @@
+{
+  "protocol": "postfix-data-recovery-v1",
+  "source": "campaigns/campaign-v1/corpus/dataset.json",
+  "mechanism_audit": "correctness-v1/c1-review/candidate-analysis.json",
+  "compiler_revision": "cleanup-positional-v1",
+  "programs": {"puzzle": 36, "des": 35},
+  "root_references": 2,
+  "inherited_records": 202,
+  "timing_seed": 71,
+  "timing_rounds": 6,
+  "artifact_identity": "complete executable bytes",
+  "continuation": "all-advance-v1",
+  "model_diagnostic": "not performed; no model forward, proposal or training"
+}

@@ -8,7 +8,7 @@ ulimit -c 0
 mkdir -p logs/architecture tmp
 corrected_bridge=false
 for argument in "$@"; do
-  if [[ "$argument" == --correctness-audit || "$argument" == --correctness-audit=* || "$argument" == cleanup-positional-v1 || "$argument" == --compiler-revision=cleanup-positional-v1 ]]; then corrected_bridge=true; fi
+  if [[ "$argument" == --recover-data || "$argument" == --correctness-audit || "$argument" == --correctness-audit=* || "$argument" == cleanup-positional-v1 || "$argument" == --compiler-revision=cleanup-positional-v1 ]]; then corrected_bridge=true; fi
 done
 entry_started_ns=$(date +%s%N)
 entry_log="$PWD/logs/architecture/entry-$entry_started_ns-$$.json"

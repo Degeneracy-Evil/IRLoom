@@ -184,7 +184,7 @@ class Session:
     def report(self, measurement, scope):
         report = {"observations": self.observations, "events": self.events, "measurement": asdict(measurement),
                   "transitions": self.transitions, "decisions": self.decisions, "remaining_attempts": self.remaining,
-                  "median_latency_ms": statistics.median(x["latency_ms"] for x in measurement.samples),
+                  "median_latency_ms": statistics.median(x["latency_ms"] for x in measurement.samples) if measurement.samples else None,
                   "scope": scope, "program": self.program}
         report["final_ir"] = str(self.ir)
         if self.program:
@@ -236,7 +236,14 @@ def main():
     parser.add_argument("--campaign-config", type=Path)
     parser.add_argument("--correctness-audit", choices=("isolate", "minimal", "regress", "analyze", "all"), help="C1 fixed-trace correctness and C2 existing-artifact audit; no training")
     parser.add_argument("--compiler-revision", choices=("legacy", "cleanup-positional-v1"), default="legacy", help="explicit isolated whole-program bridge; historical protocols keep legacy")
+    parser.add_argument("--recover-data", action="store_true", help="refresh only the 71 frozen Puzzle/DES paths and two root references; no training")
     args = parser.parse_args()
+    if args.recover_data:
+        if args.campaign or args.correctness_audit or args.program or args.model != 'default':
+            parser.error('data recovery is a standalone fixed-path protocol')
+        from .data_recovery import run
+        run(args)
+        return
     if args.correctness_audit:
         from .correctness import run
         run(args)

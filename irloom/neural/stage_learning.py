@@ -89,6 +89,9 @@ def prepare_groups(dataset, split, config):
     groups=[]
     for source in dataset['groups']:
         if source['split']!=split: continue
+        # Recovery groups use complete executables; historical groups retain
+        # their original object-based identity and label definition.
+        artifact = 'program' if source.get('artifact_identity') == 'executable' else 'program.o'
         reference=json.loads(Path(source['reference_report']).read_text())
         base=reference['median_latency_ms']; rows=[]
         for item in source['rows']:
@@ -97,7 +100,7 @@ def prepare_groups(dataset, split, config):
                 raise ValueError('invalid matched terminal label')
             samples=[x['latency_ms'] for x in report['measurement']['samples']]
             rows.append({**item,'latency':statistics.median(samples),'samples':samples,
-                         'object':(Path(item['report']).parent/'program.o').read_bytes()})
+                         'object':(Path(item['report']).parent/artifact).read_bytes()})
         advance=next(r for r in rows if r['candidate_index']==0)
         pairs=[]; counts={'beneficial':0,'neutral':0,'harmful':0,'identical_pairs':0,'near_tie_pairs':0}
         for i,a in enumerate(rows):
@@ -105,7 +108,7 @@ def prepare_groups(dataset, split, config):
             # launch noise. A root-identical object has normalized cost zero.
             cluster=[b['latency'] for b in rows if b['object']==a['object']]
             a['target']=math.log(statistics.median(cluster)/base)
-            if a['object']==(Path(source['reference_report']).parent/'program.o').read_bytes(): a['target']=0.0
+            if a['object']==(Path(source['reference_report']).parent/artifact).read_bytes(): a['target']=0.0
             a['margin']=math.log1p(tolerance(a['samples'],advance['samples'],config)/base)
             if config.get('interval_version')=='log-ratio-v2':
                 reference_samples=[s['latency_ms'] for s in reference['measurement']['samples']]
