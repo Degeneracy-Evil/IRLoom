@@ -2,6 +2,8 @@
 
 ## 当前任务（2026-11-01）：LoomTrace V1 轨迹监督 H1–H3
 
+**首轮已完成并停点。** 见 `experiments/reports/architecture-trajectory-v1.md` 及同名JSON。固定πb的72条真实轨迹、78个含默认终端全部正确；37个完整ELF/222次交错计时。四模型各200步/800轨迹暴露，A/B跨阶段梯度非零，无记忆对照断连；16次开发域raw/guarded正确，实际32终端/240次计时，S2未覆盖有效q。PC1的收益主要为S0内联，独立无记忆guarded也达到同产物；多数采样中性，验证MAE未胜零代价预测，尚无联合/连续记忆增量收益。Susan 2125行完整程序的唯一有界导入因f32/f64参数冲突失败，无有效图/终端。旧数据与权重保留，缓存验收通过。单入口 `bash scripts/architecture.sh --loomtrace all --name loomtrace-v1-pilot` 复用完整缓存，不自动重训、加动作、搜benchmark或新blind；后续另行冻结。
+
 **现在优先阅读 [LOOMTRACE_V1_PLAN.md](docs/architecture/LOOMTRACE_V1_PLAN.md)，依次完成 H1 真实顺序轨迹采集、H2 A/B 整条轨迹回归训练、H3 有限训练/验证闭环；并行有界尝试一个更大的真实 MLIR 程序，不阻塞主线。** 本轮是已设计 A/B 神经编译架构的训练数据升级，不改变研究问题。下方此前“当前数据恢复”已完成，保留为历史，不得重复执行或当作本轮优先级。
 
 核心目标是：用修复版 `cleanup-positional-v1` 编译器、冻结的随机行为策略 `πb`，产生包含 S0→S1 实际选择与最终完整运行时间的轨迹；新 `rollout-q-v1` 预测**该行为策略后续完成时的预期根相对代价**，绝非旧 `all-advance` q 或最优 Q*。不枚举动作二叉树，不为未执行动作伪造标签，不以末端结果反向传播穿越不可微的编译器。A/B 用自身状态沿观测顺序计算并真正跨阶段反传；四模型（A/B及独立无记忆对照）公平使用共同轨迹。新 q 在 `heads.py` 与 `guided.py` 均按负代价版本正确接线，不能误走 policy log-prob 分支。

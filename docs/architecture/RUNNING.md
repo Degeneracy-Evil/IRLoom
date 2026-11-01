@@ -1,5 +1,29 @@
 # V1 架构运行记录
 
+## LoomTrace V1：顺序轨迹 pilot（H1–H3已完成）
+
+```sh
+bash scripts/architecture.sh --loomtrace all --name loomtrace-v1-pilot
+```
+
+冻结配方为 `experiments/architecture/loomtrace-v1.json`。入口显式使用修复版 Session，依次采集72条πb真实轨迹和六个根参照、启动新进程重放联合动作路径、四模型各训练200步、验收梯度/失败排除/相同初始化，最后在PC1与Matrix上各模型raw/guarded共16次完整编译。只使用已见train/validation，不重跑历史活动或测试主表；默认参照不作为强制后缀的训练样本。旧恢复数据和权重保留。
+
+独立阶段命令（同名缓存）：
+
+```sh
+bash scripts/architecture.sh --loomtrace collect --name loomtrace-v1-pilot
+bash scripts/architecture.sh --loomtrace replay --name loomtrace-v1-pilot
+bash scripts/architecture.sh --loomtrace train --name loomtrace-v1-pilot
+bash scripts/architecture.sh --loomtrace audit --name loomtrace-v1-pilot
+bash scripts/architecture.sh --loomtrace evaluate --name loomtrace-v1-pilot
+```
+
+依赖既有匹配Polygeist SDK、原test-suite源码和私有 `cleanup-positional-v1` build；包装只增量准备该修复，不全量重建SDK。数据及权重在 `benchmark-data/architecture/trajectories/loomtrace-v1-pilot`，日志在 `logs/architecture`，临时文件在 `tmp`。`dataset.json` 引用真实Session报告；`data-audit.json` 是采样/版本/完整输出审计；`models/` 保留0/50/200快照与末轮；`integration.json`、`replay.json`、`evaluation/evaluation.json` 为有限闭环证据。`coverage.json` 和 `cache-audit.json` 是本轮只读分析/缓存验收的补充产物，不新增性能标签。
+
+完整同名all复用不新增编译或计时；协议或编译器不匹配会拒绝。部分session/训练快照不覆盖，保留现场使用新名字。新名字会按同一有限配方重新采集/训练，本轮无需重跑。rollout checkpoint须携带πb、根相对目标和修复版来源；旧stage-q权重不能直接改名为rollout。raw/guarded读取负代价，S2保留S1有效分数。
+
+实际结论见 [报告](../../experiments/reports/architecture-trajectory-v1.md)：接口、反传与正确性通过，采样/验证监督和动作机会仍有限，尚无连续记忆收益。更大Susan唯一接入尝试在旧式float参数导入处失败，见 [兼容性报告](../../experiments/reports/architecture-trajectory-v1-workload.md)，不继续自动搜索benchmark。H1–H3首轮到此停止，后续扩规模/动作或新blind需另行冻结。
+
 ## 修复后数据恢复（已完成，本轮到此停止）
 
 ```sh

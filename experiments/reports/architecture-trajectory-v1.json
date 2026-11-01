@@ -1,0 +1,4444 @@
+{
+  "date": "2026-11-01",
+  "planning_revision": "c5e1da2",
+  "collection_implementation_revision": "4fdbaf3",
+  "training_implementation_revision": "94e6c42",
+  "recorded_collection_git_commits": [
+    "c5e1da25dda04cac0a0fc356df669353da456748"
+  ],
+  "evidence_root": "benchmark-data/architecture/trajectories/loomtrace-v1-pilot",
+  "config": {
+    "protocol": "loomtrace-v1",
+    "schema": "trajectory-v1",
+    "decision_version": "rollout-q-v1",
+    "compiler_revision": "cleanup-positional-v1",
+    "programs": [
+      {
+        "program": "pc1",
+        "split": "train",
+        "family": "pc1"
+      },
+      {
+        "program": "lists",
+        "split": "train",
+        "family": "linked-list"
+      },
+      {
+        "program": "puzzle",
+        "split": "train",
+        "family": "backtracking"
+      },
+      {
+        "program": "reed_solomon",
+        "split": "train",
+        "family": "reed_solomon"
+      },
+      {
+        "program": "matrix",
+        "split": "validation",
+        "family": "matrix"
+      },
+      {
+        "program": "des",
+        "split": "validation",
+        "family": "des"
+      }
+    ],
+    "selection": "Preselected seen programs: four distinct training families with real S0/S1 actions; two separate validation families. No selection by new timings. No test programs.",
+    "behavior": {
+      "version": "visible-structural-random-v1",
+      "advance_probability": 0.4,
+      "nonadvance": "uniform structural stratum (kind, enclosing function, loop depth, callee), then uniform member",
+      "seed": 71,
+      "program_seed_stride": 1000,
+      "trajectory_seed_stride": 1
+    },
+    "collection": {
+      "trajectories_per_program": 12,
+      "terminal_limit": 120,
+      "timing_rounds": 6,
+      "timing_seed": 71
+    },
+    "training": {
+      "seed": 23,
+      "updates": 200,
+      "learning_rate": 0.0003,
+      "huber_beta": 0.05,
+      "snapshots": [
+        0,
+        50,
+        200
+      ],
+      "hidden": 128,
+      "heads": 4,
+      "batch": "one seeded-cycled trajectory per training program per update, equal family then program then trajectory; common schedule across models",
+      "selection": "fixed-final-200; no validation-based tuning or extra seed"
+    },
+    "models": {
+      "A": {
+        "kind": "A",
+        "history": true
+      },
+      "B": {
+        "kind": "B",
+        "history": true
+      },
+      "A_current_only": {
+        "kind": "A",
+        "history": false
+      },
+      "B_current_only": {
+        "kind": "B",
+        "history": false
+      }
+    },
+    "evaluation": {
+      "programs": [
+        "pc1",
+        "matrix"
+      ],
+      "modes": [
+        "raw",
+        "guarded"
+      ],
+      "budget": {
+        "optimization_timeout_s": 180,
+        "max_action_attempts": 18,
+        "max_terminal_candidates": 3,
+        "beam_width": 2,
+        "near_tie_relative": 0.02,
+        "near_tie_absolute_ms": 0.05,
+        "uncertainty_mad_multiplier": 2
+      }
+    },
+    "limits": "No new actions, tree enumeration, unchosen-action labels, ranking loss, RL, tuning, test domain, hashes or historical matrix. Default is a reference only. S2 has no q supervision."
+  },
+  "data_audit": {
+    "programs": [
+      {
+        "program": "pc1",
+        "family": "pc1",
+        "split": "train",
+        "attempts": 12,
+        "correct": 12,
+        "failed": 0,
+        "distinct_executables": 5,
+        "unique_action_trajectories": 7,
+        "action_combinations": {
+          "advance/unroll2": 6,
+          "inline/unroll2": 3,
+          "inline/advance": 2,
+          "advance/advance": 1
+        },
+        "distinct_S1_candidate_sets": 1,
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 7,
+            "S1_candidates": 2,
+            "target_min": -0.00024282406529266704,
+            "target_max": 0.0,
+            "rollout_sample_stdev": 9.177886987230108e-05
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  251
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 2,
+            "target_min": -0.08710437392004539,
+            "target_max": -0.08710437392004539,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  31
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 2,
+            "target_min": -0.00024282406529266704,
+            "target_max": -0.00024282406529266704,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  211
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 2,
+            "target_min": -0.08235019481927422,
+            "target_max": -0.08235019481927422,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  231
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 2,
+            "target_min": -0.08426525802485109,
+            "target_max": -0.08426525802485109,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  51
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 2,
+            "target_min": -0.00024282406529266704,
+            "target_max": -0.00024282406529266704,
+            "rollout_sample_stdev": null
+          }
+        ],
+        "root_reference_ms": 73.64661749999999
+      },
+      {
+        "program": "lists",
+        "family": "linked-list",
+        "split": "train",
+        "attempts": 12,
+        "correct": 12,
+        "failed": 0,
+        "distinct_executables": 3,
+        "unique_action_trajectories": 10,
+        "action_combinations": {
+          "advance/unroll2": 3,
+          "inline/unroll2": 4,
+          "advance/advance": 2,
+          "inline/advance": 3
+        },
+        "distinct_S1_candidate_sets": 1,
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 5,
+            "S1_candidates": 3,
+            "target_min": 0.0,
+            "target_max": 0.013191587236262563,
+            "rollout_sample_stdev": 0.0069745789703459194
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:test_lists",
+                "path": [
+                  0,
+                  0,
+                  9,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 2,
+            "S1_candidates": 3,
+            "target_min": 0.0,
+            "target_max": 0.0015261494685828128,
+            "rollout_sample_stdev": 0.0010791506383391529
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:list_pop_tail",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 3,
+            "S1_candidates": 3,
+            "target_min": 0.0,
+            "target_max": 0.013191587236262563,
+            "rollout_sample_stdev": 0.007216064766939458
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:list_pop_head",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 2,
+            "S1_candidates": 3,
+            "target_min": 0.0,
+            "target_max": 0.013191587236262563,
+            "rollout_sample_stdev": 0.009327860789375165
+          }
+        ],
+        "root_reference_ms": 12.2672825
+      },
+      {
+        "program": "puzzle",
+        "family": "backtracking",
+        "split": "train",
+        "attempts": 12,
+        "correct": 12,
+        "failed": 0,
+        "distinct_executables": 4,
+        "unique_action_trajectories": 10,
+        "action_combinations": {
+          "advance/unroll2": 4,
+          "inline/unroll2": 3,
+          "inline/advance": 4,
+          "advance/advance": 1
+        },
+        "distinct_S1_candidate_sets": 3,
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 5,
+            "S1_candidates": 37,
+            "target_min": 0.0,
+            "target_max": 0.22839780731774822,
+            "rollout_sample_stdev": 0.10214260461487679
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:Puzzle",
+                "path": [
+                  0,
+                  0,
+                  117
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 4,
+            "S1_candidates": 38,
+            "target_min": -0.0015998674140545064,
+            "target_max": 0.044127630832373324,
+            "rollout_sample_stdev": 0.022863749123213914
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:Puzzle",
+                "path": [
+                  0,
+                  0,
+                  112
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 3,
+            "S1_candidates": 38,
+            "target_min": 0.0,
+            "target_max": 0.0,
+            "rollout_sample_stdev": 0.0
+          }
+        ],
+        "root_reference_ms": 55.8586595
+      },
+      {
+        "program": "reed_solomon",
+        "family": "reed_solomon",
+        "split": "train",
+        "attempts": 12,
+        "correct": 12,
+        "failed": 0,
+        "distinct_executables": 6,
+        "unique_action_trajectories": 9,
+        "action_combinations": {
+          "advance/unroll2": 5,
+          "advance/advance": 2,
+          "inline/unroll2": 3,
+          "inline/advance": 2
+        },
+        "distinct_S1_candidate_sets": 3,
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 7,
+            "S1_candidates": 30,
+            "target_min": -0.009684821720681967,
+            "target_max": 0.013801242890768941,
+            "rollout_sample_stdev": 0.006863439620217638
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:rsdec_204",
+                "path": [
+                  0,
+                  0,
+                  15
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 4,
+            "S1_candidates": 39,
+            "target_min": -0.04172392394952228,
+            "target_max": -0.04140027038260781,
+            "rollout_sample_stdev": 0.00016182678345723692
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:rsenc_204",
+                "path": [
+                  0,
+                  0,
+                  10
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 34,
+            "target_min": 0.0,
+            "target_max": 0.0,
+            "rollout_sample_stdev": null
+          }
+        ],
+        "root_reference_ms": 269.014615
+      },
+      {
+        "program": "matrix",
+        "family": "matrix",
+        "split": "validation",
+        "attempts": 12,
+        "correct": 12,
+        "failed": 0,
+        "distinct_executables": 7,
+        "unique_action_trajectories": 9,
+        "action_combinations": {
+          "inline/advance": 4,
+          "inline/unroll2": 2,
+          "advance/unroll2": 5,
+          "advance/advance": 1
+        },
+        "distinct_S1_candidate_sets": 4,
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:main",
+                "path": [
+                  0,
+                  0,
+                  23
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 11,
+            "target_min": 0.0,
+            "target_max": 0.0,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:main",
+                "path": [
+                  0,
+                  0,
+                  22
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 11,
+            "target_min": 0.1045117076351,
+            "target_max": 0.1045117076351,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:main",
+                "path": [
+                  0,
+                  0,
+                  24
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 4,
+            "S1_candidates": 11,
+            "target_min": 0.0,
+            "target_max": 0.007330726384750771,
+            "rollout_sample_stdev": 0.0036653631923753856
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 6,
+            "S1_candidates": 10,
+            "target_min": -0.0027660720175260466,
+            "target_max": 0.10215222474561617,
+            "rollout_sample_stdev": 0.05174698423052445
+          }
+        ],
+        "root_reference_ms": 0.839533
+      },
+      {
+        "program": "des",
+        "family": "des",
+        "split": "validation",
+        "attempts": 12,
+        "correct": 12,
+        "failed": 0,
+        "distinct_executables": 12,
+        "unique_action_trajectories": 11,
+        "action_combinations": {
+          "advance/unroll2": 5,
+          "inline/unroll2": 6,
+          "inline/advance": 1
+        },
+        "distinct_S1_candidate_sets": 1,
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 5,
+            "S1_candidates": 10,
+            "target_min": -0.009190080675629392,
+            "target_max": -0.0027111593879858664,
+            "rollout_sample_stdev": 0.002296408090025743
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des3_encrypt",
+                "path": [
+                  0,
+                  0,
+                  2
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 2,
+            "S1_candidates": 10,
+            "target_min": -0.004837770180336027,
+            "target_max": -0.002203453294345481,
+            "rollout_sample_stdev": 0.0018627433338781446
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des_decrypt",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 1,
+            "S1_candidates": 10,
+            "target_min": -0.007454333489407985,
+            "target_max": -0.007454333489407985,
+            "rollout_sample_stdev": null
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des3_decrypt",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 2,
+            "S1_candidates": 10,
+            "target_min": -0.0055013214342615096,
+            "target_max": -0.0007825542378738945,
+            "rollout_sample_stdev": 0.0033366722834063155
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des_encrypt",
+                "path": [
+                  0,
+                  0,
+                  2
+                ]
+              },
+              "kind": "inline",
+              "parameters": {},
+              "stage": "S0"
+            },
+            "rollouts": 2,
+            "S1_candidates": 10,
+            "target_min": -0.004384449151809971,
+            "target_max": 0.0016078730854604283,
+            "rollout_sample_stdev": 0.004237211689028843
+          }
+        ],
+        "root_reference_ms": 13.454170999999999
+      }
+    ],
+    "terminal_attempts": 78,
+    "native_measurements": 222,
+    "valid_trajectories": 72,
+    "distinct_executables": 37,
+    "command_s": 70.45013688877225,
+    "collection_wall_s": 109.37308947369456,
+    "scope": "Targets only for sampled S0/S1 actions; defaults excluded from training; no ranking/counterfactual labels or new test domain."
+  },
+  "coverage": {
+    "programs": [
+      {
+        "program": "pc1",
+        "family": "pc1",
+        "split": "train",
+        "root_ms": 73.64661749999999,
+        "effects": {
+          "neutral": 9,
+          "beneficial": 3
+        },
+        "same_as_default": 1,
+        "nonadvance_S0": 5,
+        "nonadvance_S1": 9,
+        "joint_nonadvance": 3,
+        "records": [
+          {
+            "id": "pc1:0",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t0/report.json"
+          },
+          {
+            "id": "pc1:1",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t1/report.json"
+          },
+          {
+            "id": "pc1:2",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t2/report.json"
+          },
+          {
+            "id": "pc1:3",
+            "target": -0.08710437392004539,
+            "root_relative_speedup": 1.091010546823379,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.01530999999999949,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t3/report.json"
+          },
+          {
+            "id": "pc1:4",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t4/report.json"
+          },
+          {
+            "id": "pc1:5",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t5/report.json"
+          },
+          {
+            "id": "pc1:6",
+            "target": -0.08235019481927422,
+            "root_relative_speedup": 1.0858359973966754,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.07268200000000036,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t6/report.json"
+          },
+          {
+            "id": "pc1:7",
+            "target": -0.08426525802485109,
+            "root_relative_speedup": 1.0879174343681264,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.13057049999999748,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t7/report.json"
+          },
+          {
+            "id": "pc1:8",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.03405600000000675,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t8/report.json"
+          },
+          {
+            "id": "pc1:9",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t9/report.json"
+          },
+          {
+            "id": "pc1:10",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t10/report.json"
+          },
+          {
+            "id": "pc1:11",
+            "target": -0.00024282406529266704,
+            "root_relative_speedup": 1.0002428535494425,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.060206999999998345,
+            "resolution_vs_root_ms": 1.4729323499999998,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-pc1-t11/report.json"
+          }
+        ],
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 7,
+            "sampled_y_range": [
+              -0.00024282406529266704,
+              0.0
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  251
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              -0.08710437392004539,
+              -0.08710437392004539
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  31
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              -0.00024282406529266704,
+              -0.00024282406529266704
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  211
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              -0.08235019481927422,
+              -0.08235019481927422
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  231
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              -0.08426525802485109,
+              -0.08426525802485109
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:assemble",
+                "path": [
+                  0,
+                  0,
+                  51
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              -0.00024282406529266704,
+              -0.00024282406529266704
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          }
+        ]
+      },
+      {
+        "program": "lists",
+        "family": "linked-list",
+        "split": "train",
+        "root_ms": 12.2672825,
+        "effects": {
+          "neutral": 12
+        },
+        "same_as_default": 5,
+        "nonadvance_S0": 7,
+        "nonadvance_S1": 7,
+        "joint_nonadvance": 4,
+        "records": [
+          {
+            "id": "lists:0",
+            "target": 0.013191587236262563,
+            "root_relative_speedup": 0.9868950404135354,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.11852699999999938,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t0/report.json"
+          },
+          {
+            "id": "lists:1",
+            "target": 0.0015261494685828128,
+            "root_relative_speedup": 0.9984750145053094,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.17383850000000045,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t1/report.json"
+          },
+          {
+            "id": "lists:2",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.2415414999999994,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t2/report.json"
+          },
+          {
+            "id": "lists:3",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.2415414999999994,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t3/report.json"
+          },
+          {
+            "id": "lists:4",
+            "target": 0.013191587236262563,
+            "root_relative_speedup": 0.9868950404135354,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.11852699999999938,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t4/report.json"
+          },
+          {
+            "id": "lists:5",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.2415414999999994,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t5/report.json"
+          },
+          {
+            "id": "lists:6",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.2415414999999994,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t6/report.json"
+          },
+          {
+            "id": "lists:7",
+            "target": 0.0015261494685828128,
+            "root_relative_speedup": 0.9984750145053094,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.17383850000000045,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t7/report.json"
+          },
+          {
+            "id": "lists:8",
+            "target": 0.0015261494685828128,
+            "root_relative_speedup": 0.9984750145053094,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.17383850000000045,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t8/report.json"
+          },
+          {
+            "id": "lists:9",
+            "target": 0.013191587236262563,
+            "root_relative_speedup": 0.9868950404135354,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.11852699999999938,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t9/report.json"
+          },
+          {
+            "id": "lists:10",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.2415414999999994,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t10/report.json"
+          },
+          {
+            "id": "lists:11",
+            "target": 0.013191587236262563,
+            "root_relative_speedup": 0.9868950404135354,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.11852699999999938,
+            "resolution_vs_root_ms": 0.4830829999999988,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-lists-t11/report.json"
+          }
+        ],
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {}
+            },
+            "sampled_suffixes": 3,
+            "distinct_elf": 3,
+            "rollouts": 5,
+            "sampled_y_range": [
+              0.0,
+              0.013191587236262563
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:test_lists",
+                "path": [
+                  0,
+                  0,
+                  9,
+                  0,
+                  0,
+                  0
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 2,
+            "sampled_y_range": [
+              0.0,
+              0.0015261494685828128
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:list_pop_tail",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 3,
+            "distinct_elf": 3,
+            "rollouts": 3,
+            "sampled_y_range": [
+              0.0,
+              0.013191587236262563
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:list_pop_head",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 2,
+            "sampled_y_range": [
+              0.0,
+              0.013191587236262563
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          }
+        ]
+      },
+      {
+        "program": "puzzle",
+        "family": "backtracking",
+        "split": "train",
+        "root_ms": 55.8586595,
+        "effects": {
+          "neutral": 10,
+          "harmful": 2
+        },
+        "same_as_default": 7,
+        "nonadvance_S0": 7,
+        "nonadvance_S1": 7,
+        "joint_nonadvance": 3,
+        "records": [
+          {
+            "id": "puzzle:0",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t0/report.json"
+          },
+          {
+            "id": "puzzle:1",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t1/report.json"
+          },
+          {
+            "id": "puzzle:2",
+            "target": 0.044127630832373324,
+            "root_relative_speedup": 0.9568318284367925,
+            "effect": "harmful",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.03766350000000429,
+            "resolution_vs_root_ms": 1.16757528,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t2/report.json"
+          },
+          {
+            "id": "puzzle:3",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t3/report.json"
+          },
+          {
+            "id": "puzzle:4",
+            "target": -0.0015998674140545064,
+            "root_relative_speedup": 1.0016011478846958,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.05242149999999768,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t4/report.json"
+          },
+          {
+            "id": "puzzle:5",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t5/report.json"
+          },
+          {
+            "id": "puzzle:6",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t6/report.json"
+          },
+          {
+            "id": "puzzle:7",
+            "target": -0.0015998674140545064,
+            "root_relative_speedup": 1.0016011478846958,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.05242149999999768,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t7/report.json"
+          },
+          {
+            "id": "puzzle:8",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t8/report.json"
+          },
+          {
+            "id": "puzzle:9",
+            "target": 0.22839780731774822,
+            "root_relative_speedup": 0.7958076187642976,
+            "effect": "harmful",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.03923899999999492,
+            "resolution_vs_root_ms": 1.40382319,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t9/report.json"
+          },
+          {
+            "id": "puzzle:10",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.07808250000000072,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t10/report.json"
+          },
+          {
+            "id": "puzzle:11",
+            "target": -0.0015998674140545064,
+            "root_relative_speedup": 1.0016011478846958,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.05242149999999768,
+            "resolution_vs_root_ms": 1.1171731900000001,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-puzzle-t11/report.json"
+          }
+        ],
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {}
+            },
+            "sampled_suffixes": 5,
+            "distinct_elf": 2,
+            "rollouts": 5,
+            "sampled_y_range": [
+              0.0,
+              0.22839780731774822
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:Puzzle",
+                "path": [
+                  0,
+                  0,
+                  117
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 4,
+            "sampled_y_range": [
+              -0.0015998674140545064,
+              0.044127630832373324
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:Puzzle",
+                "path": [
+                  0,
+                  0,
+                  112
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 3,
+            "distinct_elf": 1,
+            "rollouts": 3,
+            "sampled_y_range": [
+              0.0,
+              0.0
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          }
+        ]
+      },
+      {
+        "program": "reed_solomon",
+        "family": "reed_solomon",
+        "split": "train",
+        "root_ms": 269.014615,
+        "effects": {
+          "neutral": 8,
+          "beneficial": 4
+        },
+        "same_as_default": 4,
+        "nonadvance_S0": 5,
+        "nonadvance_S1": 8,
+        "joint_nonadvance": 3,
+        "records": [
+          {
+            "id": "reed_solomon:0",
+            "target": -0.00028658497292899816,
+            "root_relative_speedup": 1.0002866260423255,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.21684099999998807,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t0/report.json"
+          },
+          {
+            "id": "reed_solomon:1",
+            "target": 0.013801242890768941,
+            "root_relative_speedup": 0.9862935576390602,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 5.05240699999996,
+            "resolution_vs_root_ms": 10.10481399999992,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t1/report.json"
+          },
+          {
+            "id": "reed_solomon:2",
+            "target": -0.00028658497292899816,
+            "root_relative_speedup": 1.0002866260423255,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.21684099999998807,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t2/report.json"
+          },
+          {
+            "id": "reed_solomon:3",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.13616550000000416,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t3/report.json"
+          },
+          {
+            "id": "reed_solomon:4",
+            "target": -0.04172392394952228,
+            "root_relative_speedup": 1.0426066003020058,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.09150499999998374,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t4/report.json"
+          },
+          {
+            "id": "reed_solomon:5",
+            "target": -0.04140027038260781,
+            "root_relative_speedup": 1.0422692115584098,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.061838499999964824,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t5/report.json"
+          },
+          {
+            "id": "reed_solomon:6",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.13616550000000416,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t6/report.json"
+          },
+          {
+            "id": "reed_solomon:7",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.13616550000000416,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t7/report.json"
+          },
+          {
+            "id": "reed_solomon:8",
+            "target": -0.04172392394952228,
+            "root_relative_speedup": 1.0426066003020058,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.09150499999998374,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t8/report.json"
+          },
+          {
+            "id": "reed_solomon:9",
+            "target": -0.04172392394952228,
+            "root_relative_speedup": 1.0426066003020058,
+            "effect": "beneficial",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.09150499999998374,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t9/report.json"
+          },
+          {
+            "id": "reed_solomon:10",
+            "target": -0.009684821720681967,
+            "root_relative_speedup": 1.0097318713730636,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.24611600000000067,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t10/report.json"
+          },
+          {
+            "id": "reed_solomon:11",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.13616550000000416,
+            "resolution_vs_root_ms": 5.3802923,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-reed_solomon-t11/report.json"
+          }
+        ],
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {}
+            },
+            "sampled_suffixes": 5,
+            "distinct_elf": 4,
+            "rollouts": 7,
+            "sampled_y_range": [
+              -0.009684821720681967,
+              0.013801242890768941
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:rsdec_204",
+                "path": [
+                  0,
+                  0,
+                  15
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 3,
+            "distinct_elf": 2,
+            "rollouts": 4,
+            "sampled_y_range": [
+              -0.04172392394952228,
+              -0.04140027038260781
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:rsenc_204",
+                "path": [
+                  0,
+                  0,
+                  10
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              0.0,
+              0.0
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          }
+        ]
+      },
+      {
+        "program": "matrix",
+        "family": "matrix",
+        "split": "validation",
+        "root_ms": 0.839533,
+        "effects": {
+          "neutral": 9,
+          "harmful": 3
+        },
+        "same_as_default": 5,
+        "nonadvance_S0": 6,
+        "nonadvance_S1": 7,
+        "joint_nonadvance": 2,
+        "records": [
+          {
+            "id": "matrix:0",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.007081999999999922,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t0/report.json"
+          },
+          {
+            "id": "matrix:1",
+            "target": 0.1045117076351,
+            "root_relative_speedup": 0.9007642515259816,
+            "effect": "harmful",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.008663500000000046,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t1/report.json"
+          },
+          {
+            "id": "matrix:2",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.007081999999999922,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t2/report.json"
+          },
+          {
+            "id": "matrix:3",
+            "target": 0.10215222474561617,
+            "root_relative_speedup": 0.9028920986872282,
+            "effect": "harmful",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.007383000000000028,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t3/report.json"
+          },
+          {
+            "id": "matrix:4",
+            "target": -0.0027660720175260466,
+            "root_relative_speedup": 1.0027699011244438,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.005686499999999983,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t4/report.json"
+          },
+          {
+            "id": "matrix:5",
+            "target": 0.006274250998011044,
+            "root_relative_speedup": 0.9937453910136752,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.004365500000000022,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t5/report.json"
+          },
+          {
+            "id": "matrix:6",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.007081999999999922,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "advance",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t6/report.json"
+          },
+          {
+            "id": "matrix:7",
+            "target": 0.007330726384750771,
+            "root_relative_speedup": 0.9926960778517459,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.007838999999999985,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t7/report.json"
+          },
+          {
+            "id": "matrix:8",
+            "target": 0.00508571375658336,
+            "root_relative_speedup": 0.9949271965902418,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.006614999999999982,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t8/report.json"
+          },
+          {
+            "id": "matrix:9",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.007081999999999922,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t9/report.json"
+          },
+          {
+            "id": "matrix:10",
+            "target": 0.10215222474561617,
+            "root_relative_speedup": 0.9028920986872282,
+            "effect": "harmful",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.007383000000000028,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t10/report.json"
+          },
+          {
+            "id": "matrix:11",
+            "target": 0.0,
+            "root_relative_speedup": 1.0,
+            "effect": "neutral",
+            "same_elf_as_default": true,
+            "timing_mad_ms": 0.007081999999999922,
+            "resolution_vs_root_ms": 0.05,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-matrix-t11/report.json"
+          }
+        ],
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:main",
+                "path": [
+                  0,
+                  0,
+                  23
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              0.0,
+              0.0
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:main",
+                "path": [
+                  0,
+                  0,
+                  22
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              0.1045117076351,
+              0.1045117076351
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:main",
+                "path": [
+                  0,
+                  0,
+                  24
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 4,
+            "sampled_y_range": [
+              0.0,
+              0.007330726384750771
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {}
+            },
+            "sampled_suffixes": 5,
+            "distinct_elf": 5,
+            "rollouts": 6,
+            "sampled_y_range": [
+              -0.0027660720175260466,
+              0.10215222474561617
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          }
+        ]
+      },
+      {
+        "program": "des",
+        "family": "des",
+        "split": "validation",
+        "root_ms": 13.454170999999999,
+        "effects": {
+          "neutral": 12
+        },
+        "same_as_default": 0,
+        "nonadvance_S0": 7,
+        "nonadvance_S1": 11,
+        "joint_nonadvance": 6,
+        "records": [
+          {
+            "id": "des:0",
+            "target": -0.0027111593879858664,
+            "root_relative_speedup": 1.0027148379041961,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.02762750000000036,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t0/report.json"
+          },
+          {
+            "id": "des:1",
+            "target": -0.002203453294345481,
+            "root_relative_speedup": 1.002205882681575,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.03054349999999939,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t1/report.json"
+          },
+          {
+            "id": "des:2",
+            "target": -0.006274020718647176,
+            "root_relative_speedup": 1.006293743612343,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.023333500000000562,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t2/report.json"
+          },
+          {
+            "id": "des:3",
+            "target": -0.004837770180336027,
+            "root_relative_speedup": 1.0048494910838852,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.005390500000000742,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t3/report.json"
+          },
+          {
+            "id": "des:4",
+            "target": -0.007454333489407985,
+            "root_relative_speedup": 1.0074821861980738,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.01451199999999897,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t4/report.json"
+          },
+          {
+            "id": "des:5",
+            "target": -0.006150430966836151,
+            "root_relative_speedup": 1.0061693837032843,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.04080050000000046,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t5/report.json"
+          },
+          {
+            "id": "des:6",
+            "target": -0.0007825542378738945,
+            "root_relative_speedup": 1.0007828605133287,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.033417499999999656,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "inline",
+              "advance"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t6/report.json"
+          },
+          {
+            "id": "des:7",
+            "target": -0.004384449151809971,
+            "root_relative_speedup": 1.004394074911736,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.03243849999999959,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t7/report.json"
+          },
+          {
+            "id": "des:8",
+            "target": -0.006274020718647176,
+            "root_relative_speedup": 1.006293743612343,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.023333500000000562,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t8/report.json"
+          },
+          {
+            "id": "des:9",
+            "target": -0.009190080675629392,
+            "root_relative_speedup": 1.0092324391268006,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.01599349999999955,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "advance",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t9/report.json"
+          },
+          {
+            "id": "des:10",
+            "target": -0.0055013214342615096,
+            "root_relative_speedup": 1.0055164814903874,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.01971349999999905,
+            "resolution_vs_root_ms": 0.26908341999999996,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t10/report.json"
+          },
+          {
+            "id": "des:11",
+            "target": 0.0016078730854604283,
+            "root_relative_speedup": 0.9983934188499535,
+            "effect": "neutral",
+            "same_elf_as_default": false,
+            "timing_mad_ms": 0.027458000000000204,
+            "resolution_vs_root_ms": 0.26951642,
+            "actions": [
+              "inline",
+              "unroll2"
+            ],
+            "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-des-t11/report.json"
+          }
+        ],
+        "prefixes": [
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "builtin.module",
+                "owner": "module",
+                "path": []
+              },
+              "kind": "advance",
+              "parameters": {}
+            },
+            "sampled_suffixes": 4,
+            "distinct_elf": 4,
+            "rollouts": 5,
+            "sampled_y_range": [
+              -0.009190080675629392,
+              -0.0027111593879858664
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des3_encrypt",
+                "path": [
+                  0,
+                  0,
+                  2
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 2,
+            "sampled_y_range": [
+              -0.004837770180336027,
+              -0.002203453294345481
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des_decrypt",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 1,
+            "distinct_elf": 1,
+            "rollouts": 1,
+            "sampled_y_range": [
+              -0.007454333489407985,
+              -0.007454333489407985
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des3_decrypt",
+                "path": [
+                  0,
+                  0,
+                  3
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 2,
+            "sampled_y_range": [
+              -0.0055013214342615096,
+              -0.0007825542378738945
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          },
+          {
+            "S0": {
+              "descriptor": {
+                "kind": "func.call",
+                "owner": "function:des_encrypt",
+                "path": [
+                  0,
+                  0,
+                  2
+                ]
+              },
+              "kind": "inline",
+              "parameters": {}
+            },
+            "sampled_suffixes": 2,
+            "distinct_elf": 2,
+            "rollouts": 2,
+            "sampled_y_range": [
+              -0.004384449151809971,
+              0.0016078730854604283
+            ],
+            "interpretation": "sampled conditional suffix outcomes, not complete factorial or noise-free causal interaction"
+          }
+        ]
+      }
+    ],
+    "thresholds": {
+      "optimization_timeout_s": 180,
+      "max_action_attempts": 18,
+      "max_terminal_candidates": 3,
+      "beam_width": 2,
+      "near_tie_relative": 0.02,
+      "near_tie_absolute_ms": 0.05,
+      "uncertainty_mad_multiplier": 2
+    },
+    "scope": "Read-only sampled-rollout coverage; effects descriptive only, no counterfactual ranking labels. Timing MAD is not the MC suffix variance."
+  },
+  "replay": {
+    "trajectory": "pc1:3",
+    "report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-replay/report.json",
+    "all_model_visible_observations_equal": true,
+    "same_complete_executable": true,
+    "correct": true,
+    "scope": "Fresh process; actual joint non-advance path; only run labels/unused environment fields differ; no native performance timing."
+  },
+  "training": {
+    "models": {
+      "A": {
+        "model": "A",
+        "config": {
+          "hidden": 128,
+          "heads": 4,
+          "history": true,
+          "encoder_version": "hierarchical-v3",
+          "decision_version": "rollout-q-v1"
+        },
+        "seed": 23,
+        "updates": 200,
+        "selection": "fixed-final",
+        "parameters": 820229,
+        "seconds": 190.59524501860142,
+        "gradient_before": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 2.0553359985351562,
+          "history_enabled": true,
+          "discrete_history_visible": true,
+          "loss": 0.38962820172309875,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "gradient_after": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 0.5131993293762207,
+          "history_enabled": true,
+          "discrete_history_visible": true,
+          "loss": 0.04255009442567825,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "trajectory_exposures": 800,
+        "selected_action_label_exposures": 1600,
+        "snapshots": {
+          "0": {
+            "train": {
+              "S0_abs_error": 0.22368947781701576,
+              "S1_abs_error": 0.5494984417620353,
+              "huber": 0.3615939635783434,
+              "mae": 0.3865939577420553,
+              "mse": 0.18865041465808946,
+              "rmse": 0.43433905495371866
+            },
+            "validation": {
+              "S0_abs_error": 0.16530327712527634,
+              "S1_abs_error": 0.48768963643762636,
+              "huber": 0.30153693072497845,
+              "mae": 0.3264964620272318,
+              "mse": 0.15152590302750468,
+              "rmse": 0.38926328240344565
+            }
+          },
+          "50": {
+            "train": {
+              "S0_abs_error": 0.032344345971664294,
+              "S1_abs_error": 0.04509297823236851,
+              "huber": 0.018296786836193252,
+              "mae": 0.038718662302320205,
+              "mse": 0.002465311252308311,
+              "rmse": 0.049651900792500495
+            },
+            "validation": {
+              "S0_abs_error": 0.024847680154165462,
+              "S1_abs_error": 0.07482805384986875,
+              "huber": 0.032054489517274,
+              "mae": 0.0498378681174169,
+              "mse": 0.0049429047357989475,
+              "rmse": 0.0703057944681585
+            }
+          },
+          "200": {
+            "train": {
+              "S0_abs_error": 0.02373587530262064,
+              "S1_abs_error": 0.0223840552868339,
+              "huber": 0.008368447067899371,
+              "mae": 0.02305996511131525,
+              "mse": 0.0012378138973663984,
+              "rmse": 0.035182579458680946
+            },
+            "validation": {
+              "S0_abs_error": 0.03764445899622557,
+              "S1_abs_error": 0.07714899591658927,
+              "huber": 0.037343396979849786,
+              "mae": 0.057396728079766035,
+              "mse": 0.006395398938669435,
+              "rmse": 0.07997123819642556
+            }
+          }
+        },
+        "final_by_program": {
+          "train": {
+            "pc1": {
+              "S0_abs_error": 0.03067415415126963,
+              "S1_abs_error": 0.027475081907002964,
+              "huber": 0.010082571223999063,
+              "mae": 0.02907461766153574,
+              "mse": 0.0010235554703588907
+            },
+            "lists": {
+              "S0_abs_error": 0.01812436348637232,
+              "S1_abs_error": 0.016480630364917603,
+              "huber": 0.0032982432555096843,
+              "mae": 0.017302496746803325,
+              "mse": 0.0003298243342821176
+            },
+            "puzzle": {
+              "S0_abs_error": 0.03157838258424584,
+              "S1_abs_error": 0.019065205890975236,
+              "huber": 0.013101056359725286,
+              "mae": 0.025321793975308537,
+              "mse": 0.0028713364286356105
+            },
+            "reed_solomon": {
+              "S0_abs_error": 0.014566600988594764,
+              "S1_abs_error": 0.026515302984439798,
+              "huber": 0.006991917432363455,
+              "mae": 0.0205409520616134,
+              "mse": 0.0007265393561889747
+            }
+          },
+          "validation": {
+            "matrix": {
+              "S0_abs_error": 0.05341511308338695,
+              "S1_abs_error": 0.04684084559501254,
+              "huber": 0.029525807476602495,
+              "mae": 0.05012798045451442,
+              "mse": 0.004059212609718088
+            },
+            "des": {
+              "S0_abs_error": 0.0218738049090642,
+              "S1_abs_error": 0.10745714623816602,
+              "huber": 0.045160986483097076,
+              "mae": 0.06466547570501764,
+              "mse": 0.008731585267620781
+            }
+          }
+        }
+      },
+      "B": {
+        "model": "B",
+        "config": {
+          "hidden": 128,
+          "heads": 4,
+          "history": true,
+          "encoder_version": "hierarchical-v3",
+          "decision_version": "rollout-q-v1"
+        },
+        "seed": 23,
+        "updates": 200,
+        "selection": "fixed-final",
+        "parameters": 644101,
+        "seconds": 195.86798584181815,
+        "gradient_before": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 1.9313538074493408,
+          "history_enabled": true,
+          "discrete_history_visible": true,
+          "loss": 0.14925116300582886,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "gradient_after": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 0.44608351588249207,
+          "history_enabled": true,
+          "discrete_history_visible": true,
+          "loss": 0.03500572592020035,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "trajectory_exposures": 800,
+        "selected_action_label_exposures": 1600,
+        "snapshots": {
+          "0": {
+            "train": {
+              "S0_abs_error": 0.26500671923081387,
+              "S1_abs_error": 0.3146476556914401,
+              "huber": 0.2648271822060148,
+              "mae": 0.2898271894082427,
+              "mse": 0.08839941793121397,
+              "rmse": 0.2973203960901673
+            },
+            "validation": {
+              "S0_abs_error": 0.21230718540504318,
+              "S1_abs_error": 0.3110793334205293,
+              "huber": 0.23669325249890485,
+              "mae": 0.26169326218465966,
+              "mse": 0.07321100247402985,
+              "rmse": 0.270575317562467
+            }
+          },
+          "50": {
+            "train": {
+              "S0_abs_error": 0.01809756138021766,
+              "S1_abs_error": 0.06501161431798907,
+              "huber": 0.02734763310195376,
+              "mae": 0.04155458733051395,
+              "mse": 0.0042353768711696676,
+              "rmse": 0.0650797731339751
+            },
+            "validation": {
+              "S0_abs_error": 0.019125971404173932,
+              "S1_abs_error": 0.08566078384500314,
+              "huber": 0.038317441454940614,
+              "mae": 0.05239337721529107,
+              "mse": 0.00673431227570139,
+              "rmse": 0.0820628556394511
+            }
+          },
+          "200": {
+            "train": {
+              "S0_abs_error": 0.02276789408643336,
+              "S1_abs_error": 0.02781761928356117,
+              "huber": 0.009329152736124039,
+              "mae": 0.025292756404572476,
+              "mse": 0.001320048474857079,
+              "rmse": 0.036332471356309896
+            },
+            "validation": {
+              "S0_abs_error": 0.025475664966367995,
+              "S1_abs_error": 0.05360498598644553,
+              "huber": 0.02439566123090723,
+              "mae": 0.03954032567950586,
+              "mse": 0.00427736905241242,
+              "rmse": 0.06540159824050495
+            }
+          }
+        },
+        "final_by_program": {
+          "train": {
+            "pc1": {
+              "S0_abs_error": 0.028699719714660284,
+              "S1_abs_error": 0.03321702815099442,
+              "huber": 0.011239592063551148,
+              "mae": 0.030958373720447224,
+              "mse": 0.0011458549706730992
+            },
+            "lists": {
+              "S0_abs_error": 0.015504030767235048,
+              "S1_abs_error": 0.02466714066331872,
+              "huber": 0.004619167263930042,
+              "mae": 0.020085585303604603,
+              "mse": 0.0004619167266355362
+            },
+            "puzzle": {
+              "S0_abs_error": 0.03230916890158439,
+              "S1_abs_error": 0.027343835478317577,
+              "huber": 0.015235372498864308,
+              "mae": 0.029826501694818337,
+              "mse": 0.0030501539331453387
+            },
+            "reed_solomon": {
+              "S0_abs_error": 0.014558656962253724,
+              "S1_abs_error": 0.026042472841613956,
+              "huber": 0.006222479118150659,
+              "mae": 0.020300564899419744,
+              "mse": 0.0006222682689743427
+            }
+          },
+          "validation": {
+            "matrix": {
+              "S0_abs_error": 0.04040872130355689,
+              "S1_abs_error": 0.043799421893020905,
+              "huber": 0.02477081036098146,
+              "mae": 0.0421040723255525,
+              "mse": 0.003369103934649805
+            },
+            "des": {
+              "S0_abs_error": 0.010542608629179098,
+              "S1_abs_error": 0.06341055007987015,
+              "huber": 0.024020512100833002,
+              "mae": 0.036976579033459224,
+              "mse": 0.005185634170175035
+            }
+          }
+        }
+      },
+      "A_current_only": {
+        "model": "A",
+        "config": {
+          "hidden": 128,
+          "heads": 4,
+          "history": false,
+          "encoder_version": "hierarchical-v3",
+          "decision_version": "rollout-q-v1"
+        },
+        "seed": 23,
+        "updates": 200,
+        "selection": "fixed-final",
+        "parameters": 820229,
+        "seconds": 187.9212363427505,
+        "gradient_before": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 0.0,
+          "history_enabled": false,
+          "discrete_history_visible": true,
+          "loss": 0.32545265555381775,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "gradient_after": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 0.0,
+          "history_enabled": false,
+          "discrete_history_visible": true,
+          "loss": 0.0457814484834671,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "trajectory_exposures": 800,
+        "selected_action_label_exposures": 1600,
+        "snapshots": {
+          "0": {
+            "train": {
+              "S0_abs_error": 0.22368947781701576,
+              "S1_abs_error": 0.45747679267953356,
+              "huber": 0.31558313500136137,
+              "mae": 0.34058313195904094,
+              "mse": 0.1358819070737809,
+              "rmse": 0.36862163131560916
+            },
+            "validation": {
+              "S0_abs_error": 0.16530327712527634,
+              "S1_abs_error": 0.4175634779418823,
+              "huber": 0.2664738514771064,
+              "mae": 0.2914333753287792,
+              "mse": 0.11324638516331711,
+              "rmse": 0.3365210025590039
+            }
+          },
+          "50": {
+            "train": {
+              "S0_abs_error": 0.07044524507831071,
+              "S1_abs_error": 0.022962577007296613,
+              "huber": 0.028296253813702304,
+              "mae": 0.046703910746145993,
+              "mse": 0.0035768575830843474,
+              "rmse": 0.05980683558828662
+            },
+            "validation": {
+              "S0_abs_error": 0.06848315728054484,
+              "S1_abs_error": 0.04065552170120952,
+              "huber": 0.03306466651459535,
+              "mae": 0.05456934093187253,
+              "mse": 0.0037254256603773683,
+              "rmse": 0.06103626512473849
+            }
+          },
+          "200": {
+            "train": {
+              "S0_abs_error": 0.024056264333304524,
+              "S1_abs_error": 0.023690598581404255,
+              "huber": 0.009693575126220821,
+              "mae": 0.02387343141405533,
+              "mse": 0.0013824627216081353,
+              "rmse": 0.03718148358535651
+            },
+            "validation": {
+              "S0_abs_error": 0.03728579848486352,
+              "S1_abs_error": 0.07832124776074706,
+              "huber": 0.03821588966335791,
+              "mae": 0.057803522795438766,
+              "mse": 0.00610427965754449,
+              "rmse": 0.07812988965526887
+            }
+          }
+        },
+        "final_by_program": {
+          "train": {
+            "pc1": {
+              "S0_abs_error": 0.031942910727152066,
+              "S1_abs_error": 0.024361201929587958,
+              "huber": 0.010305050139625868,
+              "mae": 0.028152056348820526,
+              "mse": 0.0010656668746378273
+            },
+            "lists": {
+              "S0_abs_error": 0.016179943868918106,
+              "S1_abs_error": 0.017216061690527286,
+              "huber": 0.004702290954204121,
+              "mae": 0.016698003086882334,
+              "mse": 0.0004702290946928163
+            },
+            "puzzle": {
+              "S0_abs_error": 0.031427655010463636,
+              "S1_abs_error": 0.027264605072927318,
+              "huber": 0.016228138968775358,
+              "mae": 0.029346129313732188,
+              "mse": 0.0032166807694314534
+            },
+            "reed_solomon": {
+              "S0_abs_error": 0.01667454772668428,
+              "S1_abs_error": 0.025920525632574458,
+              "huber": 0.007538820442277938,
+              "mae": 0.021297536906786263,
+              "mse": 0.0007772741476704444
+            }
+          },
+          "validation": {
+            "matrix": {
+              "S0_abs_error": 0.05351971597533875,
+              "S1_abs_error": 0.05101427729572896,
+              "huber": 0.0316497121239081,
+              "mae": 0.052266997285187244,
+              "mse": 0.004252350617510577
+            },
+            "des": {
+              "S0_abs_error": 0.02105188099438829,
+              "S1_abs_error": 0.10562821822576515,
+              "huber": 0.04478206720280772,
+              "mae": 0.06334004830569029,
+              "mse": 0.007956208697578404
+            }
+          }
+        }
+      },
+      "B_current_only": {
+        "model": "B",
+        "config": {
+          "hidden": 128,
+          "heads": 4,
+          "history": false,
+          "encoder_version": "hierarchical-v3",
+          "decision_version": "rollout-q-v1"
+        },
+        "seed": 23,
+        "updates": 200,
+        "selection": "fixed-final",
+        "parameters": 644101,
+        "seconds": 193.5221531894058,
+        "gradient_before": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 0.0,
+          "history_enabled": false,
+          "discrete_history_visible": true,
+          "loss": 0.12076807767152786,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "gradient_after": {
+          "trajectory": "pc1:3",
+          "S1_loss_to_S0_hidden_l1": 0.0,
+          "history_enabled": false,
+          "discrete_history_visible": true,
+          "loss": 0.04395817965269089,
+          "selected_indices": [
+            13,
+            1
+          ]
+        },
+        "trajectory_exposures": 800,
+        "selected_action_label_exposures": 1600,
+        "snapshots": {
+          "0": {
+            "train": {
+              "S0_abs_error": 0.26500671923081387,
+              "S1_abs_error": 0.2608839420037818,
+              "huber": 0.2379453269143899,
+              "mae": 0.2629453297704458,
+              "mse": 0.07178735919296741,
+              "rmse": 0.2679316315647845
+            },
+            "validation": {
+              "S0_abs_error": 0.21230718540504318,
+              "S1_abs_error": 0.2685153026838445,
+              "huber": 0.21541123899320763,
+              "mae": 0.24041124619543552,
+              "mse": 0.060080200588951506,
+              "rmse": 0.2451126283751033
+            }
+          },
+          "50": {
+            "train": {
+              "S0_abs_error": 0.039579382245967736,
+              "S1_abs_error": 0.03499373894962082,
+              "huber": 0.020097573222907766,
+              "mae": 0.03728656069142744,
+              "mse": 0.002574443098334693,
+              "rmse": 0.05073897021358133
+            },
+            "validation": {
+              "S0_abs_error": 0.05375175312389917,
+              "S1_abs_error": 0.053409433095214544,
+              "huber": 0.034525244196023167,
+              "mae": 0.05358059339535733,
+              "mse": 0.004470835670266145,
+              "rmse": 0.06686430789491614
+            }
+          },
+          "200": {
+            "train": {
+              "S0_abs_error": 0.023169898001172057,
+              "S1_abs_error": 0.02073783799658866,
+              "huber": 0.008508460199209367,
+              "mae": 0.02195386776778226,
+              "mse": 0.0012675820660585184,
+              "rmse": 0.03560311876870506
+            },
+            "validation": {
+              "S0_abs_error": 0.025154691160284792,
+              "S1_abs_error": 0.05826098266815377,
+              "huber": 0.025821788251050748,
+              "mae": 0.041707837566112474,
+              "mse": 0.003584385118908055,
+              "rmse": 0.05986973458190754
+            }
+          }
+        },
+        "final_by_program": {
+          "train": {
+            "pc1": {
+              "S0_abs_error": 0.02932050985101743,
+              "S1_abs_error": 0.02729953365528468,
+              "huber": 0.00996172606634597,
+              "mae": 0.0283100213855505,
+              "mse": 0.0010179092544907082
+            },
+            "lists": {
+              "S0_abs_error": 0.01539101477280546,
+              "S1_abs_error": 0.012759598144314602,
+              "huber": 0.0031305448695396385,
+              "mae": 0.014075306166584292,
+              "mse": 0.0003130544801024371
+            },
+            "puzzle": {
+              "S0_abs_error": 0.032887889955482724,
+              "S1_abs_error": 0.02218407310077731,
+              "huber": 0.015422287135152146,
+              "mae": 0.027535981110607583,
+              "mse": 0.0031819408150113304
+            },
+            "reed_solomon": {
+              "S0_abs_error": 0.015080177425382608,
+              "S1_abs_error": 0.020708147085978058,
+              "huber": 0.005519282725799712,
+              "mae": 0.017894162408386666,
+              "mse": 0.0005574237146295976
+            }
+          },
+          "validation": {
+            "matrix": {
+              "S0_abs_error": 0.040559821561589375,
+              "S1_abs_error": 0.041553457788503896,
+              "huber": 0.024348650001532707,
+              "mae": 0.041056640446186066,
+              "mse": 0.0032642935584590305
+            },
+            "des": {
+              "S0_abs_error": 0.009749560758980213,
+              "S1_abs_error": 0.07496850754780364,
+              "huber": 0.02729492650056879,
+              "mae": 0.04235903468603889,
+              "mse": 0.0039044766793570793
+            }
+          }
+        }
+      }
+    },
+    "seconds": 767.9066203925759,
+    "zero_root_predictor": {
+      "train": {
+        "mae": 0.016270073621209986,
+        "rmse": 0.04171192135410959,
+        "scope": "Posthoc descriptive constant root-cost prediction, not an added fitted model or compiler run."
+      },
+      "validation": {
+        "mae": 0.01615184948435186,
+        "rmse": 0.03666534854939872,
+        "scope": "Posthoc descriptive constant root-cost prediction, not an added fitted model or compiler run."
+      }
+    }
+  },
+  "integration": {
+    "matched_initialization_pairs": [
+      [
+        "A",
+        "A_current_only"
+      ],
+      [
+        "B",
+        "B_current_only"
+      ]
+    ],
+    "common_trajectory_schedule_and_visits": true,
+    "old_stage_checkpoint_loads": true,
+    "old_checkpoint_as_rollout_rejected": true,
+    "injected_transform_failure_keeps_parent": true,
+    "stale_observation_rejected": true,
+    "failed_action_attempts_charged": 2,
+    "valid_private_transform_attempts": 1,
+    "failed_samples_without_target_excluded": true,
+    "failed_sample_with_target_rejected": true,
+    "command_s": 0.15987060498446226,
+    "new_linked_terminals": 0,
+    "scope": "Private checkpoint copies and one injected/stale branch; no extra performance labels or model fitting."
+  },
+  "evaluation": [
+    {
+      "model": "A",
+      "program": "pc1",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A-pc1-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              13
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 73.573413,
+      "confirmation_latency_ms": 73.559585,
+      "guarded_default_search_ms": 73.653604,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 1.6263401070609689,
+      "wall_s": 2.3286450430750847,
+      "measurement_invocations": 10,
+      "feature_s": 0.0659495797008276,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "A",
+      "program": "pc1",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A-pc1-guarded-default/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 73.653604,
+      "confirmation_latency_ms": 73.61442,
+      "guarded_default_search_ms": 73.653604,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": true,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 1,
+      "command_s": 3.650777019560337,
+      "wall_s": 5.062751225195825,
+      "measurement_invocations": 20,
+      "feature_s": 0.14871545508503914,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "A",
+      "program": "matrix",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A-matrix-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:main",
+            "path": [
+              0,
+              0,
+              24
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.850533,
+      "confirmation_latency_ms": 0.839869,
+      "guarded_default_search_ms": 0.874963,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 0.5279556820169091,
+      "wall_s": 0.8061106437817216,
+      "measurement_invocations": 10,
+      "feature_s": 0.04055657330900431,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "A",
+      "program": "matrix",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A-matrix-guarded-default/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.874963,
+      "confirmation_latency_ms": 0.845319,
+      "guarded_default_search_ms": 0.874963,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": true,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 1,
+      "command_s": 1.3837780700996518,
+      "wall_s": 1.744125065393746,
+      "measurement_invocations": 20,
+      "feature_s": 0.09411733876913786,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "B",
+      "program": "pc1",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B-pc1-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              191
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": false,
+      "search_latency_ms": 67.618639,
+      "confirmation_latency_ms": 67.501208,
+      "guarded_default_search_ms": 73.591277,
+      "canonical_speedup_vs_default": 1.090221629811425,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 1.560710153542459,
+      "wall_s": 2.3480911618098617,
+      "measurement_invocations": 10,
+      "feature_s": 0.06578663177788258,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "B",
+      "program": "pc1",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B-pc1-guarded-branch-6/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              191
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": false,
+      "search_latency_ms": 69.912461,
+      "confirmation_latency_ms": 67.515068,
+      "guarded_default_search_ms": 73.591277,
+      "canonical_speedup_vs_default": 1.0899978209308774,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 2,
+      "command_s": 3.661168825812638,
+      "wall_s": 5.348753605037928,
+      "measurement_invocations": 20,
+      "feature_s": 0.1521624866873026,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "B",
+      "program": "matrix",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B-matrix-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.862009,
+      "confirmation_latency_ms": 0.831616,
+      "guarded_default_search_ms": 0.866043,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 0.5294383680447936,
+      "wall_s": 0.7634240547195077,
+      "measurement_invocations": 10,
+      "feature_s": 0.04153304174542427,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "B",
+      "program": "matrix",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B-matrix-guarded-default/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.866043,
+      "confirmation_latency_ms": 0.866317,
+      "guarded_default_search_ms": 0.866043,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": true,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 1,
+      "command_s": 1.3865075865760446,
+      "wall_s": 1.827028488740325,
+      "measurement_invocations": 20,
+      "feature_s": 0.09443319775164127,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "A_current_only",
+      "program": "pc1",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A_current_only-pc1-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              13
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 73.642273,
+      "confirmation_latency_ms": 73.654953,
+      "guarded_default_search_ms": 73.588034,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 1.949062343686819,
+      "wall_s": 2.617993180640042,
+      "measurement_invocations": 10,
+      "feature_s": 0.06603152118623257,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "A_current_only",
+      "program": "pc1",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A_current_only-pc1-guarded-branch-7/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              131
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": false,
+      "search_latency_ms": 69.618359,
+      "confirmation_latency_ms": 69.622114,
+      "guarded_default_search_ms": 73.588034,
+      "canonical_speedup_vs_default": 1.0569635101858585,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 2,
+      "command_s": 3.6389201330021024,
+      "wall_s": 5.195708907209337,
+      "measurement_invocations": 20,
+      "feature_s": 0.1532007036730647,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "A_current_only",
+      "program": "matrix",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A_current_only-matrix-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:main",
+            "path": [
+              0,
+              0,
+              24
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.857782,
+      "confirmation_latency_ms": 0.841094,
+      "guarded_default_search_ms": 0.855296,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 0.5322706028819084,
+      "wall_s": 0.7547603473067284,
+      "measurement_invocations": 10,
+      "feature_s": 0.04125142376869917,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "A_current_only",
+      "program": "matrix",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-A_current_only-matrix-guarded-default/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.855296,
+      "confirmation_latency_ms": 0.864539,
+      "guarded_default_search_ms": 0.855296,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": true,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 1,
+      "command_s": 1.3934282418340445,
+      "wall_s": 1.7546827578917146,
+      "measurement_invocations": 20,
+      "feature_s": 0.09526978619396687,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "B_current_only",
+      "program": "pc1",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B_current_only-pc1-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              71
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 73.593841,
+      "confirmation_latency_ms": 73.58719,
+      "guarded_default_search_ms": 73.578146,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 1.6306606773287058,
+      "wall_s": 2.3619796251878142,
+      "measurement_invocations": 10,
+      "feature_s": 0.06549554783850908,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "B_current_only",
+      "program": "pc1",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B_current_only-pc1-guarded-branch-6/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "inline",
+          "parameters": {},
+          "descriptor": {
+            "owner": "function:assemble",
+            "path": [
+              0,
+              0,
+              191
+            ],
+            "kind": "func.call"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        false,
+        false
+      ],
+      "same_complete_elf_as_guarded_default": false,
+      "search_latency_ms": 67.706156,
+      "confirmation_latency_ms": 67.343454,
+      "guarded_default_search_ms": 73.578146,
+      "canonical_speedup_vs_default": 1.092580520149739,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 2,
+      "command_s": 3.620210192166269,
+      "wall_s": 5.3803234016522765,
+      "measurement_invocations": 20,
+      "feature_s": 0.15241291094571352,
+      "model_cost_records": 5,
+      "failures": []
+    },
+    {
+      "model": "B_current_only",
+      "program": "matrix",
+      "mode": "raw",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B_current_only-matrix-raw-branch-2/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.842889,
+      "confirmation_latency_ms": 0.868346,
+      "guarded_default_search_ms": 0.856793,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": false,
+      "confirmation_complete": true,
+      "attempts": 3,
+      "terminals": 1,
+      "distinct_executables": 1,
+      "command_s": 0.5290103470906615,
+      "wall_s": 0.758837309665978,
+      "measurement_invocations": 10,
+      "feature_s": 0.041022065095603466,
+      "model_cost_records": 3,
+      "failures": []
+    },
+    {
+      "model": "B_current_only",
+      "program": "matrix",
+      "mode": "guarded",
+      "status": "correct",
+      "scorer": "rollout-q-v1",
+      "selected_report": "/home/chen/develop/IRLoom/benchmark-data/architecture/runs/loomtrace-v1-pilot-B_current_only-matrix-guarded-default/report.json",
+      "actions": [
+        {
+          "stage": "S0",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S1",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        },
+        {
+          "stage": "S2",
+          "kind": "advance",
+          "parameters": {},
+          "descriptor": {
+            "owner": "module",
+            "path": [],
+            "kind": "builtin.module"
+          }
+        }
+      ],
+      "sampled_prefix_support_S0_S1": [
+        true,
+        true
+      ],
+      "same_complete_elf_as_guarded_default": true,
+      "search_latency_ms": 0.856793,
+      "confirmation_latency_ms": 0.87141,
+      "guarded_default_search_ms": 0.856793,
+      "canonical_speedup_vs_default": 1.0,
+      "fallback_to_default": true,
+      "confirmation_complete": true,
+      "attempts": 11,
+      "terminals": 3,
+      "distinct_executables": 1,
+      "command_s": 1.3965266151353717,
+      "wall_s": 1.8365363087505102,
+      "measurement_invocations": 20,
+      "feature_s": 0.09465265739709139,
+      "model_cost_records": 5,
+      "failures": []
+    }
+  ],
+  "cache_audit": {
+    "cached_all": "pass",
+    "preserved_files": 330,
+    "preserved_run_directories": 200,
+    "mismatched_old_q_protocol_rejected": true,
+    "extra_compile_or_native_timing_calls": 0,
+    "four_fixed_final_training_exposure_checks": true,
+    "bounded_rollout_q_dispatch_checks": true,
+    "scope": "Direct bytes of old campaign/recovered data and old/new weights, metadata and old SDK binaries; no hashes, extra fitting or native matrix."
+  },
+  "costs": {
+    "H1_terminal_attempts": 78,
+    "fresh_replay_terminal": 1,
+    "H3_terminal_attempts": 32,
+    "H3_action_attempts": 112,
+    "H3_measurement_invocations": 240,
+    "H3_command_s": 29.016764965839684,
+    "H3_wall_s": 40.8897511260584
+  },
+  "larger_workload": {
+    "protocol": {
+      "schema": "larger-workload-probe-v1",
+      "source": "/home/chen/develop/IRLoom/benchmark-data/sources/llvm-test-suite-18.1.3/MultiSource/Benchmarks/MiBench/automotive-susan/susan.c",
+      "source_lines": 2125,
+      "source_bytes": 59824,
+      "source_url": "https://github.com/llvm/llvm-test-suite/blob/72a946a42cbce06afef68b2326ff6c3869d09799/MultiSource/Benchmarks/MiBench/automotive-susan/susan.c",
+      "suite_revision": "72a946a42cbce06afef68b2326ff6c3869d09799",
+      "compiler_revision": "cleanup-positional-v1",
+      "recipe": {
+        "path": "MiBench/automotive-susan/susan.c",
+        "check_args": [],
+        "measure_args": [],
+        "scope": "Bounded compatibility only, not train/validation/test or a performance label",
+        "license": "Source header and sibling LICENSE: Crown Copyright; research purposes only, header must remain, not for sale."
+      },
+      "license_text": "This code is issued for research purposes only and remains the\nproperty of the UK Secretary of State for Defence. This code must\nnot be passed on without this header information being kept\nintact. This code must not be sold.\n\nA UK patent has been granted: \"Method for digitally processing\nimages to determine the position of edges and/or corners therein for\nguidance of unmanned vehicle\", UK Patent 2272285. Proprietor:\nSecretary of State for Defence, UK. 15 January 1997\n\n\nSource Code obtained from:\n\nhttp://www.fmrib.ox.ac.uk/~steve/susan/index.html\n",
+      "inputs": [
+        "input_small.pgm",
+        "input_large.pgm"
+      ],
+      "operation": "-s",
+      "terminal_limit": 2,
+      "timed_runs": 0,
+      "selection": "Single complete >607-line multiroutine cached workload, chosen before execution; no speed filter."
+    },
+    "status": "unsupported",
+    "terminals": [],
+    "graphs": {},
+    "failures": [
+      {
+        "error": "import: exit 5; see /home/chen/develop/IRLoom/logs/architecture/loomtrace-v1-susan-root/001-import.log",
+        "type": "CommandError"
+      }
+    ],
+    "command_s": 1.2191501939669251,
+    "wall_s": 1.3526691943407059,
+    "environment": {
+      "os": "Linux-6.8.0-55-generic-x86_64-with-glibc2.39",
+      "arch": "x86_64",
+      "affinity": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17,
+        18,
+        19,
+        20,
+        21,
+        22,
+        23,
+        24,
+        25,
+        26,
+        27,
+        28,
+        29,
+        30,
+        31,
+        32,
+        33,
+        34,
+        35,
+        36,
+        37,
+        38,
+        39,
+        40,
+        41,
+        42,
+        43,
+        44,
+        45,
+        46,
+        47,
+        48,
+        49,
+        50,
+        51,
+        52,
+        53,
+        54,
+        55,
+        56,
+        57,
+        58,
+        59,
+        60,
+        61,
+        62,
+        63,
+        64,
+        65,
+        66,
+        67,
+        68,
+        69,
+        70,
+        71,
+        72,
+        73,
+        74,
+        75,
+        76,
+        77,
+        78,
+        79,
+        80,
+        81,
+        82,
+        83,
+        84,
+        85,
+        86,
+        87,
+        88,
+        89,
+        90,
+        91,
+        92,
+        93,
+        94,
+        95,
+        96,
+        97,
+        98,
+        99,
+        100,
+        101,
+        102,
+        103,
+        104,
+        105,
+        106,
+        107,
+        108,
+        109,
+        110,
+        111,
+        112,
+        113,
+        114,
+        115,
+        116,
+        117,
+        118,
+        119,
+        120,
+        121,
+        122,
+        123,
+        124,
+        125,
+        126,
+        127,
+        128,
+        129,
+        130,
+        131,
+        132,
+        133,
+        134,
+        135,
+        136,
+        137,
+        138,
+        139,
+        140,
+        141,
+        142,
+        143,
+        144,
+        145,
+        146,
+        147,
+        148,
+        149,
+        150,
+        151,
+        152,
+        153,
+        154,
+        155,
+        156,
+        157,
+        158,
+        159,
+        160,
+        161,
+        162,
+        163,
+        164,
+        165,
+        166,
+        167,
+        168,
+        169,
+        170,
+        171,
+        172,
+        173,
+        174,
+        175,
+        176,
+        177,
+        178,
+        179,
+        180,
+        181,
+        182,
+        183,
+        184,
+        185,
+        186,
+        187,
+        188,
+        189,
+        190,
+        191,
+        192,
+        193,
+        194,
+        195,
+        196,
+        197,
+        198,
+        199,
+        200,
+        201,
+        202,
+        203,
+        204,
+        205,
+        206,
+        207,
+        208,
+        209,
+        210,
+        211,
+        212,
+        213,
+        214,
+        215,
+        216,
+        217,
+        218,
+        219,
+        220,
+        221,
+        222,
+        223,
+        224,
+        225,
+        226,
+        227,
+        228,
+        229,
+        230,
+        231,
+        232,
+        233,
+        234,
+        235,
+        236,
+        237,
+        238,
+        239
+      ],
+      "tools": {
+        "mlir-opt": {
+          "path": "/home/chen/develop/IRLoom/tmp/toolchain/usr/lib/llvm-18/bin/mlir-opt",
+          "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.",
+          "returncode": 0
+        },
+        "mlir-translate": {
+          "path": "/home/chen/develop/IRLoom/tmp/toolchain/usr/lib/llvm-18/bin/mlir-translate",
+          "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.",
+          "returncode": 0
+        },
+        "clang": {
+          "path": "/usr/lib/llvm-18/bin/clang",
+          "version": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-18/bin",
+          "returncode": 0
+        },
+        "clang++": {
+          "path": "/usr/lib/llvm-18/bin/clang",
+          "version": "Ubuntu clang version 18.1.3 (1ubuntu1)\nTarget: x86_64-pc-linux-gnu\nThread model: posix\nInstalledDir: /usr/lib/llvm-18/bin",
+          "returncode": 0
+        },
+        "llc": {
+          "path": "/usr/lib/llvm-18/bin/llc",
+          "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.\n  Default target: x86_64-pc-linux-gnu\n  Host CPU: graniterapids\n\n  Registered Targets:\n    aarch64     - AArch64 (little endian)\n    aarch64_32  - AArch64 (little endian ILP32)\n    aarch64_be  - AArch64 (big endian)\n    amdgcn      - AMD GCN GPUs\n    arm         - ARM\n    arm64       - ARM64 (little endian)\n    arm64_32    - ARM64 (little endian ILP32)\n    armeb       - ARM (big endian)\n    avr         - Atmel AVR Microcontroller\n    bpf         - BPF (host endian)\n    bpfeb       - BPF (big endian)\n    bpfel       - BPF (little endian)\n    hexagon     - Hexagon\n    lanai       - Lanai\n    loongarch32 - 32-bit LoongArch\n    loongarch64 - 64-bit LoongArch\n    m68k        - Motorola 68000 family\n    mips        - MIPS (32-bit big endian)\n    mips64      - MIPS (64-bit big endian)\n    mips64el    - MIPS (64-bit little endian)\n    mipsel      - MIPS (32-bit little endian)\n    msp430      - MSP430 [experimental]\n    nvptx       - NVIDIA PTX 32-bit\n    nvptx64     - NVIDIA PTX 64-bit\n    ppc32       - PowerPC 32\n    ppc32le     - PowerPC 32 LE\n    ppc64       - PowerPC 64\n    ppc64le     - PowerPC 64 LE\n    r600        - AMD GPUs HD2XXX-HD6XXX\n    riscv32     - 32-bit RISC-V\n    riscv64     - 64-bit RISC-V\n    sparc       - Sparc\n    sparcel     - Sparc LE\n    sparcv9     - Sparc V9\n    systemz     - SystemZ\n    thumb       - Thumb\n    thumbeb     - Thumb (big endian)\n    ve          - VE\n    wasm32      - WebAssembly 32-bit\n    wasm64      - WebAssembly 64-bit\n    x86         - 32-bit X86: Pentium-Pro and above\n    x86-64      - 64-bit X86: EM64T and AMD64\n    xcore       - XCore\n    xtensa      - Xtensa 32",
+          "returncode": 0
+        },
+        "llvm-config": {
+          "path": "/usr/lib/llvm-18/bin/llvm-config",
+          "version": "18.1.3",
+          "returncode": 0
+        },
+        "llvm-objdump": {
+          "path": "/usr/lib/llvm-18/bin/llvm-objdump",
+          "version": "Ubuntu LLVM version 18.1.3\n  Optimized build.\n\n\n  Registered Targets:\n    aarch64     - AArch64 (little endian)\n    aarch64_32  - AArch64 (little endian ILP32)\n    aarch64_be  - AArch64 (big endian)\n    amdgcn      - AMD GCN GPUs\n    arm         - ARM\n    arm64       - ARM64 (little endian)\n    arm64_32    - ARM64 (little endian ILP32)\n    armeb       - ARM (big endian)\n    avr         - Atmel AVR Microcontroller\n    bpf         - BPF (host endian)\n    bpfeb       - BPF (big endian)\n    bpfel       - BPF (little endian)\n    hexagon     - Hexagon\n    lanai       - Lanai\n    loongarch32 - 32-bit LoongArch\n    loongarch64 - 64-bit LoongArch\n    m68k        - Motorola 68000 family\n    mips        - MIPS (32-bit big endian)\n    mips64      - MIPS (64-bit big endian)\n    mips64el    - MIPS (64-bit little endian)\n    mipsel      - MIPS (32-bit little endian)\n    msp430      - MSP430 [experimental]\n    nvptx       - NVIDIA PTX 32-bit\n    nvptx64     - NVIDIA PTX 64-bit\n    ppc32       - PowerPC 32\n    ppc32le     - PowerPC 32 LE\n    ppc64       - PowerPC 64\n    ppc64le     - PowerPC 64 LE\n    r600        - AMD GPUs HD2XXX-HD6XXX\n    riscv32     - 32-bit RISC-V\n    riscv64     - 64-bit RISC-V\n    sparc       - Sparc\n    sparcel     - Sparc LE\n    sparcv9     - Sparc V9\n    systemz     - SystemZ\n    thumb       - Thumb\n    thumbeb     - Thumb (big endian)\n    ve          - VE\n    wasm32      - WebAssembly 32-bit\n    wasm64      - WebAssembly 64-bit\n    x86         - 32-bit X86: Pentium-Pro and above\n    x86-64      - 64-bit X86: EM64T and AMD64\n    xcore       - XCore\n    xtensa      - Xtensa 32",
+          "returncode": 0
+        }
+      },
+      "environment": {
+        "TMPDIR": "/home/chen/develop/IRLoom/tmp",
+        "OMP_NUM_THREADS": "1",
+        "OPENBLAS_NUM_THREADS": "1",
+        "MKL_NUM_THREADS": "1"
+      },
+      "cpu": "{\n   \"lscpu\": [\n      {\n         \"field\": \"Architecture:\",\n         \"data\": \"x86_64\"\n      },{\n         \"field\": \"CPU op-mode(s):\",\n         \"data\": \"32-bit, 64-bit\"\n      },{\n         \"field\": \"Address sizes:\",\n         \"data\": \"52 bits physical, 57 bits virtual\"\n      },{\n         \"field\": \"Byte Order:\",\n         \"data\": \"Little Endian\"\n      },{\n         \"field\": \"CPU(s):\",\n         \"data\": \"240\"\n      },{\n         \"field\": \"On-line CPU(s) list:\",\n         \"data\": \"0-239\"\n      },{\n         \"field\": \"Vendor ID:\",\n         \"data\": \"GenuineIntel\"\n      },{\n         \"field\": \"Model name:\",\n         \"data\": \"Intel(R) Xeon(R) 6986P-C\"\n      },{\n         \"field\": \"CPU family:\",\n         \"data\": \"6\"\n      },{\n         \"field\": \"Model:\",\n         \"data\": \"173\"\n      },{\n         \"field\": \"Thread(s) per core:\",\n         \"data\": \"2\"\n      },{\n         \"field\": \"Core(s) per socket:\",\n         \"data\": \"120\"\n      },{\n         \"field\": \"Socket(s):\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"Stepping:\",\n         \"data\": \"1\"\n      },{\n         \"field\": \"CPU(s) scaling MHz:\",\n         \"data\": \"25%\"\n      },{\n         \"field\": \"CPU max MHz:\",\n         \"data\": \"3900.0000\"\n      },{\n         \"field\": \"CPU min MHz:\",\n         \"data\": \"800.0000\"\n      },{\n         \"field\": \"BogoMIPS:\",\n         \"data\": \"5600.00\"\n      },{\n         \"field\": \"Flags:\",\n         \"data\": \"fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe syscall nx pdpe1gb rdtscp lm constant_tsc art arch_perfmon pebs bts rep_good nopl xtopology nonstop_tsc cpuid aperfmperf tsc_known_freq pni pclmulqdq dtes64 monitor ds_cpl vmx smx est tm2 ssse3 sdbg fma cx16 xtpr pdcm pcid dca sse4_1 sse4_2 x2apic movbe popcnt tsc_deadline_timer aes xsave avx f16c rdrand lahf_lm abm 3dnowprefetch cpuid_fault epb cat_l3 cat_l2 cdp_l3 intel_ppin cdp_l2 ssbd mba ibrs ibpb stibp ibrs_enhanced tpr_shadow flexpriority ept vpid ept_ad fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid cqm rdt_a avx512f avx512dq rdseed adx smap avx512ifma clflushopt clwb intel_pt avx512cd sha_ni avx512bw avx512vl xsaveopt xsavec xgetbv1 xsaves cqm_llc cqm_occup_llc cqm_mbm_total cqm_mbm_local split_lock_detect user_shstk avx_vnni avx512_bf16 wbnoinvd dtherm ida arat pln pts hwp hwp_act_window hwp_epp hwp_pkg_req hfi vnmi avx512vbmi umip pku ospke waitpkg avx512_vbmi2 gfni vaes vpclmulqdq avx512_vnni avx512_bitalg tme avx512_vpopcntdq la57 rdpid bus_lock_detect cldemote movdiri movdir64b enqcmd fsrm md_clear serialize tsxldtrk pconfig arch_lbr ibt amx_bf16 avx512_fp16 amx_tile amx_int8 flush_l1d arch_capabilities\"\n      },{\n         \"field\": \"Virtualization:\",\n         \"data\": \"VT-x\"\n      },{\n         \"field\": \"L1d cache:\",\n         \"data\": \"5.6 MiB (120 instances)\"\n      },{\n         \"field\": \"L1i cache:\",\n         \"data\": \"7.5 MiB (120 instances)\"\n      },{\n         \"field\": \"L2 cache:\",\n         \"data\": \"240 MiB (120 instances)\"\n      },{\n         \"field\": \"L3 cache:\",\n         \"data\": \"504 MiB (1 instance)\"\n      },{\n         \"field\": \"NUMA node(s):\",\n         \"data\": \"3\"\n      },{\n         \"field\": \"NUMA node0 CPU(s):\",\n         \"data\": \"0-39,120-159\"\n      },{\n         \"field\": \"NUMA node1 CPU(s):\",\n         \"data\": \"40-79,160-199\"\n      },{\n         \"field\": \"NUMA node2 CPU(s):\",\n         \"data\": \"80-119,200-239\"\n      },{\n         \"field\": \"Vulnerability Gather data sampling:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Itlb multihit:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability L1tf:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Mds:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Meltdown:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Mmio stale data:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Reg file data sampling:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Retbleed:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Spec rstack overflow:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Spec store bypass:\",\n         \"data\": \"Vulnerable\"\n      },{\n         \"field\": \"Vulnerability Spectre v1:\",\n         \"data\": \"Mitigation; usercopy/swapgs barriers and __user pointer sanitization\"\n      },{\n         \"field\": \"Vulnerability Spectre v2:\",\n         \"data\": \"Vulnerable; IBPB: disabled; STIBP: disabled; PBRSB-eIBRS: Not affected; BHI: Vulnerable\"\n      },{\n         \"field\": \"Vulnerability Srbds:\",\n         \"data\": \"Not affected\"\n      },{\n         \"field\": \"Vulnerability Tsx async abort:\",\n         \"data\": \"Not affected\"\n      }\n   ]\n}",
+      "git_commit": "c5e1da25dda04cac0a0fc356df669353da456748",
+      "git_status": "?? irloom/neural/workload_probe.py",
+      "runtime_limits": {
+        "frequency_control": "uncontrolled",
+        "pmu": "not collected",
+        "loadavg": [
+          0.08935546875,
+          0.08154296875,
+          0.08447265625
+        ],
+        "memory": "MemTotal:       1188492484 kB\nMemFree:         9387172 kB\nMemAvailable:   1130745768 kB\nBuffers:         2544036 kB\nCached:         1079800752 kB\nSwapCached:            0 kB\nActive:         55048264 kB\nInactive:       1048442580 kB\nActive(anon):   17567228 kB\nInactive(anon):  3598732 kB\nActive(file):   37481036 kB\nInactive(file): 1044843848 kB\nUnevictable:       30524 kB\nMlocked:           27404 kB\nSwapTotal:             0 kB\nSwapFree:              0 kB\nZswap:                 0 kB\nZswapped:              0 kB\nDirty:             18900 kB\nWriteback:             0 kB\nAnonPages:      20687596 kB\nMapped:          1962932 kB\nShmem:             11000 kB\nKReclaimable:   48198044 kB\nSlab:           60414936 kB\nSReclaimable:   48198044 kB\nSUnreclaim:     12216892 kB\nKernelStack:      217824 kB\nPageTables:       239012 kB\nSecPageTables:         0 kB\nNFS_Unstable:          0 kB\nBounce:                0 kB\nWritebackTmp:          0 kB\nCommitLimit:    594246240 kB\nCommitted_AS:   106302736 kB\nVmallocTotal:   13743895347199 kB\nVmallocUsed:      706144 kB\nVmallocChunk:          0 kB\nPercpu:          1710720 kB\nHardwareCorrupted:     0 kB\nAnonHugePages:  15468544 kB\nShmemHugePages:        0 kB\nShmemPmdMapped:        0 kB\nFileHugePages:  291106816 kB\nFilePmdMapped:         0 kB\nUnaccepted:            0 kB\nHugePages_Total:       0\nHugePages_Free:        0\nHugePages_Rsvd:        0\nHugePages_Surp:        0\nHugepagesize:       2048 kB\nHugetlb:               0 kB\nDirectMap4k:     1554588 kB\nDirectMap2M:    119693312 kB\nDirectMap1G:    1088421888 kB\n"
+      },
+      "cpu_caches": [
+        {
+          "cpu": 0,
+          "level": "1",
+          "type": "Data",
+          "size": "48K",
+          "shared_cpu_list": "0,120"
+        },
+        {
+          "cpu": 0,
+          "level": "1",
+          "type": "Instruction",
+          "size": "64K",
+          "shared_cpu_list": "0,120"
+        },
+        {
+          "cpu": 0,
+          "level": "2",
+          "type": "Unified",
+          "size": "2048K",
+          "shared_cpu_list": "0,120"
+        },
+        {
+          "cpu": 0,
+          "level": "3",
+          "type": "Unified",
+          "size": "516096K",
+          "shared_cpu_list": "0-239"
+        }
+      ],
+      "frontend_version": "LLVM (http://llvm.org/):\n  LLVM version 18.0.0git\n  Optimized build with assertions.\n"
+    },
+    "terminal_attempts": 0,
+    "scope": "One fixed complete source, at most default + first-joint path; full file/stdout checks, zero native timing, no labels or training."
+  },
+  "scope": "Small seen train/validation trajectory pilot; fixed behavior robust regression, not Q*, unbiased conditional-mean calibration, causal memory gain or new blind generalization."
+}

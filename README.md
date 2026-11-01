@@ -24,6 +24,8 @@ V1.3.1 已完成六模型固定20次更新、共享根成对 margin、12次训�
 
 ## 当前阅读入口
 
+LoomTrace V1 的 H1–H3 已完成：固定行为策略采集72条真实S0→S1轨迹（78个含默认终端），四模型各200步、跨阶段梯度与独立无记忆对照通过，16次已见开发域raw/guarded编译均正确。新 `rollout-q-v1` 与旧all-advance监督独立；暂未建立联合优化或连续记忆收益，验证回归也未超越零代价MAE基准。见 [轨迹监督报告](experiments/reports/architecture-trajectory-v1.md) 和 [规划](docs/architecture/LOOMTRACE_V1_PLAN.md)。单入口：`bash scripts/architecture.sh --loomtrace all --name loomtrace-v1-pilot`，完整缓存幂等复用。本轮到此停止，扩规模和新blind需另行冻结。
+
 修复后数据恢复已完成：按原轨迹刷新 Puzzle 36 条、DES 35 条和两个根默认，71 个实际终端全部通过完整输出检查，38 个完整可执行产物完成 228 次交错计时。其余 202 条显式继承旧测量；新标签、强对和差异独立保存，见 [数据恢复报告](experiments/reports/architecture-postfix-labels.md)。入口：`bash scripts/architecture.sh --recover-data --name campaign-v1-cleanup-positional-v1`。本轮已结束，后续训练等待新的数据设计方案。
 
 当前 C1–C2 正确性审查已完成：定位并隔离修复固定 LLVM 的 affine unroll cleanup carry 接线错误，原失败路径、32 条匹配动作与 3 个冻结模型调用通过回归。273 条旧标签中，13 条（Puzzle/DES）修复后机器码改变，需要新性能标签；本轮未训练或重跑性能矩阵。见 [正确性与候选分析报告](experiments/reports/architecture-campaign-correctness.md)。复现：`bash scripts/architecture.sh --correctness-audit all --name c1-review`。新完整程序运行显式使用 `--compiler-revision cleanup-positional-v1`；历史默认保留 legacy。
@@ -55,7 +57,7 @@ bash scripts/architecture.sh --model B --state-audit --multi-function
 bash scripts/architecture.sh --program pc1
 ```
 
-受影响组及匹配参照已按独立版本恢复；后续数据设计与训练等待新方案，不自动启动旧全矩阵。完整历史训练和对照命令见运行指南。
+受影响组及匹配参照已恢复，随后LoomTrace首轮已完成。新工作负载/动作与正式扩规模需独立方案，不自动启动旧全矩阵。完整历史训练和对照命令见运行指南。
 
 ## 已有可复用基础
 
