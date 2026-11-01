@@ -1,0 +1,36 @@
+{
+  "protocol": "loomtrace-v1",
+  "schema": "trajectory-v1",
+  "decision_version": "rollout-q-v1",
+  "compiler_revision": "cleanup-positional-v1",
+  "programs": [
+    {"program": "pc1", "split": "train", "family": "pc1"},
+    {"program": "lists", "split": "train", "family": "linked-list"},
+    {"program": "puzzle", "split": "train", "family": "backtracking"},
+    {"program": "reed_solomon", "split": "train", "family": "reed_solomon"},
+    {"program": "matrix", "split": "validation", "family": "matrix"},
+    {"program": "des", "split": "validation", "family": "des"}
+  ],
+  "selection": "Preselected seen programs: four distinct training families with real S0/S1 actions; two separate validation families. No selection by new timings. No test programs.",
+  "behavior": {
+    "version": "visible-structural-random-v1",
+    "advance_probability": 0.4,
+    "nonadvance": "uniform structural stratum (kind, enclosing function, loop depth, callee), then uniform member",
+    "seed": 71,
+    "program_seed_stride": 1000,
+    "trajectory_seed_stride": 1
+  },
+  "collection": {"trajectories_per_program": 12, "terminal_limit": 120, "timing_rounds": 6, "timing_seed": 71},
+  "training": {
+    "seed": 23, "updates": 200, "learning_rate": 0.0003, "huber_beta": 0.05,
+    "snapshots": [0, 50, 200], "hidden": 128, "heads": 4,
+    "batch": "one seeded-cycled trajectory per training program per update, equal family then program then trajectory; common schedule across models",
+    "selection": "fixed-final-200; no validation-based tuning or extra seed"
+  },
+  "models": {"A": {"kind": "A", "history": true}, "B": {"kind": "B", "history": true}, "A_current_only": {"kind": "A", "history": false}, "B_current_only": {"kind": "B", "history": false}},
+  "evaluation": {
+    "programs": ["pc1", "matrix"], "modes": ["raw", "guarded"],
+    "budget": {"optimization_timeout_s": 180, "max_action_attempts": 18, "max_terminal_candidates": 3, "beam_width": 2, "near_tie_relative": 0.02, "near_tie_absolute_ms": 0.05, "uncertainty_mad_multiplier": 2}
+  },
+  "limits": "No new actions, tree enumeration, unchosen-action labels, ranking loss, RL, tuning, test domain, hashes or historical matrix. Default is a reference only. S2 has no q supervision."
+}
