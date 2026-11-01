@@ -229,6 +229,7 @@ def replay(output, config, dataset):
 
 def run(args):
     config=read(ROOT/'experiments/architecture/loomtrace-v1.json')
+    assert (1+config['collection']['trajectories_per_program'])*len(config['programs'])<=config['collection']['terminal_limit']
     output=CACHE/'trajectories'/args.name;output.mkdir(parents=True,exist_ok=True)
     contract={'config':config,'pipeline':read(ROOT/'compiler/pipelines/polygeist-v1.json'),
               'build':read(CACHE/'compilers'/REVISION/'build.json'),
@@ -259,7 +260,8 @@ def run(args):
         with log.open('w') as stream:
             subprocess.run(['bash',str(ROOT/'scripts/architecture-python.sh'),'-m','irloom.neural.driver',
                             '--loomtrace','replay','--name',args.name],cwd=ROOT,stdout=stream,stderr=subprocess.STDOUT,check=True)
-    from .trajectory_learning import train, evaluate
+    from .trajectory_learning import train, evaluate, integration
     if mode in ('train','all'):train(output,config,dataset)
+    if mode in ('audit','all'):integration(output,config,dataset)
     if mode in ('evaluate','all'):evaluate(output,config,dataset)
     print(json.dumps({'loomtrace':str(output),'mode':mode}),flush=True)

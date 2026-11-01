@@ -237,7 +237,7 @@ def main():
     parser.add_argument("--correctness-audit", choices=("isolate", "minimal", "regress", "analyze", "all"), help="C1 fixed-trace correctness and C2 existing-artifact audit; no training")
     parser.add_argument("--compiler-revision", choices=("legacy", "cleanup-positional-v1"), default="legacy", help="explicit isolated whole-program bridge; historical protocols keep legacy")
     parser.add_argument("--recover-data", action="store_true", help="refresh only the 71 frozen Puzzle/DES paths and two root references; no training")
-    parser.add_argument("--loomtrace", choices=("collect", "replay", "train", "evaluate", "all"), help="H1-H3 frozen sequential trajectory pilot; separate rollout-q-v1 supervision")
+    parser.add_argument("--loomtrace", choices=("collect", "replay", "train", "audit", "evaluate", "all"), help="H1-H3 frozen sequential trajectory pilot; separate rollout-q-v1 supervision")
     args = parser.parse_args()
     if args.loomtrace:
         from .trajectory import run

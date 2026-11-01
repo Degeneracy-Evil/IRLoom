@@ -3,6 +3,8 @@ import torch
 from torch import nn
 from .encoder import ACTIONS
 
+COST_VERSIONS = ('stage-q-v1', 'rollout-q-v1')
+
 
 class Heads(nn.Module):
     def __init__(self, hidden, decision_version="policy-v1", role_context=False):
@@ -15,7 +17,7 @@ class Heads(nn.Module):
         if role_context:
             self.role_read = nn.Linear(hidden * 5 + 5, hidden)
         self.decision_version = decision_version
-        if decision_version == "stage-q-v1":
+        if decision_version in COST_VERSIONS:
             self.q = nn.Sequential(nn.Linear(hidden * 3, hidden), nn.GELU(), nn.Linear(hidden, 1))
         elif decision_version != "policy-v1":
             raise ValueError(decision_version)
@@ -28,7 +30,7 @@ class Heads(nn.Module):
         kind = self.actions(torch.tensor([ACTIONS[c["kind"]] for c in candidates]))
         parameters = self.parameter_embedding(torch.tensor([[c["parameters"].get("operand", 0) / 10] for c in candidates]))
         features = torch.cat([target, h[0].expand_as(target), kind + parameters], dim=-1)
-        # Existing controllers maximize score: q has a fixed all-advance
-        # continuation and a common root log-latency reference, so negate it.
-        score = -self.q(features).squeeze(-1) if self.decision_version == "stage-q-v1" else self.rank(features).squeeze(-1)
+        # Both cost protocols maximize negative root-relative log latency;
+        # their continuation semantics and training data remain separate.
+        score = -self.q(features).squeeze(-1) if self.decision_version in COST_VERSIONS else self.rank(features).squeeze(-1)
         return score, self.value(h[0]).squeeze(), self.resource(h[0])

@@ -15,6 +15,10 @@ from .stage_learning import collect, fit
 def load_model(path, history=None):
     checkpoint=torch.load(path,weights_only=True)
     config=dict(checkpoint['config'])
+    if config.get('decision_version') == 'rollout-q-v1':
+        protocol=checkpoint.get('rollout_protocol',{})
+        if protocol.get('compiler_revision')!='cleanup-positional-v1' or protocol.get('behavior_version')!='visible-structural-random-v1' or protocol.get('target')!='log(T_rollout/T_root_default)':
+            raise ValueError('rollout checkpoint lacks matching behavior/compiler/target provenance')
     if history is not None: config['history']=history
     model=(Interleaved if checkpoint['model']=='A' else Recurrent)(**config)
     model.load_state_dict(checkpoint['state_dict']);model.eval()

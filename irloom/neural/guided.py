@@ -10,6 +10,7 @@ from irloom.compiler import CommandError
 from .driver import Session, save
 from .schema import Decision
 from .programs import sample_existing
+from .heads import COST_VERSIONS
 
 
 def execute(session, stage, index, scores=(), value=0.0, resources=()):
@@ -57,7 +58,11 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False, s
         report = complete(baseline, 0)
         incumbent = {'report':str(baseline.output/'report.json'), 'latency_ms':report['median_latency_ms'], 'role':'default'}
     active, terminals = [(0.0,root)], ([incumbent] if incumbent else [])
-    is_q = getattr(model.heads, 'decision_version', 'policy-v1') == 'stage-q-v1'
+    decision_version = getattr(model.heads, 'decision_version', 'policy-v1')
+    is_q = decision_version in COST_VERSIONS
+    if decision_version == 'rollout-q-v1':
+        from .data_recovery import check_compiler
+        check_compiler(root)
     for stage_index,stage in enumerate(root.manifest['stages']):
         expanded=[]
         for parent_score,parent in active:
@@ -69,6 +74,7 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False, s
                     raise RuntimeError('nonfinite guidance')
                 ranking=scores.argsort(descending=True,stable=True).tolist()
                 row={'stage':stage['id'],'parent':parent.branch,'advance_rank':ranking.index(0)+1,
+                     'decision_version':decision_version, 'parent_guidance':parent_score,
                      'ranking':ranking,'scores':scores.tolist(),'candidates':observation.graph['candidates'],
                      'scorer':'negative root-normalized log latency' if is_q else 'cumulative policy log probability'}
                 traces.append(row)
@@ -89,7 +95,8 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False, s
                     except (CommandError,RuntimeError) as error:
                         failures.append({'branch':child.branch,'error':str(error)}); continue
                     # S2 is observation-only and has no trained action-value label.
-                    score=(float(scores[index]) if len(ranking)>1 else parent_score) if is_q else parent_score+float(scores.log_softmax(0)[index])
+                    trained_cost_stage = stage['id'] in ('S0','S1') if decision_version=='rollout-q-v1' else len(ranking)>1
+                    score=(float(scores[index]) if trained_cost_stage else parent_score) if is_q else parent_score+float(scores.log_softmax(0)[index])
                     expanded.append((score,child)); admitted+=1
                     if admitted==width: break
             except (CommandError,RuntimeError) as error:
@@ -135,7 +142,7 @@ def guided(name, program, model, budget, mode='guarded', inject_failure=False, s
     for row in terminals:
         binary=session_for(row).output/'program'
         if not any(binary.read_bytes()==p.read_bytes() for p in distinct): distinct.append(binary)
-    result={'program':program,'mode':mode,'scorer':'stage-q-v1' if is_q else 'policy-v1', 'budget':budget,
+    result={'program':program,'mode':mode,'scorer':decision_version, 'budget':budget,
             'selected':chosen,'terminals':terminals,'actual_terminals':len(terminals),'distinct_executables':len(distinct),
             'attempts':attempts,'default_paid':incumbent is not None,'fallback_to_default':chosen is incumbent,
             'traces':traces,'failures':failures,'confirmation':confirmed,
